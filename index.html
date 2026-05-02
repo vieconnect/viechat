@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VieChat</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <style>
+        :root { --primary: #0084ff; --bg: #f0f2f5; --text: #1c1e21; --light-gray: #e4e6eb; --danger: #f02849; --success: #42b72a; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; color: var(--text); }
+        .app-container { width: 98%; max-width: 1200px; height: 95vh; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; overflow: hidden; }
+        
+        /* Sidebar */
+        .sidebar { width: 350px; border-right: 1px solid #eee; display: flex; flex-direction: column; background: #fff; }
+        .user-profile { padding: 15px; border-bottom: 1px solid #eee; background: #f8f9fa; }
+        .profile-actions { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+        .profile-actions button { font-size: 10px; padding: 6px; flex: 1 1 30%; cursor: pointer; border: 1px solid #ddd; border-radius: 4px; background: white; transition: 0.2s; }
+        .profile-actions button:hover { background: #f0f0f0; }
+        
+        .search-box { padding: 15px; border-bottom: 1px solid #eee; display: flex; gap: 5px; }
+        .search-box input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+        .search-btn { background: var(--primary); color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        .list-container { flex: 1; overflow-y: auto; }
+        .section-title { font-size: 11px; font-weight: bold; padding: 10px 15px; color: #65676b; background: #f0f2f5; letter-spacing: 0.5px; }
+        
+        .item { padding: 12px 15px; border-bottom: 1px solid #f0f2f5; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: 0.2s; }
+        .item:hover { background: #f0f7ff; }
+        .item.active { background: #e7f3ff; border-left: 4px solid var(--primary); }
+        .btn-group { display: flex; gap: 4px; }
+        .btn-icon { padding: 5px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: white; }
+
+        /* Chat Area */
+        .chat-window { flex: 1; display: flex; flex-direction: column; background: #fff; position: relative; }
+        #chat-header { padding: 15px 20px; border-bottom: 1px solid #eee; font-weight: 600; display: flex; align-items: center; justify-content: space-between; min-height: 60px; box-sizing: border-box; }
+        #chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #f9f9f9; }
+        
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 75%; position: relative; }
+        .msg-wrapper.sent { align-self: flex-end; align-items: flex-end; }
+        .msg-wrapper.received { align-self: flex-start; align-items: flex-start; }
+        .msg-bubble { padding: 10px 15px; border-radius: 18px; font-size: 14px; position: relative; word-wrap: break-word; }
+        .sent .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
+        .received .msg-bubble { background: var(--light-gray); color: var(--text); border-bottom-left-radius: 4px; }
+        
+        .msg-ops { font-size: 10px; color: #999; margin-top: 4px; cursor: pointer; display: none; }
+        .msg-wrapper:hover .msg-ops { display: block; }
+
+        .status-banner { padding: 15px; text-align: center; font-size: 13px; display: none; flex-direction: column; align-items: center; gap: 8px; border-top: 1px solid #ddd; }
+        .banner-red { background: #fff1f0; color: #cf1322; }
+        .banner-gray { background: #f5f5f5; color: #595959; }
+
+        .input-area { padding: 15px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 10px; }
+        #message-input { flex: 1; border-radius: 20px; padding: 10px 15px; border: 1px solid #ddd; outline: none; }
+        #main-app { display: none; width: 100%; height: 100%; }
+        .home-btn { background: var(--primary); color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        
+        .search-result-item { padding: 10px; background: #f0f7ff; border-radius: 8px; margin: 10px; text-align: center; border: 1px dashed var(--primary); }
+    </style>
+</head>
+<body>
+        <!-- Màn hình Đăng nhập/Đăng ký -->
+        <div id="auth-screen">
+    <!-- Thẻ cha vẫn giữ text-align: center để căn giữa toàn bộ form và các tiêu đề -->
+    <div style="width: 320px; text-align: center; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);">
+        <h1 style="color: var(--primary); margin: 0 0 10px 0;">VieChat</h1>
+        <p style="font-size: 14px; color: #666; margin-bottom: 25px;">Kết nối xã hội - Vững bước tương lai</p>
+        
+        <div id="login-form">
+            <!-- Thêm style display: block và text-align: left cho label -->
+            <label for="email" style="display: block; text-align: left; font-size: 14px; font-weight: 600; color: #444; margin-bottom: 2px;">Email</label>
+            <input type="email" id="email" placeholder="example@personal.com" style="width:100%; padding:12px; margin:0 0 15px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+            
+            <label for="password" style="display: block; text-align: left; font-size: 14px; font-weight: 600; color: #444; margin-bottom: 2px;">Mật khẩu</label>
+            <input type="password" id="password" placeholder="Mật khẩu" style="width:100%; padding:12px; margin:0 0 15px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+            
+            <button onclick="handleAuth('login')" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; margin-top:10px; cursor:pointer; border-radius:6px; font-weight:bold;">Đăng nhập</button>
+            <p style="font-size: 13px; color: #666; margin-top: 15px;">Chưa có tài khoản? <a href="javascript:void(0)" onclick="toggleAuth(true)" style="color:var(--primary); text-decoration:none; font-weight:bold;">Đăng ký ngay</a></p>
+        </div>
+
+        <div id="signup-form" style="display: none;">
+            <!-- Áp dụng tương tự cho phần đăng ký nếu bạn thêm label vào sau này -->
+             <label for="signup-name" style="display: block; text-align: left; font-size: 14px; font-weight: 600; color: #444; margin-bottom: 2px;">Họ và tên</label>
+            <input type="text" id="signup-name" placeholder="Nguyễn Văn A" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+            <label for="signup-email" style="display: block; text-align: left; font-size: 14px; font-weight: 600; color: #444; margin-bottom: 2px;">Email</label>
+            <input type="email" id="signup-email" placeholder="Email đăng ký" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+            <label for="signup-password" style="display: block; text-align: left; font-size: 14px; font-weight: 600; color: #444; margin-bottom: 2px;">Mật khẩu</label>
+            <input type="password" id="signup-password" placeholder="Mật khẩu (6+ ký tự)" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+            <button onclick="handleAuth('signup')" style="width:100%; padding:12px; background:var(--success); color:white; border:none; margin-top:10px; cursor:pointer; border-radius:6px; font-weight:bold;">Tạo tài khoản</button>
+            <p style="font-size: 13px; color: #666; margin-top: 15px;">Đã có tài khoản? <a href="javascript:void(0)" onclick="toggleAuth(false)" style="color:var(--primary); text-decoration:none; font-weight:bold;">Đăng nhập</a></p>
+        </div>
+
+        <div style="overflow: hidden; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px;">
+            <div style="float: left; font-size: 10px; color: #bbb;">&copy; 2026 VieConnect Technology</div>
+            <div style="float: right; font-size: 10px; color: #999;">v2.34.3</div>
+        </div>
+    </div>
+</div>
+        <!-- Ứng dụng chính -->
+        <div id="main-app">
+            <div class="sidebar">
+                <div class="user-profile">
+                    <div id="my-name" style="font-weight: bold; color: var(--primary); font-size: 16px;">Đang tải...</div>
+                    <div id="my-email" style="font-size: 11px; color: #666;"></div>
+                    <div class="profile-actions">
+                        <button onclick="changeName()">Đổi tên</button>
+                        <button onclick="changePass()">Đổi mật khẩu</button>
+                        <button onclick="delAcc()" style="color: var(--danger);">Xóa tài khoản</button>
+                        <button onclick="logout()">Đăng xuất</button>
+                    </div>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Tìm bạn qua email...">
+                    <button class="search-btn" onclick="findUser()">🔍</button>
+                </div>
+                <div id="search-result"></div>
+                
+                <div class="list-container">
+                    <div class="section-title">LỜI MỜI KẾT BẠN</div><div id="incoming-list"></div>
+                    <div class="section-title">YÊU CẦU ĐÃ GỬI</div><div id="outgoing-list"></div>
+                    <div class="section-title">DANH SÁCH BẠN BÈ</div><div id="friend-list"></div>
+                </div>
+            </div>
+
+            <div class="chat-window">
+                <div id="chat-header">
+                    <span id="header-text">Chọn một cuộc trò chuyện</span>
+                    <button id="home-btn-header" class="home-btn" style="display:none;" onclick="goHome()">Trở về</button>
+                </div>
+                
+                <div id="chat-messages">
+                    <div style="margin: auto; text-align: center; color: #999;">
+                        <p>Chào mừng bạn đến với VieConnect!</p>
+                        <small>Hãy tìm kiếm bạn bè để bắt đầu trò chuyện.</small>
+                    </div>
+                </div>
+                
+                <!-- Thông báo trạng thái -->
+                <div id="block-banner" class="status-banner banner-red"></div>
+                <div id="deleted-banner" class="status-banner banner-gray">
+                    <span>Tài khoản này không tồn tại.</span>
+                    <button class="home-btn" onclick="goHome()">Đóng chat</button>
+                </div>
+
+                <!-- Khu vực nhập tin nhắn -->
+                <div class="input-area" id="input-container" style="display:none;">
+                    <input type="text" id="message-input" placeholder="Nhập nội dung tin nhắn..." onkeypress="if(event.key==='Enter') sendMessage()">
+                    <button onclick="sendMessage()" style="padding: 8px 20px; background:var(--primary); color:white; border:none; border-radius:20px; cursor:pointer; font-weight: 500;">Gửi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="modal fade" id="lockAccountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title fw-bold">⚠️ ĐĂNG NHẬP BỊ HẠN CHẾ</h5>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-center text-muted mb-4">Hệ thống ghi nhận vi phạm và đã tạm dừng quyền truy cập của tài khoản này.</p>
+                
+                <div class="table-responsive">
+                    <table class="table table-sm table-borderless">
+                        <tbody>
+                            <tr>
+                            <th class="text-secondary">Tên:</th>
+                                <td id="displayName" class="fw-bold">---</td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary" style="width: 40%;">ID:</th>
+                                <td id="displayLockID" class="fw-bold text-dark">---</td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary">Lý do:</th>
+                                <td id="displayLockReason" class="text-danger">---</td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary">Bắt đầu:</th>
+                                <td id="displayLockStart">---</td>
+                            </tr>
+                            <tr>
+                                <th class="text-secondary">Thời gian hạn chế:</th>
+                                <td id="displayLockDuration" class="fw-bold">---</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert alert-light border mt-3 small">
+                    Mọi thắc mắc vui lòng liên hệ bộ phận hỗ trợ VieConnect để được giải quyết<br>
+                    <a href="https://vieconnect.tawk.help/">Truy cập trang hỗ trợ của VieConnect</a><br>
+                    <a href="/dieu-khoan-su-dung.html" target="_blank">Xem điều khoản sử dụng của VieConnect</a>
+                </div>
+                <center><button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal" style="border-radius: 50px;">Đã hiểu</button></center>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, push, onValue, serverTimestamp, query, orderByChild, equalTo, get, remove, off, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCXSoUXXSJK6n3iX9Sktqb7NsPL46sJBD0",
+            authDomain: "comment-anonymous.firebaseapp.com",
+            databaseURL: "https://comment-anonymous-default-rtdb.firebaseio.com",
+            projectId: "comment-anonymous",
+            storageBucket: "comment-anonymous.appspot.com",
+            messagingSenderId: "305645030498",
+            appId: "1:305645030498:web:102c539ed4ff19d2bf953b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let currentUser = null, activeChatId = null;
+        let activeListeners = []; 
+
+        // Khởi tạo Modal Bootstrap
+        const lockModalElement = document.getElementById('lockAccountModal');
+        const lockModal = new bootstrap.Modal(lockModalElement);
+
+        // Hàm hiển thị Modal khóa với dữ liệu động
+        window.showLockInfo = (data) => {
+            document.getElementById('displayName').innerText = data.name || "Người dùng";
+            document.getElementById('displayLockID').innerText = data.id || "---";
+            document.getElementById('displayLockReason').innerText = data.reason || "Vi phạm chính sách cộng đồng";
+            document.getElementById('displayLockStart').innerText = data.start || "Vừa xong";
+            document.getElementById('displayLockDuration').innerText = data.duration || "Vĩnh viễn";
+            lockModal.show();
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                
+                // Kiểm tra trạng thái khóa ngay khi đăng nhập hoặc dữ liệu thay đổi
+                const userRef = ref(db, `users/${user.uid}`);
+                onValue(userRef, (snap) => {
+                    const data = snap.val();
+                    if(data) {
+                        // Logic kiểm tra khóa tài khoản
+                        if(data.isLocked === true || data.isLocked === "true") {
+                            // Lưu thông tin trước khi logout
+                            const lockData = {
+                                name: data.name,
+                                id: user.uid.substring(0, 8).toUpperCase(),
+                                reason: data.lockReason,
+                                start: data.lockStart,
+                                duration: data.lockDuration
+                            };
+                            
+                            // Đăng xuất và hiện thông báo
+                            signOut(auth).then(() => {
+                                window.showLockInfo(lockData);
+                            });
+                            return; // Dừng xử lý tiếp theo
+                        }
+
+                        // Nếu không khóa thì hiển thị app bình thường
+                        document.getElementById('auth-screen').style.display = 'none';
+                        document.getElementById('main-app').style.display = 'flex';
+                        document.getElementById('my-email').innerText = user.email;
+                        document.getElementById('my-name').innerText = data.name || "Người dùng";
+                        syncLists();
+                    }
+                });
+            } else {
+                cleanupListeners();
+                currentUser = null;
+                document.getElementById('auth-screen').style.display = 'flex';
+                document.getElementById('main-app').style.display = 'none';
+                goHome();
+            }
+        });
+
+        // --- Các hàm xử lý Auth và Chat giữ nguyên như cũ ---
+        function cleanupListeners() {
+            activeListeners.forEach(path => off(ref(db, path)));
+            activeListeners = [];
+        }
+
+        window.toggleAuth = (isSignup) => {
+            document.getElementById('login-form').style.display = isSignup ? 'none' : 'block';
+            document.getElementById('signup-form').style.display = isSignup ? 'block' : 'none';
+        };
+
+        window.handleAuth = async (type) => {
+            const email = document.getElementById(type === 'signup' ? 'signup-email' : 'email').value.trim();
+            const pass = document.getElementById(type === 'signup' ? 'signup-password' : 'password').value;
+            const name = type === 'signup' ? document.getElementById('signup-name').value.trim() : null;
+            if (!email || !pass || (type === 'signup' && !name)) return alert("Vui lòng điền đầy đủ thông tin!");
+            try {
+                if (type === 'signup') {
+                    const res = await createUserWithEmailAndPassword(auth, email, pass);
+                    await set(ref(db, `users/${res.user.uid}`), { 
+                        email: email.toLowerCase(), 
+                        name: name,
+                isLocked: false, // Mặc định là không khóa
+                lockReason: "", // Admin có thể sửa lại sau
+                lockStart: "", // Admin sẽ điền thời gian khi thực hiện khóa
+                lockDuration: "Vĩnh viễn", // Admin có thể sửa thành "7 ngày", "24h", v.v.
+                    });
+                    alert("Đăng ký thành công!"); window.toggleAuth(false);
+                } else {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                }
+            } catch (e) { alert("Lỗi: " + e.message); }
+        };
+
+        window.findUser = async () => {
+            const email = document.getElementById('search-input').value.trim().toLowerCase();
+            const resBox = document.getElementById('search-result');
+            resBox.innerHTML = "";
+            if (!email || email === currentUser.email) return;
+
+            const q = query(ref(db, 'users'), orderByChild('email'), equalTo(email));
+            const snap = await get(q);
+            
+            if (snap.exists()) {
+                const targetUid = Object.keys(snap.val())[0];
+                const targetData = snap.val()[targetUid];
+                const statusSnap = await get(ref(db, `friend_status/${currentUser.uid}/${targetUid}`));
+                const currentStatus = statusSnap.val();
+
+                let statusNote = "", buttonHtml = "";
+                if (currentStatus === "accepted") {
+                    statusNote = "<span style='color:var(--success); font-size:11px;'>Đã là bạn bè</span>";
+                    buttonHtml = `<button disabled style="background:#ccc; border:none; padding:5px 15px; border-radius:4px; color:white;">Đã kết bạn</button>`;
+                } else if (currentStatus === "outgoing") {
+                    statusNote = "<span style='color:var(--primary); font-size:11px;'>Chờ đối phương xác nhận...</span>";
+                    buttonHtml = `<button disabled style="background:#ccc; border:none; padding:5px 15px; border-radius:4px; color:white;">Đang chờ</button>`;
+                } else {
+                    buttonHtml = `<button onclick="sendFriendRequest('${targetUid}')" style="background:var(--success); color:white; border:none; padding:5px 15px; border-radius:4px; cursor:pointer;">Gửi lời mời</button>`;
+                }
+
+                resBox.innerHTML = `<div class="search-result-item"><strong>${targetData.name}</strong><br><small>${targetData.email}</small><div style="margin:5px 0">${statusNote}</div>${buttonHtml}</div>`;
+            } else alert("Không tìm thấy người dùng này!");
+        };
+
+        window.sendFriendRequest = async (targetUid) => {
+            await set(ref(db, `friend_status/${currentUser.uid}/${targetUid}`), "outgoing");
+            await set(ref(db, `friend_status/${targetUid}/${currentUser.uid}`), "incoming");
+            document.getElementById('search-result').innerHTML = "";
+            document.getElementById('search-input').value = "";
+            alert("Đã gửi yêu cầu kết bạn!");
+        };
+
+        window.updateStatus = async (uid, status) => {
+            const myPath = `friend_status/${currentUser.uid}/${uid}`;
+            const theirPath = `friend_status/${uid}/${currentUser.uid}`;
+            if (status === 'accepted') {
+                await update(ref(db), { [myPath]: "accepted", [theirPath]: "accepted" });
+            } else if (status === 'blocked') {
+                await set(ref(db, myPath), "blocked");
+            } else if (status === 'unblock') {
+                await set(ref(db, myPath), "accepted");
+            } else if (['remove', 'reject', 'cancel'].includes(status)) {
+                if (confirm("Bạn chắc chắn chứ?")) {
+                    await remove(ref(db, myPath));
+                    await remove(ref(db, theirPath));
+                    if(activeChatId && activeChatId.includes(uid)) goHome();
+                }
+            }
+        };
+
+        // Hàm tối ưu để render danh sách mà không bị lặp item
+        function syncLists() {
+            const statusRef = ref(db, `friend_status/${currentUser.uid}`);
+            onValue(statusRef, (snap) => {
+                // Xóa trắng toàn bộ trước khi vẽ lại để tránh trùng lặp
+                document.getElementById('incoming-list').innerHTML = "";
+                document.getElementById('outgoing-list').innerHTML = "";
+                document.getElementById('friend-list').innerHTML = "";
+
+                if (!snap.exists()) return;
+
+                snap.forEach((child) => {
+                    const status = child.val();
+                    const uid = child.key;
+                    
+                    onValue(ref(db, `users/${uid}`), (u) => {
+                        if (!u.exists()) return;
+                        const data = u.val();
+                        
+                        let containerId = "";
+                        if (status === 'incoming') containerId = 'incoming-list';
+                        else if (status === 'outgoing') containerId = 'outgoing-list';
+                        else if (status === 'accepted' || status === 'blocked') containerId = 'friend-list';
+
+                        if (!containerId) return;
+
+                        // Kiểm tra xem item đã tồn tại chưa để tránh lặp khi data user đổi (ví dụ đổi tên)
+                        const oldItem = document.getElementById(`item-${uid}`);
+                        if (oldItem) oldItem.remove();
+
+                        const div = document.createElement('div');
+                        div.id = `item-${uid}`;
+                        div.className = `item ${activeChatId && activeChatId.includes(uid) ? 'active' : ''}`;
+                        
+                        let actions = '';
+                        if(status === 'incoming') actions = `<button class="btn-icon" style="background:var(--success)" onclick="event.stopPropagation();updateStatus('${uid}','accepted')">✔</button><button class="btn-icon" style="background:var(--danger)" onclick="event.stopPropagation();updateStatus('${uid}','reject')">✖</button>`;
+                        else if(status === 'outgoing') actions = `<button class="btn-icon" style="background:#888" onclick="event.stopPropagation();updateStatus('${uid}','cancel')">Hủy</button>`;
+                        else if(status === 'accepted') actions = `<button class="btn-icon" style="background:#ddd;color:black" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button><button class="btn-icon" style="background:var(--danger)" onclick="event.stopPropagation();updateStatus('${uid}','remove')">🗑</button>`;
+                        else if(status === 'blocked') actions = `<button class="btn-icon" style="background:var(--primary)" onclick="event.stopPropagation();updateStatus('${uid}','unblock')">Mở chặn</button>`;
+                        
+                        div.innerHTML = `<div><strong>${data.name}</strong><br><small>${data.email}</small></div><div class="btn-group">${actions}</div>`;
+                        div.onclick = () => openChat(uid, data.name, div);
+                        document.getElementById(containerId).appendChild(div);
+                    });
+                });
+            });
+        }
+
+        window.openChat = (uid, name, el) => {
+            document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById('header-text').innerText = name;
+            document.getElementById('home-btn-header').style.display = 'block';
+
+            onValue(ref(db, `users/${uid}`), (uSnap) => {
+                const delB = document.getElementById('deleted-banner'), input = document.getElementById('input-container');
+                if (!uSnap.exists()) {
+                    delB.style.display = 'flex'; input.style.display = 'none';
+                } else {
+                    delB.style.display = 'none';
+                    onValue(ref(db, `friend_status`), (fsSnap) => {
+                        const myS = fsSnap.child(currentUser.uid).child(uid).val();
+                        const theirS = fsSnap.child(uid).child(currentUser.uid).val();
+                        const blockB = document.getElementById('block-banner');
+                        if (myS === 'blocked' || theirS === 'blocked') {
+                            blockB.style.display = 'flex';
+                            blockB.innerHTML = myS === 'blocked' ? `Bạn đang chặn người này <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` : `Bạn hiện không thể liên lạc với người này qua VieChat`;
+                            input.style.display = 'none';
+                        } else {
+                            blockB.style.display = 'none'; input.style.display = 'flex';
+                        }
+                    });
+                }
+            });
+
+            if(activeChatId) off(ref(db, `messages/${activeChatId}`));
+            activeChatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+            
+            onValue(ref(db, `messages/${activeChatId}`), (s) => {
+                const box = document.getElementById('chat-messages'); box.innerHTML = "";
+                s.forEach(m => {
+                    const msg = m.val(), mid = m.key;
+                    if (msg.deletedBy && msg.deletedBy[currentUser.uid]) return;
+
+                    const d = document.createElement('div');
+                    d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
+                    let content = msg.revoked ? `<i style="color:#aaa">Tin nhắn đã bị thu hồi</i>` : msg.text;
+                    let ops = "";
+                    if (msg.sender === currentUser.uid && !msg.revoked) {
+                        ops = `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>`;
+                    } else if (!msg.revoked) {
+                        ops = `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>`;
+                    }
+                    d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`;
+                    box.appendChild(d);
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        };
+
+        window.revokeMsg = (mid) => {
+            if(confirm("Thu hồi tin nhắn với tất cả mọi người?")) {
+                update(ref(db, `messages/${activeChatId}/${mid}`), { revoked: true });
+            }
+        };
+
+        window.deleteMsg = (mid) => {
+            if(confirm("Xóa tin nhắn này ở phía bạn?")) {
+                update(ref(db, `messages/${activeChatId}/${mid}/deletedBy`), { [currentUser.uid]: true });
+            }
+        };
+
+        window.sendMessage = () => {
+            const input = document.getElementById('message-input');
+            if(!input.value.trim() || !activeChatId) return;
+            push(ref(db, `messages/${activeChatId}`), { 
+                sender: currentUser.uid, 
+                text: input.value, 
+                timestamp: serverTimestamp(),
+                revoked: false
+            });
+            input.value = "";
+        };
+
+        window.goHome = () => {
+            if(activeChatId) off(ref(db, `messages/${activeChatId}`));
+            activeChatId = null;
+            document.getElementById('header-text').innerText = "Chọn một cuộc trò chuyện";
+            document.getElementById('home-btn-header').style.display = 'none';
+            document.getElementById('chat-messages').innerHTML = `<div style="margin: auto; text-align: center; color: #999;"><p>Hãy chọn một người bạn để nhắn tin</p></div>`;
+            document.getElementById('input-container').style.display = 'none';
+            document.getElementById('block-banner').style.display = 'none';
+            document.getElementById('deleted-banner').style.display = 'none';
+            document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+        };
+
+        window.logout = () => signOut(auth);
+        
+        window.changePass = () => {
+            const p = prompt("Nhập mật khẩu mới (tối thiểu 6 ký tự):");
+            if(p && p.length >= 6) updatePassword(currentUser, p).then(()=>alert("Đổi mật khẩu thành công!")).catch(e => alert(e.message));
+        };
+
+        window.delAcc = async () => {
+            if (confirm("CẢNH BÁO: Tài khoản và dữ liệu sẽ bị xóa vĩnh viễn. Bạn chắc chắn chứ?")) {
+                try {
+                    await remove(ref(db, `users/${currentUser.uid}`));
+                    await deleteUser(currentUser);
+                } catch (e) { alert("Lỗi bảo mật: Vui lòng đăng nhập lại trước khi xóa tài khoản."); }
+            }
+        };
+    </script>
+</body>
+</html>
