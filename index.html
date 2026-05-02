@@ -310,6 +310,14 @@
             } catch (e) { alert("Lỗi: " + e.message); }
         };
 
+    window.changeName = async () => {
+            const newName = prompt("Nhập họ tên mới mà bạn muốn hiển thị:");
+            if (newName && newName.trim()) {
+                await update(ref(db, `users/${currentUser.uid}`), { name: newName.trim() });
+                alert("Đã cập nhật tên thành công!");
+            }
+        };
+        
         window.findUser = async () => {
             const email = document.getElementById('search-input').value.trim().toLowerCase();
             const resBox = document.getElementById('search-result');
