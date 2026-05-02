@@ -486,7 +486,7 @@ document.getElementById('delete-history-btn').style.display = 'inline-block';
             if (myS === 'blocked' || theirS === 'blocked') {
                 blockB.style.display = 'flex';
                 blockB.innerHTML = myS === 'blocked' 
-                    ? `Bạn đang chặn người này <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` 
+                    ? `Bạn đang chặn người này <br> Hai bạn sẽ không thể nói chuyện với nhau trừ khi đối phương bỏ chặn người còn lại <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` 
                     : `Bạn hiện không thể liên lạc với người này qua VieChat`;
                 input.style.display = 'none';
             } else {
@@ -577,12 +577,18 @@ document.getElementById('delete-history-btn').style.display = 'inline-block';
         // Hàm xóa toàn bộ tin nhắn trong cuộc trò chuyện hiện tại
 window.clearChatHistory = async () => {
     if (!activeChatId) return;
-    if (confirm("Bạn có chắc chắn muốn xóa VĨNH VIỄN toàn bộ lịch sử tin nhắn của cuộc trò chuyện này cho cả 2 người?")) {
+    if (confirm("Bạn có chắc chắn muốn xóa lịch sử trò chuyện ở phía bạn? Đối phương vẫn sẽ thấy nội dung này.")) {
         try {
-            await remove(ref(db, `messages/${activeChatId}`));
-            alert("Đã xóa toàn bộ lịch sử trò chuyện.");
+            // Lưu mốc thời gian hiện tại vào node riêng của người dùng
+            // Mục đích: Chỉ hiển thị những tin nhắn gửi SAU mốc thời gian này
+            const now = Date.now();
+            await set(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), now);
+            
+            // Xóa nội dung hiển thị tạm thời trên màn hình
+            document.getElementById('chat-messages').innerHTML = "";
+            alert("Đã xóa lịch sử trò chuyện phía bạn.");
         } catch (e) {
-            alert("Lỗi khi xóa: " + e.message);
+            alert("Lỗi: " + e.message);
         }
     }
 };
