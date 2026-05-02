@@ -122,9 +122,13 @@
 
             <div class="chat-window">
                 <div id="chat-header">
-                    <span id="header-text">Chọn một cuộc trò chuyện</span>
-                    <button id="home-btn-header" class="home-btn" style="display:none;" onclick="goHome()">Trở về</button>
-                </div>
+    <div>
+        <span id="header-text">Chọn một cuộc trò chuyện</span>
+        <!-- Nút xóa lịch sử mới -->
+        <button id="delete-history-btn" class="btn-icon" style="display:none; background:var(--danger); margin-left:10px; font-size:10px;" onclick="clearChatHistory()">Xóa lịch sử</button>
+    </div>
+    <button id="home-btn-header" class="home-btn" style="display:none;" onclick="goHome()">Trở về</button>
+</div>
                 
                 <div id="chat-messages">
                     <div style="margin: auto; text-align: center; color: #999;">
@@ -137,6 +141,11 @@
                 <div id="block-banner" class="status-banner banner-red"></div>
                 <div id="deleted-banner" class="status-banner banner-gray">
                     <span>Tài khoản này không tồn tại.</span>
+                    <button class="home-btn" onclick="goHome()">Đóng chat</button>
+                </div>
+
+                <div id="banned-banner" class="status-banner banner-gray">
+                    <span>Tài khoản này hiện đang bị cấm và chưa thể truy cập vào đoạn hội thoại này.</span>
                     <button class="home-btn" onclick="goHome()">Đóng chat</button>
                 </div>
 
@@ -357,22 +366,32 @@
         };
 
         window.updateStatus = async (uid, status) => {
-            const myPath = `friend_status/${currentUser.uid}/${uid}`;
-            const theirPath = `friend_status/${uid}/${currentUser.uid}`;
-            if (status === 'accepted') {
-                await update(ref(db), { [myPath]: "accepted", [theirPath]: "accepted" });
-            } else if (status === 'blocked') {
-                await set(ref(db, myPath), "blocked");
-            } else if (status === 'unblock') {
-                await set(ref(db, myPath), "accepted");
-            } else if (['remove', 'reject', 'cancel'].includes(status)) {
-                if (confirm("Bạn chắc chắn chứ?")) {
-                    await remove(ref(db, myPath));
-                    await remove(ref(db, theirPath));
-                    if(activeChatId && activeChatId.includes(uid)) goHome();
-                }
-            }
-        };
+    const myPath = `friend_status/${currentUser.uid}/${uid}`;
+    const theirPath = `friend_status/${uid}/${currentUser.uid}`;
+    
+    if (status === 'accepted') {
+        await update(ref(db), { [myPath]: "accepted", [theirPath]: "accepted" });
+    } else if (status === 'blocked') {
+        await set(ref(db, myPath), "blocked");
+    } else if (status === 'unblock') {
+        await set(ref(db, myPath), "accepted");
+    } else if (['remove', 'reject', 'cancel'].includes(status)) {
+        let confirmMsg = "Bạn chắc chắn muốn hủy kết bạn?";
+        if (status === 'remove') confirmMsg = "Hủy kết bạn sẽ xóa toàn bộ tin nhắn giữa 2 người. Bạn chắc chắn chứ?";
+        
+        if (confirm(confirmMsg)) {
+            // 1. Xóa trạng thái bạn bè
+            await remove(ref(db, myPath));
+            await remove(ref(db, theirPath));
+            
+            // 2. Xóa lịch sử tin nhắn nếu là Hủy kết bạn (remove) hoặc từ chối (reject)
+            await silentClearHistory(currentUser.uid, uid);
+            
+            // 3. Quay về màn hình chính nếu đang chat với người đó
+            if(activeChatId && activeChatId.includes(uid)) goHome();
+        }
+    }
+};
 
         // Hàm tối ưu để render danh sách mà không bị lặp item
         function syncLists() {
@@ -422,58 +441,85 @@
             });
         }
 
-        window.openChat = (uid, name, el) => {
-            document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById('header-text').innerText = name;
-            document.getElementById('home-btn-header').style.display = 'block';
+    window.openChat = (uid, name, el) => {
+    document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('header-text').innerText = name;
+    document.getElementById('home-btn-header').style.display = 'block';
+document.getElementById('delete-history-btn').style.display = 'inline-block';
+    // Xóa các listener cũ của các banner để tránh chồng chéo dữ liệu
+    const delB = document.getElementById('deleted-banner');
+    const banB = document.getElementById('banned-banner');
+    const blockB = document.getElementById('block-banner');
+    const input = document.getElementById('input-container');
 
-            onValue(ref(db, `users/${uid}`), (uSnap) => {
-                const delB = document.getElementById('deleted-banner'), input = document.getElementById('input-container');
-                if (!uSnap.exists()) {
-                    delB.style.display = 'flex'; input.style.display = 'none';
-                } else {
-                    delB.style.display = 'none';
-                    onValue(ref(db, `friend_status`), (fsSnap) => {
-                        const myS = fsSnap.child(currentUser.uid).child(uid).val();
-                        const theirS = fsSnap.child(uid).child(currentUser.uid).val();
-                        const blockB = document.getElementById('block-banner');
-                        if (myS === 'blocked' || theirS === 'blocked') {
-                            blockB.style.display = 'flex';
-                            blockB.innerHTML = myS === 'blocked' ? `Bạn đang chặn người này <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` : `Bạn hiện không thể liên lạc với người này qua VieChat`;
-                            input.style.display = 'none';
-                        } else {
-                            blockB.style.display = 'none'; input.style.display = 'flex';
-                        }
-                    });
-                }
-            });
+    // Lắng nghe dữ liệu người dùng (đối phương)
+    onValue(ref(db, `users/${uid}`), (uSnap) => {
+        const userData = uSnap.val();
+        
+        // 1. Kiểm tra nếu tài khoản không tồn tại (Bị xóa)
+        if (!uSnap.exists()) {
+            delB.style.display = 'flex';
+            banB.style.display = 'none';
+            blockB.style.display = 'none';
+            input.style.display = 'none';
+            return;
+        }
 
-            if(activeChatId) off(ref(db, `messages/${activeChatId}`));
-            activeChatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+        // 2. Kiểm tra nếu tài khoản đối phương bị Banned (isLocked)
+        if (userData.isLocked === true || userData.isLocked === "true") {
+            banB.style.display = 'flex'; // Hiện banner Banned
+            delB.style.display = 'none';
+            blockB.style.display = 'none';
+            input.style.display = 'none'; // Ẩn ô nhập tin nhắn
+            return;
+        }
+
+        // 3. Nếu tài khoản bình thường, kiểm tra tiếp Chặn (Block)
+        banB.style.display = 'none';
+        delB.style.display = 'none';
+
+        onValue(ref(db, `friend_status`), (fsSnap) => {
+            const myS = fsSnap.child(currentUser.uid).child(uid).val();
+            const theirS = fsSnap.child(uid).child(currentUser.uid).val();
             
-            onValue(ref(db, `messages/${activeChatId}`), (s) => {
-                const box = document.getElementById('chat-messages'); box.innerHTML = "";
-                s.forEach(m => {
-                    const msg = m.val(), mid = m.key;
-                    if (msg.deletedBy && msg.deletedBy[currentUser.uid]) return;
+            if (myS === 'blocked' || theirS === 'blocked') {
+                blockB.style.display = 'flex';
+                blockB.innerHTML = myS === 'blocked' 
+                    ? `Bạn đang chặn người này <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` 
+                    : `Bạn hiện không thể liên lạc với người này qua VieChat`;
+                input.style.display = 'none';
+            } else {
+                blockB.style.display = 'none';
+                input.style.display = 'flex';
+            }
+        });
+    });
 
-                    const d = document.createElement('div');
-                    d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
-                    let content = msg.revoked ? `<i style="color:#aaa">Tin nhắn đã bị thu hồi</i>` : msg.text;
-                    let ops = "";
-                    if (msg.sender === currentUser.uid && !msg.revoked) {
-                        ops = `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>`;
-                    } else if (!msg.revoked) {
-                        ops = `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>`;
-                    }
-                    d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`;
-                    box.appendChild(d);
-                });
-                box.scrollTop = box.scrollHeight;
-            });
-        };
-
+    // --- Logic hiển thị tin nhắn (giữ nguyên của bạn) ---
+    if(activeChatId) off(ref(db, `messages/${activeChatId}`));
+    activeChatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+    
+    onValue(ref(db, `messages/${activeChatId}`), (s) => {
+        const box = document.getElementById('chat-messages'); box.innerHTML = "";
+        s.forEach(m => {
+            const msg = m.val(), mid = m.key;
+            if (msg.deletedBy && msg.deletedBy[currentUser.uid]) return;
+            const d = document.createElement('div');
+            d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
+            let content = msg.revoked ? `<i style="color:#aaa">Tin nhắn đã bị thu hồi</i>` : msg.text;
+            let ops = "";
+            if (msg.sender === currentUser.uid && !msg.revoked) {
+                ops = `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>`;
+            } else if (!msg.revoked) {
+                ops = `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>`;
+            }
+            d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`;
+            box.appendChild(d);
+        });
+        box.scrollTop = box.scrollHeight;
+    });
+};
         window.revokeMsg = (mid) => {
             if(confirm("Thu hồi tin nhắn với tất cả mọi người?")) {
                 update(ref(db, `messages/${activeChatId}/${mid}`), { revoked: true });
@@ -503,10 +549,12 @@
             activeChatId = null;
             document.getElementById('header-text').innerText = "Chọn một cuộc trò chuyện";
             document.getElementById('home-btn-header').style.display = 'none';
+            document.getElementById('banned-banner').style.display = 'none';
             document.getElementById('chat-messages').innerHTML = `<div style="margin: auto; text-align: center; color: #999;"><p>Hãy chọn một người bạn để nhắn tin</p></div>`;
             document.getElementById('input-container').style.display = 'none';
             document.getElementById('block-banner').style.display = 'none';
             document.getElementById('deleted-banner').style.display = 'none';
+            document.getElementById('delete-history-btn').style.display = 'none';
             document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
         };
 
@@ -525,6 +573,25 @@
                 } catch (e) { alert("Lỗi bảo mật: Vui lòng đăng nhập lại trước khi xóa tài khoản."); }
             }
         };
+
+        // Hàm xóa toàn bộ tin nhắn trong cuộc trò chuyện hiện tại
+window.clearChatHistory = async () => {
+    if (!activeChatId) return;
+    if (confirm("Bạn có chắc chắn muốn xóa VĨNH VIỄN toàn bộ lịch sử tin nhắn của cuộc trò chuyện này cho cả 2 người?")) {
+        try {
+            await remove(ref(db, `messages/${activeChatId}`));
+            alert("Đã xóa toàn bộ lịch sử trò chuyện.");
+        } catch (e) {
+            alert("Lỗi khi xóa: " + e.message);
+        }
+    }
+};
+
+// Hàm xóa lịch sử im lặng (dùng cho chức năng hủy kết bạn)
+async function silentClearHistory(uid1, uid2) {
+    const chatId = uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
+    await remove(ref(db, `messages/${chatId}`));
+}
     </script>
 </body>
 </html>
