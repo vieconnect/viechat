@@ -67,31 +67,34 @@
 <body>
         <!-- Màn hình Đăng nhập/Đăng ký -->
         <div id="auth-screen">
-    <!-- Thẻ cha vẫn giữ text-align: center để căn giữa toàn bộ form và các tiêu đề -->
     <div style="width: 320px; text-align: center; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.2);">
         <h1 style="color: var(--primary); margin: 0 0 10px 0;">VieChat</h1>
         <p style="font-size: 14px; color: #666; margin-bottom: 25px;">Kết nối xã hội - Vững bước tương lai</p>
         
         <div id="login-form" onsubmit="event.preventDefault(); handleAuth('login');">
-            <!-- Thêm style display: block và text-align: left cho label -->
             <label for="email" style="display: block; text-align: left; font-size: 14px; font-weight: 600; color: #444; margin-bottom: 2px;">Email</label>
             <input type="email" id="email" placeholder="example@personal.com" style="width:100%; padding:12px; margin:0 0 15px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
             
             <label for="password" style="display: block; text-align: left; font-size: 14px; font-weight: 600; color: #444; margin-bottom: 2px;">Mật khẩu</label>
             <input type="password" id="password" onkeypress="if(event.key === 'Enter') handleAuth('login')" placeholder="Mật khẩu" style="width:100%; padding:12px; margin:0 0 15px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
             
+            <div class="text-end mb-3">
+                <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" style="font-size: 12px; color: var(--primary); text-decoration: none;">Quên mật khẩu?</a>
+            </div>
+            
             <button type="submit" onclick="handleAuth('login')" style="width:100%; padding:12px; background:var(--primary); color:white; border:none; margin-top:10px; cursor:pointer; border-radius:6px; font-weight:bold;">Đăng nhập</button>
             <p style="font-size: 13px; color: #666; margin-top: 15px;">Chưa có tài khoản? <a href="javascript:void(0)" onclick="toggleAuth(true)" style="color:var(--primary); text-decoration:none; font-weight:bold;">Đăng ký ngay</a></p>
         </div>
 
         <div id="signup-form" style="display: none;" onsubmit="event.preventDefault(); handleAuth('signup');">
-            <!-- Áp dụng tương tự cho phần đăng ký nếu bạn thêm label vào sau này -->
-             <label for="signup-name" style="display: block; text-align: left; font-size: 14px; font-weight: 600; color: #444; margin-bottom: 2px;">Họ và tên</label>
+            <label for="signup-name" style="display: block; text-align: left; font-size: 14px; font-weight: 600; color: #444; margin-bottom: 2px;">Họ và tên</label>
             <input type="text" id="signup-name" placeholder="Nguyễn Văn A" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
             <label for="signup-email" style="display: block; text-align: left; font-size: 14px; font-weight: 600; color: #444; margin-bottom: 2px;">Email</label>
             <input type="email" id="signup-email" placeholder="Email đăng ký" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
             <label for="signup-password" style="display: block; text-align: left; font-size: 14px; font-weight: 600; color: #444; margin-bottom: 2px;">Mật khẩu</label>
-            <input type="password" id="signup-password" onkeypress="if(event.key === 'Enter') handleAuth('signup')" placeholder="Mật khẩu (6+ ký tự)" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+            <input type="password" id="signup-password" placeholder="Mật khẩu (6+ ký tự)" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+            <label for="signup-confirm-password" style="display: block; text-align: left; font-size: 14px; font-weight: 600; color: #444; margin-bottom: 2px;">Xác nhận mật khẩu</label>
+            <input type="password" id="signup-confirm-password" placeholder="Xác nhận mật khẩu" style="width:100%; padding:12px; margin:8px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
             <button type="submit" onclick="handleAuth('signup')" style="width:100%; padding:12px; background:var(--success); color:white; border:none; margin-top:10px; cursor:pointer; border-radius:6px; font-weight:bold;">Tạo tài khoản</button>
             <p style="font-size: 13px; color: #666; margin-top: 15px;">Đã có tài khoản? <a href="javascript:void(0)" onclick="toggleAuth(false)" style="color:var(--primary); text-decoration:none; font-weight:bold;">Đăng nhập</a></p>
         </div>
@@ -109,9 +112,9 @@
                     <div id="my-name" style="font-weight: bold; color: var(--primary); font-size: 16px;">Đang tải...</div>
                     <div id="my-email" style="font-size: 11px; color: #666;"></div>
                     <div class="profile-actions">
-                        <button onclick="changeName()">Đổi tên</button>
-                        <button onclick="changePass()">Đổi mật khẩu</button>
-                        <button onclick="delAcc()" style="color: var(--danger);">Xóa tài khoản</button>
+                        <button onclick="showChangeNameModal()">Đổi tên</button>
+                        <button onclick="showChangePasswordModal()">Đổi mật khẩu</button>
+                        <button onclick="showDeleteAccountModal()" style="color: var(--danger);">Xóa tài khoản</button>
                         <button onclick="logout()">Đăng xuất</button>
                     </div>
                 </div>
@@ -132,7 +135,6 @@
                 <div id="chat-header">
     <div>
         <span id="header-text">Chọn một cuộc trò chuyện</span>
-        <!-- Nút xóa lịch sử mới -->
         <button id="delete-history-btn" class="btn-icon" style="display:none; background:var(--danger); margin-left:10px; font-size:10px;" onclick="clearChatHistory()">Xóa lịch sử</button>
     </div>
     <button id="home-btn-header" class="home-btn" style="display:none;" onclick="goHome()">Trở về</button>
@@ -145,7 +147,6 @@
                     </div>
                 </div>
                 
-                <!-- Thông báo trạng thái -->
                 <div id="block-banner" class="status-banner banner-red"></div>
                 <div id="deleted-banner" class="status-banner banner-gray">
                     <span>Tài khoản này không tồn tại.</span>
@@ -157,16 +158,14 @@
                     <button class="home-btn" onclick="goHome()">Đóng chat</button>
                 </div>
 
-                <!-- Banner cho trạng thái kết bạn -->
-<div id="friend-request-banner" class="status-banner banner-gray">
-    <span id="friend-banner-text"></span>
-    <div id="friend-banner-actions" style="margin-top: 10px; display: none; gap: 10px;">
-        <button class="btn-icon" style="background:var(--success); padding: 8px 15px;" id="banner-accept-btn">Chấp nhận</button>
-        <button class="btn-icon" style="background:var(--danger); padding: 8px 15px;" id="banner-reject-btn">Từ chối</button>
-    </div>
-</div>
+                <div id="friend-request-banner" class="status-banner banner-gray">
+                    <span id="friend-banner-text"></span>
+                    <div id="friend-banner-actions" style="margin-top: 10px; display: none; gap: 10px;">
+                        <button class="btn-icon" style="background:var(--success); padding: 8px 15px;" id="banner-accept-btn">Chấp nhận</button>
+                        <button class="btn-icon" style="background:var(--danger); padding: 8px 15px;" id="banner-reject-btn">Từ chối</button>
+                    </div>
+                </div>
 
-                <!-- Khu vực nhập tin nhắn -->
                 <div class="input-area" id="input-container" style="display:none;">
                     <input type="text" id="message-input" placeholder="Nhập nội dung tin nhắn..." onkeypress="if(event.key==='Enter') sendMessage()">
                     <button onclick="sendMessage()" style="padding: 8px 20px; background:var(--primary); color:white; border:none; border-radius:20px; cursor:pointer; font-weight: 500;">Gửi</button>
@@ -174,6 +173,125 @@
             </div>
         </div>
     </div>
+
+    <!-- MODALS BOOTSTRAP -->
+    <div class="modal fade" id="commonModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="commonModalTitle">Thông báo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="commonModalBody">Nội dung</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận hành động</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="confirmModalBody">Bạn có chắc chắn không?</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" id="confirmModalOkBtn">Đồng ý</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="promptModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="promptModalTitle">Nhập thông tin</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control" id="promptModalInput" placeholder="Nội dung...">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="promptModalOkBtn">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="changePasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Đổi mật khẩu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu cũ <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="oldPasswordInput" placeholder="Nhập mật khẩu hiện tại">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu mới <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="newPasswordInput" placeholder="Tối thiểu 6 ký tự">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="confirmNewPasswordInput" placeholder="Nhập lại mật khẩu mới">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="processChangePassword()">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title">Quên mật khẩu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Nhập email đăng ký tài khoản của bạn. Chúng tôi sẽ gửi link đặt lại mật khẩu.</p>
+                    <input type="email" class="form-control" id="resetEmailInput" placeholder="Email của bạn">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="sendPasswordReset()">Gửi yêu cầu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Xóa tài khoản vĩnh viễn</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="fw-bold text-danger">Cảnh báo: Toàn bộ dữ liệu sẽ bị xóa vĩnh viễn và không thể khôi phục.</p>
+                    <p>Hãy nhập <strong>XOATOANBO</strong> vào ô bên dưới để xác nhận:</p>
+                    <input type="text" class="form-control" id="deleteConfirmCode" placeholder="XOATOANBO">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" onclick="processDeleteAccount()">Tôi hiểu, xóa ngay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <div class="modal fade" id="lockAccountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow">
@@ -186,45 +304,25 @@
                 <div class="table-responsive">
                     <table class="table table-sm table-borderless">
                         <tbody>
-                            <tr>
-                            <th class="text-secondary">Tên:</th>
-                                <td id="displayName" class="fw-bold">---</td>
-                            </tr>
-                            <tr>
-                                <th class="text-secondary" style="width: 40%;">ID:</th>
-                                <td id="displayLockID" class="fw-bold text-dark">---</td>
-                            </tr>
-                            <tr>
-                                <th class="text-secondary">Lý do:</th>
-                                <td id="displayLockReason" class="text-danger">---</td>
-                            </tr>
-                            <tr>
-                                <th class="text-secondary">Bắt đầu:</th>
-                                <td id="displayLockStart">---</td>
-                            </tr>
-                            <tr>
-                                <th class="text-secondary">Thời gian hạn chế:</th>
-                                <td id="displayLockDuration" class="fw-bold">---</td>
-                            </tr>
+                            <tr><th class="text-secondary">Tên:</th><td id="displayName" class="fw-bold">---</td></tr>
+                            <tr><th class="text-secondary" style="width: 40%;">ID:</th><td id="displayLockID" class="fw-bold text-dark">---</td></tr>
+                            <tr><th class="text-secondary">Lý do:</th><td id="displayLockReason" class="text-danger">---</td></tr>
+                            <tr><th class="text-secondary">Bắt đầu:</th><td id="displayLockStart">---</td></tr>
+                            <tr><th class="text-secondary">Thời gian hạn chế:</th><td id="displayLockDuration" class="fw-bold">---</td></tr>
                         </tbody>
                     </table>
-                </div>
-
-                <div class="alert alert-light border mt-3 small">
-                    Mọi thắc mắc vui lòng liên hệ bộ phận hỗ trợ VieConnect để được giải quyết<br>
-                    <a href="https://vieconnect.tawk.help/">Truy cập trang hỗ trợ của VieConnect</a><br>
-                    <a href="/dieu-khoan-su-dung.html" target="_blank">Xem điều khoản sử dụng của VieConnect</a>
                 </div>
                 <center><button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal" style="border-radius: 50px;">Đã hiểu</button></center>
             </div>
         </div>
     </div>
 </div>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, deleteUser, sendPasswordResetEmail, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue, serverTimestamp, query, orderByChild, equalTo, get, remove, off, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -243,51 +341,80 @@
 
         let currentUser = null, activeChatId = null;
         let activeListeners = []; 
+        let pendingConfirmCallback = null;
+        let pendingPromptCallback = null;
 
-        // Khởi tạo Modal Bootstrap
-        const lockModalElement = document.getElementById('lockAccountModal');
-        const lockModal = new bootstrap.Modal(lockModalElement);
+        // Helper functions cho modal
+        window.showAlert = (title, message) => {
+            document.getElementById('commonModalTitle').innerText = title;
+            document.getElementById('commonModalBody').innerHTML = message;
+            new bootstrap.Modal(document.getElementById('commonModal')).show();
+        };
+        
+        window.showConfirm = (message, onOk) => {
+            document.getElementById('confirmModalBody').innerText = message;
+            pendingConfirmCallback = onOk;
+            const modalEl = document.getElementById('confirmModal');
+            const modal = new bootstrap.Modal(modalEl);
+            document.getElementById('confirmModalOkBtn').onclick = () => {
+                if(pendingConfirmCallback) pendingConfirmCallback();
+                modal.hide();
+            };
+            modal.show();
+        };
+        
+        window.showPrompt = (title, placeholder, onOk) => {
+            document.getElementById('promptModalTitle').innerText = title;
+            const input = document.getElementById('promptModalInput');
+            input.value = '';
+            input.placeholder = placeholder;
+            pendingPromptCallback = onOk;
+            const modalEl = document.getElementById('promptModal');
+            const modal = new bootstrap.Modal(modalEl);
+            document.getElementById('promptModalOkBtn').onclick = () => {
+                if(pendingPromptCallback) pendingPromptCallback(input.value);
+                modal.hide();
+            };
+            modal.show();
+        };
 
-        // Hàm hiển thị Modal khóa với dữ liệu động
         window.showLockInfo = (data) => {
             document.getElementById('displayName').innerText = data.name || "Người dùng";
             document.getElementById('displayLockID').innerText = data.id || "---";
             document.getElementById('displayLockReason').innerText = data.reason || "Vi phạm chính sách cộng đồng";
             document.getElementById('displayLockStart').innerText = data.start || "Vừa xong";
             document.getElementById('displayLockDuration').innerText = data.duration || "Vĩnh viễn";
-            lockModal.show();
+            new bootstrap.Modal(document.getElementById('lockAccountModal')).show();
         };
 
+        // FIX QUAN TRỌNG: SỬA LỖI FORM LOGIN KHÔNG ẨN
         onAuthStateChanged(auth, (user) => {
+            const authScreen = document.getElementById('auth-screen');
+            const mainApp = document.getElementById('main-app');
+            
             if (user) {
                 currentUser = user;
-                
-                // Kiểm tra trạng thái khóa ngay khi đăng nhập hoặc dữ liệu thay đổi
                 const userRef = ref(db, `users/${user.uid}`);
                 onValue(userRef, (snap) => {
                     const data = snap.val();
                     if(data) {
-                        // Logic kiểm tra khóa tài khoản
                         if(data.isLocked === true || data.isLocked === "true") {
-                            // Lưu thông tin trước khi logout
-                            const lockData = {
-                                name: data.name,
-                                id: user.uid.substring(0, 8).toUpperCase(),
-                                reason: data.lockReason,
-                                start: data.lockStart,
-                                duration: data.lockDuration
-                            };
-                            
-                            // Đăng xuất và hiện thông báo
                             signOut(auth).then(() => {
-                                window.showLockInfo(lockData);
+                                window.showLockInfo({
+                                    name: data.name,
+                                    id: user.uid.substring(0, 8).toUpperCase(),
+                                    reason: data.lockReason,
+                                    start: data.lockStart,
+                                    duration: data.lockDuration
+                                });
                             });
-                            return; // Dừng xử lý tiếp theo
+                            return;
                         }
-
-                        // Nếu không khóa thì hiển thị app bình thường
-                        document.getElementById('auth-screen').style.display = 'none';
-                        document.getElementById('main-app').style.display = 'flex';
+                        
+                        // FIX: Ẩn auth screen, hiện main app
+                        authScreen.style.display = 'none';
+                        mainApp.style.display = 'flex';
+                        
                         document.getElementById('my-email').innerText = user.email;
                         document.getElementById('my-name').innerText = data.name || "Người dùng";
                         syncLists();
@@ -296,13 +423,14 @@
             } else {
                 cleanupListeners();
                 currentUser = null;
-                document.getElementById('auth-screen').style.display = 'flex';
-                document.getElementById('main-app').style.display = 'none';
+                activeChatId = null;
+                // FIX: Hiện lại auth screen, ẩn main app
+                authScreen.style.display = 'flex';
+                mainApp.style.display = 'none';
                 goHome();
             }
         });
 
-        // --- Các hàm xử lý Auth và Chat giữ nguyên như cũ ---
         function cleanupListeners() {
             activeListeners.forEach(path => off(ref(db, path)));
             activeListeners = [];
@@ -317,33 +445,99 @@
             const email = document.getElementById(type === 'signup' ? 'signup-email' : 'email').value.trim();
             const pass = document.getElementById(type === 'signup' ? 'signup-password' : 'password').value;
             const name = type === 'signup' ? document.getElementById('signup-name').value.trim() : null;
-            if (!email || !pass || (type === 'signup' && !name)) return alert("Vui lòng điền đầy đủ thông tin!");
+            const confirmPass = type === 'signup' ? document.getElementById('signup-confirm-password').value : null;
+            
+            if (!email || !pass || (type === 'signup' && !name)) return showAlert("Thiếu thông tin", "Vui lòng điền đầy đủ thông tin!");
+            if (type === 'signup' && pass !== confirmPass) return showAlert("Lỗi xác nhận", "Mật khẩu và xác nhận mật khẩu không khớp.");
+            if (type === 'signup' && pass.length < 6) return showAlert("Lỗi bảo mật", "Mật khẩu phải có ít nhất 6 ký tự.");
+            
             try {
                 if (type === 'signup') {
                     const res = await createUserWithEmailAndPassword(auth, email, pass);
                     await set(ref(db, `users/${res.user.uid}`), { 
                         email: email.toLowerCase(), 
                         name: name,
-                isLocked: false, // Mặc định là không khóa
-                lockReason: "", // Admin có thể sửa lại sau
-                lockStart: "", // Admin sẽ điền thời gian khi thực hiện khóa
-                lockDuration: "Vĩnh viễn", // Admin có thể sửa thành "7 ngày", "24h", v.v.
+                        isLocked: false,
+                        lockReason: "",
+                        lockStart: "",
+                        lockDuration: ""
                     });
-                    alert("Đăng ký thành công!"); window.toggleAuth(false);
+                    showAlert("Thành công", "Đăng ký thành công!");
+                    window.toggleAuth(false);
+                    document.getElementById('email').value = email;
+                    document.getElementById('password').value = '';
                 } else {
                     await signInWithEmailAndPassword(auth, email, pass);
                 }
-            } catch (e) { alert("Lỗi: " + e.message); }
-        };
-
-    window.changeName = async () => {
-            const newName = prompt("Nhập họ tên mới mà bạn muốn hiển thị:");
-            if (newName && newName.trim()) {
-                await update(ref(db, `users/${currentUser.uid}`), { name: newName.trim() });
-                alert("Đã cập nhật tên thành công!");
+            } catch (e) { 
+                showAlert("Lỗi", e.message); 
             }
         };
+
+        window.sendPasswordReset = () => {
+            const email = document.getElementById('resetEmailInput').value;
+            if(!email) return showAlert("Thiếu email", "Vui lòng nhập email của bạn.");
+            sendPasswordResetEmail(auth, email)
+                .then(() => { 
+                    showAlert("Kiểm tra email", "Link đặt lại mật khẩu đã được gửi đến hộp thư của bạn."); 
+                    bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal')).hide();
+                })
+                .catch(e => showAlert("Lỗi", e.message));
+        };
+
+        window.showChangeNameModal = () => {
+            showPrompt("Đổi tên hiển thị", "Nhập tên mới...", async (newName) => {
+                if(newName && newName.trim()) {
+                    await update(ref(db, `users/${currentUser.uid}`), { name: newName.trim() });
+                    showAlert("Thành công", "Cập nhật tên thành công!");
+                }
+            });
+        };
+
+        window.showChangePasswordModal = () => {
+            document.getElementById('oldPasswordInput').value = '';
+            document.getElementById('newPasswordInput').value = '';
+            document.getElementById('confirmNewPasswordInput').value = '';
+            new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+        };
         
+        window.processChangePassword = async () => {
+            const oldPass = document.getElementById('oldPasswordInput').value;
+            const newPass = document.getElementById('newPasswordInput').value;
+            const confirmPass = document.getElementById('confirmNewPasswordInput').value;
+            if(!oldPass) return showAlert("Thiếu thông tin", "Vui lòng nhập mật khẩu cũ.");
+            if(newPass.length < 6) return showAlert("Lỗi", "Mật khẩu mới phải có ít nhất 6 ký tự.");
+            if(newPass !== confirmPass) return showAlert("Lỗi xác nhận", "Mật khẩu mới và xác nhận không khớp.");
+            try {
+                const credential = EmailAuthProvider.credential(currentUser.email, oldPass);
+                await reauthenticateWithCredential(currentUser, credential);
+                await updatePassword(currentUser, newPass);
+                showAlert("Thành công", "Đổi mật khẩu thành công!");
+                bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+            } catch(e) { 
+                showAlert("Lỗi", e.message + " (Kiểm tra lại mật khẩu cũ)"); 
+            }
+        };
+
+        window.showDeleteAccountModal = () => {
+            document.getElementById('deleteConfirmCode').value = '';
+            new bootstrap.Modal(document.getElementById('deleteAccountModal')).show();
+        };
+        
+        window.processDeleteAccount = async () => {
+            const code = document.getElementById('deleteConfirmCode').value;
+            if(code !== "XOATOANBO") return showAlert("Xác nhận sai", "Vui lòng nhập chính xác mã XOATOANBO.");
+            showConfirm("CẢNH BÁO: Tài khoản và dữ liệu sẽ bị xóa vĩnh viễn. Bạn chắc chắn chứ?", async () => {
+                try {
+                    await remove(ref(db, `users/${currentUser.uid}`));
+                    await deleteUser(currentUser);
+                    bootstrap.Modal.getInstance(document.getElementById('deleteAccountModal')).hide();
+                } catch (e) { 
+                    showAlert("Lỗi bảo mật", "Vui lòng đăng nhập lại trước khi xóa tài khoản."); 
+                }
+            });
+        };
+
         window.findUser = async () => {
             const email = document.getElementById('search-input').value.trim().toLowerCase();
             const resBox = document.getElementById('search-result');
@@ -371,7 +565,7 @@
                 }
 
                 resBox.innerHTML = `<div class="search-result-item"><strong>${targetData.name}</strong><br><small>${targetData.email}</small><div style="margin:5px 0">${statusNote}</div>${buttonHtml}</div>`;
-            } else alert("Không tìm thấy người dùng này!");
+            } else showAlert("Không tìm thấy", "Không tìm thấy người dùng này!");
         };
 
         window.sendFriendRequest = async (targetUid) => {
@@ -379,42 +573,40 @@
             await set(ref(db, `friend_status/${targetUid}/${currentUser.uid}`), "incoming");
             document.getElementById('search-result').innerHTML = "";
             document.getElementById('search-input').value = "";
-            alert("Đã gửi yêu cầu kết bạn!");
+            showAlert("Đã gửi", "Yêu cầu kết bạn đã được gửi!");
         };
 
         window.updateStatus = async (uid, status) => {
-    const myPath = `friend_status/${currentUser.uid}/${uid}`;
-    const theirPath = `friend_status/${uid}/${currentUser.uid}`;
-    
-    if (status === 'accepted') {
-        await update(ref(db), { [myPath]: "accepted", [theirPath]: "accepted" });
-    } else if (status === 'blocked') {
-        await set(ref(db, myPath), "blocked");
-    } else if (status === 'unblock') {
-        await set(ref(db, myPath), "accepted");
-    } else if (['remove', 'reject', 'cancel'].includes(status)) {
-        let confirmMsg = "Bạn chắc chắn muốn hủy kết bạn?";
-        if (status === 'remove') confirmMsg = "Hủy kết bạn sẽ xóa toàn bộ tin nhắn giữa 2 người. Bạn chắc chắn chứ?";
-        
-        if (confirm(confirmMsg)) {
-            // 1. Xóa trạng thái bạn bè
-            await remove(ref(db, myPath));
-            await remove(ref(db, theirPath));
+            const myPath = `friend_status/${currentUser.uid}/${uid}`;
+            const theirPath = `friend_status/${uid}/${currentUser.uid}`;
             
-            // 2. Xóa lịch sử tin nhắn nếu là Hủy kết bạn (remove) hoặc từ chối (reject)
-            await silentClearHistory(currentUser.uid, uid);
-            
-            // 3. Quay về màn hình chính nếu đang chat với người đó
-            if(activeChatId && activeChatId.includes(uid)) goHome();
-        }
-    }
-};
+            if (status === 'accepted') {
+                await update(ref(db), { [myPath]: "accepted", [theirPath]: "accepted" });
+            } else if (status === 'blocked') {
+                await set(ref(db, myPath), "blocked");
+            } else if (status === 'unblock') {
+                await set(ref(db, myPath), "accepted");
+            } else if (['remove', 'reject', 'cancel'].includes(status)) {
+                let confirmMsg = "Bạn chắc chắn muốn hủy kết bạn?";
+                if (status === 'remove') confirmMsg = "Hủy kết bạn sẽ xóa toàn bộ tin nhắn giữa 2 người. Bạn chắc chắn chứ?";
+                
+                showConfirm(confirmMsg, async () => {
+                    await remove(ref(db, myPath));
+                    await remove(ref(db, theirPath));
+                    if(status === 'remove') await silentClearHistory(currentUser.uid, uid);
+                    if(activeChatId && activeChatId.includes(uid)) goHome();
+                });
+            }
+        };
 
-        // Hàm tối ưu để render danh sách mà không bị lặp item
+        async function silentClearHistory(uid1, uid2) {
+            const chatId = uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
+            await remove(ref(db, `messages/${chatId}`));
+        }
+
         function syncLists() {
             const statusRef = ref(db, `friend_status/${currentUser.uid}`);
             onValue(statusRef, (snap) => {
-                // Xóa trắng toàn bộ trước khi vẽ lại để tránh trùng lặp
                 document.getElementById('incoming-list').innerHTML = "";
                 document.getElementById('outgoing-list').innerHTML = "";
                 document.getElementById('friend-list').innerHTML = "";
@@ -436,7 +628,6 @@
 
                         if (!containerId) return;
 
-                        // Kiểm tra xem item đã tồn tại chưa để tránh lặp khi data user đổi (ví dụ đổi tên)
                         const oldItem = document.getElementById(`item-${uid}`);
                         if (oldItem) oldItem.remove();
 
@@ -458,130 +649,117 @@
             });
         }
 
-    window.openChat = (uid, name, el) => {
-    // 1. Cập nhật giao diện Header và Sidebar
-    document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
-    if (el) el.classList.add('active');
-    document.getElementById('header-text').innerText = name;
-    document.getElementById('home-btn-header').style.display = 'block';
-    document.getElementById('delete-history-btn').style.display = 'inline-block';
+        window.openChat = (uid, name, el) => {
+            document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+            if (el) el.classList.add('active');
+            document.getElementById('header-text').innerText = name;
+            document.getElementById('home-btn-header').style.display = 'block';
+            document.getElementById('delete-history-btn').style.display = 'inline-block';
 
-    // 2. Khai báo các thành phần UI
-    const delB = document.getElementById('deleted-banner');
-    const banB = document.getElementById('banned-banner');
-    const blockB = document.getElementById('block-banner');
-    const friendB = document.getElementById('friend-request-banner'); // Banner kết bạn mới
-    const friendText = document.getElementById('friend-banner-text');
-    const friendActions = document.getElementById('friend-banner-actions');
-    const inputContainer = document.getElementById('input-container');
+            const delB = document.getElementById('deleted-banner');
+            const banB = document.getElementById('banned-banner');
+            const blockB = document.getElementById('block-banner');
+            const friendB = document.getElementById('friend-request-banner');
+            const friendText = document.getElementById('friend-banner-text');
+            const friendActions = document.getElementById('friend-banner-actions');
+            const inputContainer = document.getElementById('input-container');
 
-    // 3. Reset trạng thái các banner trước khi kiểm tra
-    [delB, banB, blockB, friendB].forEach(b => b.style.display = 'none');
-    inputContainer.style.display = 'none';
-
-    // 4. Lắng nghe dữ liệu đối phương (Kiểm tra Tồn tại / Banned)
-    onValue(ref(db, `users/${uid}`), (uSnap) => {
-        const userData = uSnap.val();
-        
-        if (!uSnap.exists()) {
-            delB.style.display = 'flex';
-            return;
-        }
-
-        if (userData.isLocked === true || userData.isLocked === "true") {
-            banB.style.display = 'flex';
-            return;
-        }
-
-        // 5. Kiểm tra quan hệ bạn bè (Block / Request / Accepted)
-        onValue(ref(db, `friend_status`), (fsSnap) => {
-            const myS = fsSnap.child(currentUser.uid).child(uid).val();
-            const theirS = fsSnap.child(uid).child(currentUser.uid).val();
-
-            // Reset banner bạn bè & block mỗi lần dữ liệu thay đổi
-            friendB.style.display = 'none';
-            blockB.style.display = 'none';
+            [delB, banB, blockB, friendB].forEach(b => b.style.display = 'none');
             inputContainer.style.display = 'none';
 
-            if (myS === 'blocked' || theirS === 'blocked') {
-                blockB.style.display = 'flex';
-                blockB.innerHTML = myS === 'blocked' 
-                    ? `Bạn đang chặn người này <br> Hai bạn sẽ không thể nói chuyện trừ khi bạn bỏ chặn. <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` 
-                    : `Bạn hiện không thể liên lạc với người này qua VieChat`;
-            } 
-            else if (myS === 'outgoing') {
-                friendB.style.display = 'flex';
-                friendActions.style.display = 'none';
-                friendText.innerText = "Bạn chưa thể trò chuyện cho đến khi họ chấp nhận lời mời kết bạn.";
-            } 
-            else if (myS === 'incoming') {
-                friendB.style.display = 'flex';
-                friendActions.style.display = 'flex';
-                friendText.innerText = `${name} muốn kết bạn với bạn.`;
-                document.getElementById('banner-accept-btn').onclick = () => updateStatus(uid, 'accepted');
-                document.getElementById('banner-reject-btn').onclick = () => updateStatus(uid, 'reject');
-            } 
-            else if (myS === 'accepted') {
-                inputContainer.style.display = 'flex';
-            } 
-            else {
-                friendB.style.display = 'flex';
-                friendActions.style.display = 'none';
-                friendText.innerText = "Hai bạn chưa là bạn bè. Hãy kết bạn để bắt đầu trò chuyện.";
-            }
-        });
-    });
-
-    // 6. Logic hiển thị tin nhắn (Có lọc lịch sử đã xóa phía mình)
-    if(activeChatId) off(ref(db, `messages/${activeChatId}`));
-    activeChatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
-    
-    // Lắng nghe mốc thời gian "Xóa lịch sử" của người dùng hiện tại
-    onValue(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), (clearSnap) => {
-        const clearTime = clearSnap.val() || 0;
-
-        onValue(ref(db, `messages/${activeChatId}`), (s) => {
-            const box = document.getElementById('chat-messages'); 
-            box.innerHTML = "";
-            
-            s.forEach(m => {
-                const msg = m.val(), mid = m.key;
+            onValue(ref(db, `users/${uid}`), (uSnap) => {
+                const userData = uSnap.val();
                 
-                // Lọc tin nhắn: 
-                // 1. Phải sau mốc thời gian xóa lịch sử
-                // 2. Không nằm trong danh sách tin lẻ bị xóa (deletedBy)
-                if (msg.timestamp <= clearTime) return;
-                if (msg.deletedBy && msg.deletedBy[currentUser.uid]) return;
-
-                const d = document.createElement('div');
-                d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
-                
-                let content = msg.revoked ? `<i style="color:#aaa">Tin nhắn đã bị thu hồi</i>` : msg.text;
-                let ops = "";
-                
-                if (msg.sender === currentUser.uid && !msg.revoked) {
-                    ops = `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>`;
-                } else if (!msg.revoked) {
-                    ops = `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>`;
+                if (!uSnap.exists()) {
+                    delB.style.display = 'flex';
+                    return;
                 }
 
-                d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`;
-                box.appendChild(d);
+                if (userData.isLocked === true || userData.isLocked === "true") {
+                    banB.style.display = 'flex';
+                    return;
+                }
+
+                onValue(ref(db, `friend_status`), (fsSnap) => {
+                    const myS = fsSnap.child(currentUser.uid).child(uid).val();
+                    const theirS = fsSnap.child(uid).child(currentUser.uid).val();
+
+                    friendB.style.display = 'none';
+                    blockB.style.display = 'none';
+                    inputContainer.style.display = 'none';
+
+                    if (myS === 'blocked' || theirS === 'blocked') {
+                        blockB.style.display = 'flex';
+                        blockB.innerHTML = myS === 'blocked' 
+                            ? `Bạn đang chặn người này <br> Hai bạn sẽ không thể nói chuyện trừ khi bạn bỏ chặn. <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` 
+                            : `Bạn hiện không thể liên lạc với người này qua VieChat`;
+                    } 
+                    else if (myS === 'outgoing') {
+                        friendB.style.display = 'flex';
+                        friendActions.style.display = 'none';
+                        friendText.innerText = "Bạn chưa thể trò chuyện cho đến khi họ chấp nhận lời mời kết bạn.";
+                    } 
+                    else if (myS === 'incoming') {
+                        friendB.style.display = 'flex';
+                        friendActions.style.display = 'flex';
+                        friendText.innerText = `${name} muốn kết bạn với bạn.`;
+                        document.getElementById('banner-accept-btn').onclick = () => updateStatus(uid, 'accepted');
+                        document.getElementById('banner-reject-btn').onclick = () => updateStatus(uid, 'reject');
+                    } 
+                    else if (myS === 'accepted') {
+                        inputContainer.style.display = 'flex';
+                    } 
+                    else {
+                        friendB.style.display = 'flex';
+                        friendActions.style.display = 'none';
+                        friendText.innerText = "Hai bạn chưa là bạn bè. Hãy kết bạn để bắt đầu trò chuyện.";
+                    }
+                });
             });
-            box.scrollTop = box.scrollHeight;
-        });
-    });
-};
+
+            if(activeChatId) off(ref(db, `messages/${activeChatId}`));
+            activeChatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+            
+            onValue(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), (clearSnap) => {
+                const clearTime = clearSnap.val() || 0;
+                onValue(ref(db, `messages/${activeChatId}`), (s) => {
+                    const box = document.getElementById('chat-messages'); 
+                    box.innerHTML = "";
+                    s.forEach(m => {
+                        const msg = m.val(), mid = m.key;
+                        if (msg.timestamp <= clearTime) return;
+                        if (msg.deletedBy && msg.deletedBy[currentUser.uid]) return;
+
+                        const d = document.createElement('div');
+                        d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
+                        
+                        let content = msg.revoked ? `<i style="color:#aaa">Tin nhắn đã bị thu hồi</i>` : msg.text;
+                        let ops = "";
+                        
+                        if (msg.sender === currentUser.uid && !msg.revoked) {
+                            ops = `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>`;
+                        } else if (!msg.revoked) {
+                            ops = `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>`;
+                        }
+
+                        d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`;
+                        box.appendChild(d);
+                    });
+                    box.scrollTop = box.scrollHeight;
+                });
+            });
+        };
+        
         window.revokeMsg = (mid) => {
-            if(confirm("Thu hồi tin nhắn với tất cả mọi người?")) {
+            showConfirm("Thu hồi tin nhắn với tất cả mọi người?", () => {
                 update(ref(db, `messages/${activeChatId}/${mid}`), { revoked: true });
-            }
+            });
         };
 
         window.deleteMsg = (mid) => {
-            if(confirm("Xóa tin nhắn này ở phía bạn?")) {
+            showConfirm("Xóa tin nhắn này ở phía bạn?", () => {
                 update(ref(db, `messages/${activeChatId}/${mid}/deletedBy`), { [currentUser.uid]: true });
-            }
+            });
         };
 
         window.sendMessage = () => {
@@ -613,44 +791,19 @@
 
         window.logout = () => signOut(auth);
         
-        window.changePass = () => {
-            const p = prompt("Nhập mật khẩu mới (tối thiểu 6 ký tự):");
-            if(p && p.length >= 6) updatePassword(currentUser, p).then(()=>alert("Đổi mật khẩu thành công!")).catch(e => alert(e.message));
-        };
-
-        window.delAcc = async () => {
-            if (confirm("CẢNH BÁO: Tài khoản và dữ liệu sẽ bị xóa vĩnh viễn. Bạn chắc chắn chứ?")) {
+        window.clearChatHistory = async () => {
+            if (!activeChatId) return;
+            showConfirm("Bạn có chắc chắn muốn xóa lịch sử trò chuyện ở phía bạn? Đối phương vẫn sẽ thấy nội dung này.", async () => {
                 try {
-                    await remove(ref(db, `users/${currentUser.uid}`));
-                    await deleteUser(currentUser);
-                } catch (e) { alert("Lỗi bảo mật: Vui lòng đăng nhập lại trước khi xóa tài khoản."); }
-            }
+                    const now = Date.now();
+                    await set(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), now);
+                    document.getElementById('chat-messages').innerHTML = "";
+                    showAlert("Đã xóa", "Đã xóa lịch sử trò chuyện phía bạn.");
+                } catch (e) {
+                    showAlert("Lỗi", e.message);
+                }
+            });
         };
-
-        // Hàm xóa toàn bộ tin nhắn trong cuộc trò chuyện hiện tại
-window.clearChatHistory = async () => {
-    if (!activeChatId) return;
-    if (confirm("Bạn có chắc chắn muốn xóa lịch sử trò chuyện ở phía bạn? Đối phương vẫn sẽ thấy nội dung này.")) {
-        try {
-            // Lưu mốc thời gian hiện tại vào node riêng của người dùng
-            // Mục đích: Chỉ hiển thị những tin nhắn gửi SAU mốc thời gian này
-            const now = Date.now();
-            await set(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), now);
-            
-            // Xóa nội dung hiển thị tạm thời trên màn hình
-            document.getElementById('chat-messages').innerHTML = "";
-            alert("Đã xóa lịch sử trò chuyện phía bạn.");
-        } catch (e) {
-            alert("Lỗi: " + e.message);
-        }
-    }
-};
-
-// Hàm xóa lịch sử im lặng (dùng cho chức năng hủy kết bạn)
-async function silentClearHistory(uid1, uid2) {
-    const chatId = uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
-    await remove(ref(db, `messages/${chatId}`));
-}
     </script>
 </body>
 </html>
