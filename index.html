@@ -54,6 +54,14 @@
         .home-btn { background: var(--primary); color: white; border: none; padding: 5px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
         
         .search-result-item { padding: 10px; background: #f0f7ff; border-radius: 8px; margin: 10px; text-align: center; border: 1px dashed var(--primary); }
+    .status-banner {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    border-top: 1px solid #ddd;
+}
     </style>
 </head>
 <body>
@@ -148,6 +156,15 @@
                     <span>Tài khoản này hiện đang bị cấm và chưa thể truy cập vào đoạn hội thoại này.</span>
                     <button class="home-btn" onclick="goHome()">Đóng chat</button>
                 </div>
+
+                <!-- Banner cho trạng thái kết bạn -->
+<div id="friend-request-banner" class="status-banner banner-gray">
+    <span id="friend-banner-text"></span>
+    <div id="friend-banner-actions" style="margin-top: 10px; display: none; gap: 10px;">
+        <button class="btn-icon" style="background:var(--success); padding: 8px 15px;" id="banner-accept-btn">Chấp nhận</button>
+        <button class="btn-icon" style="background:var(--danger); padding: 8px 15px;" id="banner-reject-btn">Từ chối</button>
+    </div>
+</div>
 
                 <!-- Khu vực nhập tin nhắn -->
                 <div class="input-area" id="input-container" style="display:none;">
@@ -442,82 +459,117 @@
         }
 
     window.openChat = (uid, name, el) => {
+    // 1. Cập nhật giao diện Header và Sidebar
     document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
-    el.classList.add('active');
+    if (el) el.classList.add('active');
     document.getElementById('header-text').innerText = name;
     document.getElementById('home-btn-header').style.display = 'block';
-document.getElementById('delete-history-btn').style.display = 'inline-block';
-    // Xóa các listener cũ của các banner để tránh chồng chéo dữ liệu
+    document.getElementById('delete-history-btn').style.display = 'inline-block';
+
+    // 2. Khai báo các thành phần UI
     const delB = document.getElementById('deleted-banner');
     const banB = document.getElementById('banned-banner');
     const blockB = document.getElementById('block-banner');
-    const input = document.getElementById('input-container');
+    const friendB = document.getElementById('friend-request-banner'); // Banner kết bạn mới
+    const friendText = document.getElementById('friend-banner-text');
+    const friendActions = document.getElementById('friend-banner-actions');
+    const inputContainer = document.getElementById('input-container');
 
-    // Lắng nghe dữ liệu người dùng (đối phương)
+    // 3. Reset trạng thái các banner trước khi kiểm tra
+    [delB, banB, blockB, friendB].forEach(b => b.style.display = 'none');
+    inputContainer.style.display = 'none';
+
+    // 4. Lắng nghe dữ liệu đối phương (Kiểm tra Tồn tại / Banned)
     onValue(ref(db, `users/${uid}`), (uSnap) => {
         const userData = uSnap.val();
         
-        // 1. Kiểm tra nếu tài khoản không tồn tại (Bị xóa)
         if (!uSnap.exists()) {
             delB.style.display = 'flex';
-            banB.style.display = 'none';
-            blockB.style.display = 'none';
-            input.style.display = 'none';
             return;
         }
 
-        // 2. Kiểm tra nếu tài khoản đối phương bị Banned (isLocked)
         if (userData.isLocked === true || userData.isLocked === "true") {
-            banB.style.display = 'flex'; // Hiện banner Banned
-            delB.style.display = 'none';
-            blockB.style.display = 'none';
-            input.style.display = 'none'; // Ẩn ô nhập tin nhắn
+            banB.style.display = 'flex';
             return;
         }
 
-        // 3. Nếu tài khoản bình thường, kiểm tra tiếp Chặn (Block)
-        banB.style.display = 'none';
-        delB.style.display = 'none';
-
+        // 5. Kiểm tra quan hệ bạn bè (Block / Request / Accepted)
         onValue(ref(db, `friend_status`), (fsSnap) => {
             const myS = fsSnap.child(currentUser.uid).child(uid).val();
             const theirS = fsSnap.child(uid).child(currentUser.uid).val();
-            
+
+            // Reset banner bạn bè & block mỗi lần dữ liệu thay đổi
+            friendB.style.display = 'none';
+            blockB.style.display = 'none';
+            inputContainer.style.display = 'none';
+
             if (myS === 'blocked' || theirS === 'blocked') {
                 blockB.style.display = 'flex';
                 blockB.innerHTML = myS === 'blocked' 
-                    ? `Bạn đang chặn người này <br> Hai bạn sẽ không thể nói chuyện với nhau trừ khi đối phương bỏ chặn người còn lại <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` 
+                    ? `Bạn đang chặn người này <br> Hai bạn sẽ không thể nói chuyện trừ khi bạn bỏ chặn. <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` 
                     : `Bạn hiện không thể liên lạc với người này qua VieChat`;
-                input.style.display = 'none';
-            } else {
-                blockB.style.display = 'none';
-                input.style.display = 'flex';
+            } 
+            else if (myS === 'outgoing') {
+                friendB.style.display = 'flex';
+                friendActions.style.display = 'none';
+                friendText.innerText = "Bạn chưa thể trò chuyện cho đến khi họ chấp nhận lời mời kết bạn.";
+            } 
+            else if (myS === 'incoming') {
+                friendB.style.display = 'flex';
+                friendActions.style.display = 'flex';
+                friendText.innerText = `${name} muốn kết bạn với bạn.`;
+                document.getElementById('banner-accept-btn').onclick = () => updateStatus(uid, 'accepted');
+                document.getElementById('banner-reject-btn').onclick = () => updateStatus(uid, 'reject');
+            } 
+            else if (myS === 'accepted') {
+                inputContainer.style.display = 'flex';
+            } 
+            else {
+                friendB.style.display = 'flex';
+                friendActions.style.display = 'none';
+                friendText.innerText = "Hai bạn chưa là bạn bè. Hãy kết bạn để bắt đầu trò chuyện.";
             }
         });
     });
 
-    // --- Logic hiển thị tin nhắn (giữ nguyên của bạn) ---
+    // 6. Logic hiển thị tin nhắn (Có lọc lịch sử đã xóa phía mình)
     if(activeChatId) off(ref(db, `messages/${activeChatId}`));
     activeChatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
     
-    onValue(ref(db, `messages/${activeChatId}`), (s) => {
-        const box = document.getElementById('chat-messages'); box.innerHTML = "";
-        s.forEach(m => {
-            const msg = m.val(), mid = m.key;
-            if (msg.deletedBy && msg.deletedBy[currentUser.uid]) return;
-            const d = document.createElement('div');
-            d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
-            let content = msg.revoked ? `<i style="color:#aaa">Tin nhắn đã bị thu hồi</i>` : msg.text;
-            let ops = "";
-            if (msg.sender === currentUser.uid && !msg.revoked) {
-                ops = `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>`;
-            } else if (!msg.revoked) {
-                ops = `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>`;
-            }
-            d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`;
-            box.appendChild(d);
+    // Lắng nghe mốc thời gian "Xóa lịch sử" của người dùng hiện tại
+    onValue(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), (clearSnap) => {
+        const clearTime = clearSnap.val() || 0;
+
+        onValue(ref(db, `messages/${activeChatId}`), (s) => {
+            const box = document.getElementById('chat-messages'); 
+            box.innerHTML = "";
+            
+            s.forEach(m => {
+                const msg = m.val(), mid = m.key;
+                
+                // Lọc tin nhắn: 
+                // 1. Phải sau mốc thời gian xóa lịch sử
+                // 2. Không nằm trong danh sách tin lẻ bị xóa (deletedBy)
+                if (msg.timestamp <= clearTime) return;
+                if (msg.deletedBy && msg.deletedBy[currentUser.uid]) return;
+
+                const d = document.createElement('div');
+                d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
+                
+                let content = msg.revoked ? `<i style="color:#aaa">Tin nhắn đã bị thu hồi</i>` : msg.text;
+                let ops = "";
+                
+                if (msg.sender === currentUser.uid && !msg.revoked) {
+                    ops = `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>`;
+                } else if (!msg.revoked) {
+                    ops = `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>`;
+                }
+
+                d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`;
+                box.appendChild(d);
+            });
+            box.scrollTop = box.scrollHeight;
         });
-        box.scrollTop = box.scrollHeight;
     });
 };
         window.revokeMsg = (mid) => {
@@ -555,6 +607,7 @@ document.getElementById('delete-history-btn').style.display = 'inline-block';
             document.getElementById('block-banner').style.display = 'none';
             document.getElementById('deleted-banner').style.display = 'none';
             document.getElementById('delete-history-btn').style.display = 'none';
+            document.getElementById('friend-request-banner').style.display = 'none';
             document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
         };
 
