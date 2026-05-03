@@ -52,7 +52,7 @@
             position: relative;
         }
         
-        /* ========== RESPONSIVE SIDEBAR ========== */
+        /* ========== SIDEBAR ========== */
         .sidebar { 
             width: var(--sidebar-width);
             min-width: var(--sidebar-width);
@@ -62,31 +62,21 @@
             background: #fff; 
             transition: transform 0.3s ease;
             z-index: 10;
+            position: relative;
         }
         
-        /* Nút toggle sidebar cho mobile */
+        /* Nút toggle sidebar - ĐẶT TRONG CHAT HEADER */
         .sidebar-toggle {
             display: none;
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            z-index: 100;
-            background: var(--primary);
-            color: white;
+            background: none;
             border: none;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-size: 24px;
             cursor: pointer;
+            padding: 8px;
+            margin: -8px;
+            color: var(--primary);
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            transition: all 0.2s;
-        }
-        
-        .sidebar-toggle:hover {
-            transform: scale(1.05);
         }
         
         .sidebar-overlay {
@@ -217,7 +207,7 @@
             color: white; 
         }
         
-        /* ========== CHAT WINDOW ========== */
+        /* ========== CHAT WINDOW - FULL màn hình ========== */
         .chat-window { 
             flex: 1; 
             display: flex; 
@@ -225,6 +215,7 @@
             background: #fff; 
             position: relative;
             min-width: 0;
+            height: 100%;
         }
         
         #chat-header { 
@@ -240,12 +231,20 @@
             gap: 10px;
         }
         
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+        
         #header-text {
             font-size: 16px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            max-width: 200px;
+            flex: 1;
         }
         
         .mobile-back-btn {
@@ -408,7 +407,7 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
         }
         
-        /* ========== RESPONSIVE BREAKPOINTS ========== */
+        /* ========== RESPONSIVE ========== */
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
@@ -437,6 +436,7 @@
                 display: block;
             }
             
+            /* Chat full màn hình trên mobile */
             .chat-window {
                 width: 100%;
             }
@@ -461,7 +461,6 @@
             
             #header-text {
                 font-size: 15px;
-                max-width: 160px;
             }
         }
         
@@ -561,8 +560,7 @@
 </head>
 <body>
     <div class="app-wrapper">
-        <!-- Sidebar Toggle Button (Mobile) -->
-        <button class="sidebar-toggle" id="sidebarToggleBtn">☰</button>
+        <!-- Sidebar Overlay -->
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
         
         <!-- Màn hình Đăng nhập/Đăng ký -->
@@ -626,12 +624,15 @@
 
             <div class="chat-window">
                 <div id="chat-header">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <button class="mobile-back-btn" id="mobileBackBtn" style="display: none;" onclick="goHome()">←</button>
+                    <div class="header-left">
+                        <button class="sidebar-toggle" id="sidebarToggleBtn">☰</button>
+                        <button class="mobile-back-btn" id="mobileBackBtn" onclick="goHome()">←</button>
                         <span id="header-text">Chọn một cuộc trò chuyện</span>
-                        <button id="delete-history-btn" class="btn-icon" style="display:none; background:var(--danger);" onclick="clearChatHistory()">Xóa lịch sử</button>
                     </div>
-                    <button id="home-btn-header" class="home-btn" style="display:none;" onclick="goHome()">Trở về</button>
+                    <div style="display: flex; gap: 8px;">
+                        <button id="delete-history-btn" class="btn-icon" style="display:none; background:var(--danger);" onclick="clearChatHistory()">Xóa lịch sử</button>
+                        <button id="home-btn-header" class="home-btn" style="display:none;" onclick="goHome()">Trở về</button>
+                    </div>
                 </div>
                 
                 <div id="chat-messages">
@@ -666,7 +667,7 @@
         </div>
     </div>
 
-    <!-- MODALS BOOTSTRAP (giữ nguyên) -->
+    <!-- MODALS BOOTSTRAP -->
     <div class="modal fade" id="commonModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -724,18 +725,9 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Mật khẩu cũ <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="oldPasswordInput" placeholder="Nhập mật khẩu hiện tại">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Mật khẩu mới <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="newPasswordInput" placeholder="Tối thiểu 6 ký tự">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Xác nhận mật khẩu mới <span class="text-danger">*</span></label>
-                        <input type="password" class="form-control" id="confirmNewPasswordInput" placeholder="Nhập lại mật khẩu mới">
-                    </div>
+                    <div class="mb-3"><label class="form-label">Mật khẩu cũ <span class="text-danger">*</span></label><input type="password" class="form-control" id="oldPasswordInput" placeholder="Nhập mật khẩu hiện tại"></div>
+                    <div class="mb-3"><label class="form-label">Mật khẩu mới <span class="text-danger">*</span></label><input type="password" class="form-control" id="newPasswordInput" placeholder="Tối thiểu 6 ký tự"></div>
+                    <div class="mb-3"><label class="form-label">Xác nhận mật khẩu mới <span class="text-danger">*</span></label><input type="password" class="form-control" id="confirmNewPasswordInput" placeholder="Nhập lại mật khẩu mới"></div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -748,18 +740,9 @@
     <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-warning">
-                    <h5 class="modal-title">Quên mật khẩu</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Nhập email đăng ký tài khoản của bạn. Chúng tôi sẽ gửi link đặt lại mật khẩu.</p>
-                    <input type="email" class="form-control" id="resetEmailInput" placeholder="Email của bạn">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" id="sendResetBtn">Gửi yêu cầu</button>
-                </div>
+                <div class="modal-header bg-warning"><h5 class="modal-title">Quên mật khẩu</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body"><p>Nhập email đăng ký tài khoản của bạn. Chúng tôi sẽ gửi link đặt lại mật khẩu.</p><input type="email" class="form-control" id="resetEmailInput" placeholder="Email của bạn"></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-primary" id="sendResetBtn">Gửi yêu cầu</button></div>
             </div>
         </div>
     </div>
@@ -767,19 +750,9 @@
     <div class="modal fade" id="deleteAccountModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">Xóa tài khoản vĩnh viễn</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="fw-bold text-danger">Cảnh báo: Toàn bộ dữ liệu sẽ bị xóa vĩnh viễn và không thể khôi phục.</p>
-                    <p>Hãy nhập <strong>XOATOANBO</strong> vào ô bên dưới để xác nhận:</p>
-                    <input type="text" class="form-control" id="deleteConfirmCode" placeholder="XOATOANBO">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-danger" id="confirmDeleteAccountBtn">Tôi hiểu, xóa ngay</button>
-                </div>
+                <div class="modal-header bg-danger text-white"><h5 class="modal-title">Xóa tài khoản vĩnh viễn</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body"><p class="fw-bold text-danger">Cảnh báo: Toàn bộ dữ liệu sẽ bị xóa vĩnh viễn và không thể khôi phục.</p><p>Hãy nhập <strong>XOATOANBO</strong> vào ô bên dưới để xác nhận:</p><input type="text" class="form-control" id="deleteConfirmCode" placeholder="XOATOANBO"></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-danger" id="confirmDeleteAccountBtn">Tôi hiểu, xóa ngay</button></div>
             </div>
         </div>
     </div>
@@ -787,17 +760,9 @@
     <div class="modal fade" id="logoutConfirmModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header bg-warning">
-                    <h5 class="modal-title">Xác nhận đăng xuất</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn đăng xuất khỏi VieChat không?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-danger" id="logoutConfirmOkBtn">Đăng xuất</button>
-                </div>
+                <div class="modal-header bg-warning"><h5 class="modal-title">Xác nhận đăng xuất</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body"><p>Bạn có chắc chắn muốn đăng xuất khỏi VieChat không?</p></div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-danger" id="logoutConfirmOkBtn">Đăng xuất</button></div>
             </div>
         </div>
     </div>
@@ -805,24 +770,10 @@
     <div class="modal fade" id="lockAccountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title fw-bold">⚠️ ĐĂNG NHẬP BỊ HẠN CHẾ</h5>
-                </div>
-                <div class="modal-body p-4">
-                    <p class="text-center text-muted mb-4">Hệ thống ghi nhận vi phạm và đã tạm dừng quyền truy cập của tài khoản này.</p>
-                    <div class="table-responsive">
-                        <table class="table table-sm table-borderless">
-                            <tbody>
-                                <tr><th class="text-secondary">Tên:</th><td id="displayName" class="fw-bold">---</td></tr>
-                                <tr><th class="text-secondary">ID:</th><td id="displayLockID" class="fw-bold text-dark">---</td></tr>
-                                <tr><th class="text-secondary">Lý do:</th><td id="displayLockReason" class="text-danger">---</td></tr>
-                                <tr><th class="text-secondary">Bắt đầu:</th><td id="displayLockStart">---</td></tr>
-                                <tr><th class="text-secondary">Thời gian:</th><td id="displayLockDuration" class="fw-bold">---</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <center><button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal" style="border-radius: 50px;">Đã hiểu</button></center>
-                </div>
+                <div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold">⚠️ ĐĂNG NHẬP BỊ HẠN CHẾ</h5></div>
+                <div class="modal-body p-4"><p class="text-center text-muted mb-4">Hệ thống ghi nhận vi phạm và đã tạm dừng quyền truy cập của tài khoản này.</p>
+                <div class="table-responsive"><table class="table table-sm table-borderless"><tbody><tr><th class="text-secondary">Tên:</th><td id="displayName" class="fw-bold">---</td></tr><tr><th class="text-secondary">ID:</th><td id="displayLockID" class="fw-bold text-dark">---</td></tr><tr><th class="text-secondary">Lý do:</th><td id="displayLockReason" class="text-danger">---</td></tr><tr><th class="text-secondary">Bắt đầu:</th><td id="displayLockStart">---</td></tr><tr><th class="text-secondary">Thời gian:</th><td id="displayLockDuration" class="fw-bold">---</td></tr></tbody></table></div>
+                <center><button type="button" class="btn btn-secondary w-50" data-bs-dismiss="modal" style="border-radius: 50px;">Đã hiểu</button></center></div>
             </div>
         </div>
     </div>
@@ -830,10 +781,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
-        // [GIỮ NGUYÊN TOÀN BỘ CODE JAVASCRIPT CỦA BẠN]
-        // Import và các hàm xử lý Firebase giữ nguyên như cũ
-        // Chỉ thêm phần responsive sidebar toggle
-        
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updatePassword, deleteUser, sendPasswordResetEmail, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue, serverTimestamp, query, orderByChild, equalTo, get, remove, off, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -866,7 +813,6 @@
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('sidebarToggleBtn');
             const overlay = document.getElementById('sidebarOverlay');
-            const mobileBackBtn = document.getElementById('mobileBackBtn');
             
             if (!sidebar) return;
             
@@ -897,16 +843,16 @@
             
             // Đóng sidebar khi chọn một người bạn (trên mobile)
             const originalOpenChat = window.openChat;
-            window.openChat = (uid, name, el) => {
-                if (window.innerWidth <= 768) {
-                    closeSidebar();
-                }
-                if (mobileBackBtn) mobileBackBtn.style.display = 'inline-flex';
-                originalOpenChat(uid, name, el);
-            };
+            if (originalOpenChat) {
+                window.openChat = (uid, name, el) => {
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+                    originalOpenChat(uid, name, el);
+                };
+            }
         }
 
-        // Hàm chuyển đổi mã lỗi Firebase thành tiếng Việt
         function getFirebaseErrorMessage(errorCode) {
             const errorMessages = {
                 'auth/invalid-credential': 'Email hoặc mật khẩu không đúng. Vui lòng thử lại',
@@ -927,7 +873,6 @@
             return errorMessages[errorCode] || (errorCode && errorCode.includes('auth/') ? 'Lỗi xác thực: ' + errorCode.replace('auth/', '').replace(/-/g, ' ') : errorMessages.default);
         }
 
-        // Helper functions cho modal
         window.showAlert = (title, message, onClose = null) => {
             document.getElementById('commonModalTitle').innerText = title;
             document.getElementById('commonModalBody').innerHTML = message;
@@ -1025,7 +970,6 @@
                         document.getElementById('my-email').innerText = user.email;
                         document.getElementById('my-name').innerText = data.name || "Người dùng";
                         syncLists();
-                        // Khởi tạo responsive sidebar sau khi đăng nhập
                         setTimeout(initResponsiveSidebar, 100);
                     }
                 });
@@ -1174,7 +1118,6 @@
         
         document.getElementById('confirmDeleteAccountBtn').onclick = () => processDeleteAccount();
 
-        // Các hàm chat giữ nguyên
         window.findUser = async () => {
             const email = document.getElementById('search-input').value.trim().toLowerCase();
             const resBox = document.getElementById('search-result');
@@ -1267,9 +1210,17 @@
             document.getElementById('home-btn-header').style.display = 'block';
             document.getElementById('delete-history-btn').style.display = 'inline-block';
             
-            // Hiển thị nút back trên mobile
+            // Ẩn nút toggle sidebar khi đang chat (trên desktop vẫn hiện, trên mobile ẩn đi vì đã có nút back)
+            const sidebarToggle = document.getElementById('sidebarToggleBtn');
             const mobileBackBtn = document.getElementById('mobileBackBtn');
-            if (mobileBackBtn && window.innerWidth <= 768) mobileBackBtn.style.display = 'inline-flex';
+            
+            if (window.innerWidth <= 768) {
+                if (sidebarToggle) sidebarToggle.style.display = 'none';
+                if (mobileBackBtn) mobileBackBtn.style.display = 'flex';
+            } else {
+                if (sidebarToggle) sidebarToggle.style.display = 'flex';
+                if (mobileBackBtn) mobileBackBtn.style.display = 'none';
+            }
             
             const delB = document.getElementById('deleted-banner');
             const banB = document.getElementById('banned-banner');
@@ -1366,8 +1317,10 @@
             document.getElementById('input-container').style.display = 'none';
             document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
             
-            // Ẩn nút back trên mobile
+            // Hiển thị lại nút toggle sidebar
+            const sidebarToggle = document.getElementById('sidebarToggleBtn');
             const mobileBackBtn = document.getElementById('mobileBackBtn');
+            if (sidebarToggle) sidebarToggle.style.display = 'flex';
             if (mobileBackBtn) mobileBackBtn.style.display = 'none';
         };
 
