@@ -115,7 +115,7 @@
                         <button onclick="showChangeNameModal()">Đổi tên</button>
                         <button onclick="showChangePasswordModal()">Đổi mật khẩu</button>
                         <button onclick="showDeleteAccountModal()" style="color: var(--danger);">Xóa tài khoản</button>
-                        <button onclick="logout()">Đăng xuất</button>
+                        <button onclick="showLogoutConfirm()">Đăng xuất</button>
                     </div>
                 </div>
                 <div class="search-box">
@@ -150,12 +150,12 @@
                 <div id="block-banner" class="status-banner banner-red"></div>
                 <div id="deleted-banner" class="status-banner banner-gray">
                     <span>Tài khoản này không tồn tại.</span>
-                    <button class="home-btn" onclick="goHome()">Đóng chat</button>
+                    <button class="home-btn" onclick="goHome()">Trở về trang chủ</button>
                 </div>
 
                 <div id="banned-banner" class="status-banner banner-gray">
                     <span>Tài khoản này hiện đang bị cấm và chưa thể truy cập vào đoạn hội thoại này.</span>
-                    <button class="home-btn" onclick="goHome()">Đóng chat</button>
+                    <button class="home-btn" onclick="goHome()">Trở về trang chủ</button>
                 </div>
 
                 <div id="friend-request-banner" class="status-banner banner-gray">
@@ -180,11 +180,11 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="commonModalTitle">Thông báo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" id="commonModalCloseBtn" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="commonModalBody">Nội dung</div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="commonModalDismissBtn">OK</button>
                 </div>
             </div>
         </div>
@@ -247,7 +247,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" onclick="processChangePassword()">Cập nhật</button>
+                    <button type="button" class="btn btn-primary" id="changePasswordSubmitBtn">Cập nhật</button>
                 </div>
             </div>
         </div>
@@ -266,7 +266,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" onclick="sendPasswordReset()">Gửi yêu cầu</button>
+                    <button type="button" class="btn btn-primary" id="sendResetBtn">Gửi yêu cầu</button>
                 </div>
             </div>
         </div>
@@ -286,7 +286,25 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-danger" onclick="processDeleteAccount()">Tôi hiểu, xóa ngay</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteAccountBtn">Tôi hiểu, xóa ngay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="logoutConfirmModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title">Xác nhận đăng xuất</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn đăng xuất khỏi VieChat không?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" id="logoutConfirmOkBtn">Đăng xuất</button>
                 </div>
             </div>
         </div>
@@ -305,7 +323,7 @@
                     <table class="table table-sm table-borderless">
                         <tbody>
                             <tr><th class="text-secondary">Tên:</th><td id="displayName" class="fw-bold">---</td></tr>
-                            <tr><th class="text-secondary" style="width: 40%;">ID:</th><td id="displayLockID" class="fw-bold text-dark">---</td></tr>
+                            <td><th class="text-secondary" style="width: 40%;">ID:</th><td id="displayLockID" class="fw-bold text-dark">---</td></tr>
                             <tr><th class="text-secondary">Lý do:</th><td id="displayLockReason" class="text-danger">---</td></tr>
                             <tr><th class="text-secondary">Bắt đầu:</th><td id="displayLockStart">---</td></tr>
                             <tr><th class="text-secondary">Thời gian hạn chế:</th><td id="displayLockDuration" class="fw-bold">---</td></tr>
@@ -343,23 +361,94 @@
         let activeListeners = []; 
         let pendingConfirmCallback = null;
         let pendingPromptCallback = null;
+        let pendingAfterCloseCallback = null;
+        
+        let changePasswordModalInstance = null;
+        let deleteAccountModalInstance = null;
+
+        // Hàm chuyển đổi mã lỗi Firebase thành tiếng Việt
+        function getFirebaseErrorMessage(errorCode) {
+            const errorMessages = {
+                // Auth errors
+                'auth/invalid-credential': 'Email hoặc mật khẩu không đúng. Vui lòng thử lại',
+                'auth/invalid-email': 'Email không hợp lệ. Vui lòng kiểm tra lại định dạng email.',
+                'auth/user-disabled': 'Tài khoản này đã bị vô hiệu hóa. Vui lòng liên hệ hỗ trợ để được giải quyết.',
+                'auth/user-not-found': 'Không tìm thấy tài khoản với email này. Vui lòng kiểm tra lại hoặc đăng ký tài khoản mới.',
+                'auth/wrong-password': 'Mật khẩu không chính xác. Vui lòng thử lại.',
+                'auth/email-already-in-use': 'Email này đã được sử dụng. Vui lòng sử dụng email khác hoặc đăng nhập.',
+                'auth/weak-password': 'Mật khẩu quá yếu. Vui lòng sử dụng mật khẩu có ít nhất 6 ký tự.',
+                'auth/network-request-failed': 'Lỗi kết nối mạng. Vui lòng kiểm tra kết nối internet của bạn.',
+                'auth/too-many-requests': 'Quá nhiều yêu cầu từ thiết bị này. Vui lòng thử lại sau.',
+                'auth/operation-not-allowed': 'Phương thức đăng nhập này chưa được kích hoạt. Vui lòng liên hệ quản trị viên.',
+                'auth/requires-recent-login': 'Vui lòng đăng xuất và đăng nhập lại để thực hiện thao tác này vì lý do bảo mật.',
+                
+                // Database errors
+                'database/permission-denied': 'Bạn không có quyền thực hiện thao tác này.',
+                'database/disconnected': 'Mất kết nối đến cơ sở dữ liệu. Vui lòng kiểm tra mạng.',
+                
+                // Default
+                'default': 'Đã xảy ra lỗi. Vui lòng thử lại sau.'
+            };
+            
+            if (errorMessages[errorCode]) {
+                return errorMessages[errorCode];
+            }
+            
+            // Xử lý các lỗi không có trong danh sách
+            if (errorCode && errorCode.includes('auth/')) {
+                return 'Lỗi xác thực: ' + errorCode.replace('auth/', '').replace(/-/g, ' ');
+            }
+            
+            return errorMessages.default;
+        }
 
         // Helper functions cho modal
-        window.showAlert = (title, message) => {
+        window.showAlert = (title, message, onClose = null) => {
             document.getElementById('commonModalTitle').innerText = title;
             document.getElementById('commonModalBody').innerHTML = message;
-            new bootstrap.Modal(document.getElementById('commonModal')).show();
+            const modalEl = document.getElementById('commonModal');
+            const modal = new bootstrap.Modal(modalEl);
+            
+            pendingAfterCloseCallback = onClose;
+            
+            const handleHidden = () => {
+                if (pendingAfterCloseCallback) {
+                    pendingAfterCloseCallback();
+                    pendingAfterCloseCallback = null;
+                }
+                modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+            };
+            
+            modalEl.addEventListener('hidden.bs.modal', handleHidden);
+            
+            const dismissBtn = document.getElementById('commonModalDismissBtn');
+            const closeBtn = document.getElementById('commonModalCloseBtn');
+            
+            const handleButtonClick = () => {
+                modal.hide();
+            };
+            
+            dismissBtn.onclick = handleButtonClick;
+            closeBtn.onclick = handleButtonClick;
+            
+            modal.show();
         };
         
-        window.showConfirm = (message, onOk) => {
+        window.showConfirm = (message, onOk, onCancel = null) => {
             document.getElementById('confirmModalBody').innerText = message;
             pendingConfirmCallback = onOk;
             const modalEl = document.getElementById('confirmModal');
             const modal = new bootstrap.Modal(modalEl);
-            document.getElementById('confirmModalOkBtn').onclick = () => {
+            
+            const okBtn = document.getElementById('confirmModalOkBtn');
+            const newOkBtn = okBtn.cloneNode(true);
+            okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+            
+            newOkBtn.onclick = () => {
                 if(pendingConfirmCallback) pendingConfirmCallback();
                 modal.hide();
             };
+            
             modal.show();
         };
         
@@ -387,7 +476,16 @@
             new bootstrap.Modal(document.getElementById('lockAccountModal')).show();
         };
 
-        // FIX QUAN TRỌNG: SỬA LỖI FORM LOGIN KHÔNG ẨN
+        window.showLogoutConfirm = () => {
+            const modalEl = document.getElementById('logoutConfirmModal');
+            const modal = new bootstrap.Modal(modalEl);
+            document.getElementById('logoutConfirmOkBtn').onclick = () => {
+                modal.hide();
+                logout();
+            };
+            modal.show();
+        };
+
         onAuthStateChanged(auth, (user) => {
             const authScreen = document.getElementById('auth-screen');
             const mainApp = document.getElementById('main-app');
@@ -411,7 +509,6 @@
                             return;
                         }
                         
-                        // FIX: Ẩn auth screen, hiện main app
                         authScreen.style.display = 'none';
                         mainApp.style.display = 'flex';
                         
@@ -424,7 +521,6 @@
                 cleanupListeners();
                 currentUser = null;
                 activeChatId = null;
-                // FIX: Hiện lại auth screen, ẩn main app
                 authScreen.style.display = 'flex';
                 mainApp.style.display = 'none';
                 goHome();
@@ -447,9 +543,9 @@
             const name = type === 'signup' ? document.getElementById('signup-name').value.trim() : null;
             const confirmPass = type === 'signup' ? document.getElementById('signup-confirm-password').value : null;
             
-            if (!email || !pass || (type === 'signup' && !name)) return showAlert("Thiếu thông tin", "Vui lòng điền đầy đủ thông tin!");
-            if (type === 'signup' && pass !== confirmPass) return showAlert("Lỗi xác nhận", "Mật khẩu và xác nhận mật khẩu không khớp.");
-            if (type === 'signup' && pass.length < 6) return showAlert("Lỗi bảo mật", "Mật khẩu phải có ít nhất 6 ký tự.");
+            if (!email || !pass || (type === 'signup' && !name)) return showAlert("Thông báo", "Vui lòng điền đầy đủ thông tin!");
+            if (type === 'signup' && pass !== confirmPass) return showAlert("Thông báo", "Mật khẩu và xác nhận mật khẩu không khớp.");
+            if (type === 'signup' && pass.length < 6) return showAlert("Thông báo", "Mật khẩu phải có ít nhất 6 ký tự.");
             
             try {
                 if (type === 'signup') {
@@ -462,7 +558,7 @@
                         lockStart: "",
                         lockDuration: ""
                     });
-                    showAlert("Thành công", "Đăng ký thành công!");
+                    showAlert("Thông báo", "Đăng ký tài khoản thành công! Hãy kết bạn với bạn bè của bạn để trò chuyện ngay!");
                     window.toggleAuth(false);
                     document.getElementById('email').value = email;
                     document.getElementById('password').value = '';
@@ -470,73 +566,141 @@
                     await signInWithEmailAndPassword(auth, email, pass);
                 }
             } catch (e) { 
-                showAlert("Lỗi", e.message); 
+                const errorMessage = getFirebaseErrorMessage(e.code);
+                showAlert("Thông báo", errorMessage); 
             }
         };
 
         window.sendPasswordReset = () => {
             const email = document.getElementById('resetEmailInput').value;
-            if(!email) return showAlert("Thiếu email", "Vui lòng nhập email của bạn.");
+            if(!email) return showAlert("Thông báo", "Vui lòng nhập email của bạn.");
             sendPasswordResetEmail(auth, email)
                 .then(() => { 
-                    showAlert("Kiểm tra email", "Link đặt lại mật khẩu đã được gửi đến hộp thư của bạn."); 
+                    showAlert("Thông báo", "Link đặt lại mật khẩu đã được gửi đến hộp thư của bạn."); 
                     bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal')).hide();
                 })
-                .catch(e => showAlert("Lỗi", e.message));
+                .catch(e => {
+                    const errorMessage = getFirebaseErrorMessage(e.code);
+                    showAlert("Lỗi", errorMessage);
+                });
         };
 
+        document.getElementById('sendResetBtn').onclick = () => window.sendPasswordReset();
+
         window.showChangeNameModal = () => {
-            showPrompt("Đổi tên hiển thị", "Nhập tên mới...", async (newName) => {
+            return showPrompt("Đổi tên hiển thị", "Nhập tên mới...", async (newName) => {
                 if(newName && newName.trim()) {
                     await update(ref(db, `users/${currentUser.uid}`), { name: newName.trim() });
-                    showAlert("Thành công", "Cập nhật tên thành công!");
+                    showAlert("Thông báo", "Cập nhật tên thành công!");
+                }
+                if (!newName) {
+                    return showAlert("Thông báo", "Vui lòng nhập đầy đủ thông tin")
                 }
             });
         };
-
+        
         window.showChangePasswordModal = () => {
             document.getElementById('oldPasswordInput').value = '';
             document.getElementById('newPasswordInput').value = '';
             document.getElementById('confirmNewPasswordInput').value = '';
-            new bootstrap.Modal(document.getElementById('changePasswordModal')).show();
+            const modalEl = document.getElementById('changePasswordModal');
+            changePasswordModalInstance = new bootstrap.Modal(modalEl);
+            changePasswordModalInstance.show();
         };
         
-        window.processChangePassword = async () => {
+        const processChangePassword = async () => {
             const oldPass = document.getElementById('oldPasswordInput').value;
             const newPass = document.getElementById('newPasswordInput').value;
             const confirmPass = document.getElementById('confirmNewPasswordInput').value;
-            if(!oldPass) return showAlert("Thiếu thông tin", "Vui lòng nhập mật khẩu cũ.");
-            if(newPass.length < 6) return showAlert("Lỗi", "Mật khẩu mới phải có ít nhất 6 ký tự.");
-            if(newPass !== confirmPass) return showAlert("Lỗi xác nhận", "Mật khẩu mới và xác nhận không khớp.");
+            
+            const showErrorAndReopen = (errorMsg) => {
+                if (changePasswordModalInstance) {
+                    changePasswordModalInstance.hide();
+                }
+                showAlert("Lỗi", errorMsg, () => {
+                    if (changePasswordModalInstance) {
+                        changePasswordModalInstance.show();
+                    } else {
+                        const modalEl = document.getElementById('changePasswordModal');
+                        changePasswordModalInstance = new bootstrap.Modal(modalEl);
+                        changePasswordModalInstance.show();
+                    }
+                });
+            };
+            
+            if(!oldPass) {
+                showErrorAndReopen("Vui lòng nhập mật khẩu cũ.");
+                return;
+            }
+            if(newPass.length < 6) {
+                showErrorAndReopen("Mật khẩu mới phải có ít nhất 6 ký tự.");
+                return;
+            }
+            if(newPass !== confirmPass) {
+                showErrorAndReopen("Mật khẩu mới và xác nhận mật khẩu không khớp.");
+                return;
+            }
+            
             try {
                 const credential = EmailAuthProvider.credential(currentUser.email, oldPass);
                 await reauthenticateWithCredential(currentUser, credential);
                 await updatePassword(currentUser, newPass);
-                showAlert("Thành công", "Đổi mật khẩu thành công!");
-                bootstrap.Modal.getInstance(document.getElementById('changePasswordModal')).hide();
+                if (changePasswordModalInstance) {
+                    changePasswordModalInstance.hide();
+                }
+                showAlert("Thông báo", "Đổi mật khẩu thành công!");
             } catch(e) { 
-                showAlert("Lỗi", e.message + " (Kiểm tra lại mật khẩu cũ)"); 
+                const errorMessage = getFirebaseErrorMessage(e.code);
+                showErrorAndReopen(errorMessage);
             }
         };
+        
+        document.getElementById('changePasswordSubmitBtn').onclick = () => processChangePassword();
 
         window.showDeleteAccountModal = () => {
             document.getElementById('deleteConfirmCode').value = '';
-            new bootstrap.Modal(document.getElementById('deleteAccountModal')).show();
+            const modalEl = document.getElementById('deleteAccountModal');
+            deleteAccountModalInstance = new bootstrap.Modal(modalEl);
+            deleteAccountModalInstance.show();
         };
         
-        window.processDeleteAccount = async () => {
+        const processDeleteAccount = async () => {
             const code = document.getElementById('deleteConfirmCode').value;
-            if(code !== "XOATOANBO") return showAlert("Xác nhận sai", "Vui lòng nhập chính xác mã XOATOANBO.");
-            showConfirm("CẢNH BÁO: Tài khoản và dữ liệu sẽ bị xóa vĩnh viễn. Bạn chắc chắn chứ?", async () => {
-                try {
-                    await remove(ref(db, `users/${currentUser.uid}`));
-                    await deleteUser(currentUser);
-                    bootstrap.Modal.getInstance(document.getElementById('deleteAccountModal')).hide();
-                } catch (e) { 
-                    showAlert("Lỗi bảo mật", "Vui lòng đăng nhập lại trước khi xóa tài khoản."); 
+            
+            const showErrorAndReopen = (errorMsg) => {
+                if (deleteAccountModalInstance) {
+                    deleteAccountModalInstance.hide();
                 }
-            });
+                showAlert("Lỗi", errorMsg, () => {
+                    if (deleteAccountModalInstance) {
+                        deleteAccountModalInstance.show();
+                    } else {
+                        const modalEl = document.getElementById('deleteAccountModal');
+                        deleteAccountModalInstance = new bootstrap.Modal(modalEl);
+                        deleteAccountModalInstance.show();
+                    }
+                });
+            };
+            
+            if(code !== "XOATOANBO") {
+                showErrorAndReopen("Mã xác nhận không chính xác. Vui lòng nhập XOATOANBO để xác nhận xóa tài khoản.");
+                return;
+            }
+            
+            try {
+                await remove(ref(db, `users/${currentUser.uid}`));
+                await deleteUser(currentUser);
+                if (deleteAccountModalInstance) {
+                    deleteAccountModalInstance.hide();
+                }
+                showAlert("Thông báo", "Tài khoản của bạn đã được xóa vĩnh viễn.");
+            } catch (e) { 
+                const errorMessage = getFirebaseErrorMessage(e.code);
+                showErrorAndReopen(errorMessage);
+            }
         };
+        
+        document.getElementById('confirmDeleteAccountBtn').onclick = () => processDeleteAccount();
 
         window.findUser = async () => {
             const email = document.getElementById('search-input').value.trim().toLowerCase();
@@ -565,7 +729,7 @@
                 }
 
                 resBox.innerHTML = `<div class="search-result-item"><strong>${targetData.name}</strong><br><small>${targetData.email}</small><div style="margin:5px 0">${statusNote}</div>${buttonHtml}</div>`;
-            } else showAlert("Không tìm thấy", "Không tìm thấy người dùng này!");
+            } else showAlert("Thông báo", "Không tìm thấy người dùng này!");
         };
 
         window.sendFriendRequest = async (targetUid) => {
@@ -800,7 +964,8 @@
                     document.getElementById('chat-messages').innerHTML = "";
                     showAlert("Đã xóa", "Đã xóa lịch sử trò chuyện phía bạn.");
                 } catch (e) {
-                    showAlert("Lỗi", e.message);
+                    const errorMessage = getFirebaseErrorMessage(e.code);
+                    showAlert("Lỗi", errorMessage);
                 }
             });
         };
