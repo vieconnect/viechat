@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VieChat</title>
+    <title>VieChat - Nhắn tin an toàn</title>
     <style>
         :root { 
             --primary: #0084ff; 
@@ -207,7 +207,7 @@
             color: white; 
         }
         
-        /* ========== CHAT WINDOW - FULL màn hình ========== */
+        /* ========== CHAT WINDOW ========== */
         .chat-window { 
             flex: 1; 
             display: flex; 
@@ -407,7 +407,7 @@
             box-shadow: 0 15px 35px rgba(0,0,0,0.2);
         }
         
-        /* ========== RESPONSIVE ========== */
+        /* ========== RESPONSIVE BREAKPOINTS ========== */
         @media (max-width: 768px) {
             .sidebar {
                 position: fixed;
@@ -436,7 +436,6 @@
                 display: block;
             }
             
-            /* Chat full màn hình trên mobile */
             .chat-window {
                 width: 100%;
             }
@@ -843,14 +842,12 @@
             
             // Đóng sidebar khi chọn một người bạn (trên mobile)
             const originalOpenChat = window.openChat;
-            if (originalOpenChat) {
-                window.openChat = (uid, name, el) => {
-                    if (window.innerWidth <= 768) {
-                        closeSidebar();
-                    }
-                    originalOpenChat(uid, name, el);
-                };
-            }
+            window.openChat = (uid, name, el) => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+                if (originalOpenChat) originalOpenChat(uid, name, el);
+            };
         }
 
         function getFirebaseErrorMessage(errorCode) {
