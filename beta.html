@@ -705,7 +705,9 @@
                 </div>
                 <div class="modal-body">
                     <p class="text-center">Tài khoản đã bị khóa.</p>
-                    <table class="table"><tbody><tr><th>Tên:</th><td id="displayName">---</td></tr><tr><th>Lý do:</th><td id="displayLockReason">---</td></tr></tbody></table>
+                    <table class="table"><tbody><tr><th>Tên:</th><td id="displayName">---</td></tr>
+                    <tr><th>Lý do:</th><td id="displayLockReason">---</td></tr>
+                    </tbody></table>
                     <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Đã hiểu</button>
                 </div>
             </div>
@@ -742,7 +744,6 @@
         let deleteAccountModalInstance = null;
         let changeNameModalInstance = null;
 
-        // Hàm đóng sidebar - CHỈ ĐÓNG KHI BẤM VÀO BẠN BÈ
         function closeSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -752,7 +753,6 @@
             }
         }
 
-        // Hàm mở sidebar
         function openSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
@@ -762,7 +762,6 @@
             }
         }
 
-        // Toggle sidebar
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             if (sidebar.classList.contains('open')) {
@@ -950,7 +949,6 @@
 
         document.getElementById('sendResetBtn').onclick = () => window.sendPasswordReset();
 
-        // ========== MODAL ĐỔI TÊN ==========
         window.showChangeNameModal = () => {
             document.getElementById('changeNameInput').value = '';
             const modalEl = document.getElementById('changeNameModal');
@@ -1007,7 +1005,6 @@
         
         document.getElementById('changeNameSubmitBtn').onclick = () => processChangeName();
 
-        // ========== MODAL ĐỔI MẬT KHẨU ==========
         window.showChangePasswordModal = () => {
             document.getElementById('oldPasswordInput').value = '';
             document.getElementById('newPasswordInput').value = '';
@@ -1066,7 +1063,6 @@
         
         document.getElementById('changePasswordSubmitBtn').onclick = () => processChangePassword();
 
-        // ========== MODAL XÓA TÀI KHOẢN ==========
         window.showDeleteAccountModal = () => {
             document.getElementById('deleteConfirmCode').value = '';
             const modalEl = document.getElementById('deleteAccountModal');
@@ -1112,7 +1108,6 @@
         
         document.getElementById('confirmDeleteAccountBtn').onclick = () => processDeleteAccount();
 
-        // ========== CÁC HÀM CHAT ==========
         window.findUser = async () => {
             const email = document.getElementById('search-input').value.trim().toLowerCase();
             const resBox = document.getElementById('search-result');
@@ -1216,10 +1211,9 @@
                         
                         div.innerHTML = `<div><strong>${data.name}</strong><br><small>${data.email}</small></div><div class="btn-group">${actions}</div>`;
                         
-                        // KHI BẤM VÀO BẠN BÈ -> ĐÓNG SIDEBAR
                         div.onclick = (function(uidVal, nameVal, divEl) {
                             return function() {
-                                closeSidebar(); // Đóng sidebar ngay lập tức
+                                closeSidebar();
                                 setTimeout(() => {
                                     openChatFunction(uidVal, nameVal, divEl);
                                 }, 50);
@@ -1232,153 +1226,143 @@
             });
         }
 
-function openChatFunction(uid, name, el) {
-    document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
-    if (el) el.classList.add('active');
-    document.getElementById('header-text').innerText = name;
-    document.getElementById('home-btn-header').style.display = 'block';
-    document.getElementById('delete-history-btn').style.display = 'inline-block';
+        // HÀM OPEN CHAT CHÍNH - ĐÃ SỬA HOÀN CHỈNH
+        function openChatFunction(uid, name, el) {
+            document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+            if (el) el.classList.add('active');
+            document.getElementById('header-text').innerText = name;
+            document.getElementById('home-btn-header').style.display = 'block';
+            document.getElementById('delete-history-btn').style.display = 'inline-block';
 
-    const delB = document.getElementById('deleted-banner');
-    const banB = document.getElementById('banned-banner');
-    const blockB = document.getElementById('block-banner');
-    const friendB = document.getElementById('friend-request-banner');
-    const friendText = document.getElementById('friend-banner-text');
-    const friendActions = document.getElementById('friend-banner-actions');
-    const inputContainer = document.getElementById('input-container');
+            const delB = document.getElementById('deleted-banner');
+            const banB = document.getElementById('banned-banner');
+            const blockB = document.getElementById('block-banner');
+            const friendB = document.getElementById('friend-request-banner');
+            const friendText = document.getElementById('friend-banner-text');
+            const friendActions = document.getElementById('friend-banner-actions');
+            const inputContainer = document.getElementById('input-container');
 
-    // Reset tất cả
-    [delB, banB, blockB, friendB].forEach(b => { if (b) b.style.display = 'none'; });
-    if (inputContainer) inputContainer.style.display = 'none';
-    if (friendActions) friendActions.style.display = 'none';
-
-    // Kiểm tra user có tồn tại và không bị khóa
-    const userRef = ref(db, `users/${uid}`);
-    onValue(userRef, (uSnap) => {
-        const userData = uSnap.val();
-        
-        if (!uSnap.exists()) {
-            // Tài khoản không tồn tại
-            if (delB) delB.style.display = 'flex';
+            // Reset UI
+            [delB, banB, blockB, friendB].forEach(b => { if (b) b.style.display = 'none'; });
             if (inputContainer) inputContainer.style.display = 'none';
-            return;
-        }
+            if (friendActions) friendActions.style.display = 'none';
 
-        if (userData.isLocked === true || userData.isLocked === "true") {
-            // Tài khoản bị khóa
-            if (banB) banB.style.display = 'flex';
-            if (inputContainer) inputContainer.style.display = 'none';
-            return;
-        }
-
-        // Tài khoản hợp lệ, kiểm tra trạng thái bạn bè
-        const myStatusRef = ref(db, `friend_status/${currentUser.uid}/${uid}`);
-        const theirStatusRef = ref(db, `friend_status/${uid}/${currentUser.uid}`);
-        
-        onValue(myStatusRef, (mySnap) => {
-            const myS = mySnap.val();
-            
-            onValue(theirStatusRef, (theirSnap) => {
-                const theirS = theirSnap.val();
-                
-                // Reset lại banners trước khi xét
-                if (delB) delB.style.display = 'none';
-                if (banB) banB.style.display = 'none';
-                if (blockB) blockB.style.display = 'none';
-                if (friendB) friendB.style.display = 'none';
-                if (inputContainer) inputContainer.style.display = 'none';
-                if (friendActions) friendActions.style.display = 'none';
-                
-                // Xử lý theo từng trạng thái
-                if (myS === 'blocked' || theirS === 'blocked') {
-                    // Bị chặn
-                    if (blockB) {
-                        blockB.style.display = 'flex';
-                        blockB.innerHTML = myS === 'blocked' 
-                            ? `Bạn đang chặn người này <br> <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` 
-                            : `Bạn hiện không thể liên lạc với người này qua VieChat`;
-                    }
-                } 
-                else if (myS === 'outgoing') {
-                    // Đã gửi lời mời, đang chờ
-                    if (friendB) {
-                        friendB.style.display = 'flex';
-                        if (friendText) friendText.innerText = "Bạn chưa thể trò chuyện cho đến khi họ chấp nhận lời mời kết bạn.";
-                    }
-                } 
-                else if (myS === 'incoming') {
-                    // Nhận được lời mời
-                    if (friendB) {
-                        friendB.style.display = 'flex';
-                        if (friendActions) friendActions.style.display = 'flex';
-                        if (friendText) friendText.innerText = `${name} muốn kết bạn với bạn.`;
-                        const acceptBtn = document.getElementById('banner-accept-btn');
-                        const rejectBtn = document.getElementById('banner-reject-btn');
-                        if (acceptBtn) acceptBtn.onclick = () => updateStatus(uid, 'accepted');
-                        if (rejectBtn) rejectBtn.onclick = () => updateStatus(uid, 'reject');
-                    }
-                } 
-                else if (myS === 'accepted') {
-                    // ĐÃ KẾT BẠN - HIỆN Ô NHẬP TIN NHẮN
-                    if (inputContainer) inputContainer.style.display = 'flex';
-                } 
-                else {
-                    // Chưa có quan hệ bạn bè
-                    if (friendB) {
-                        friendB.style.display = 'flex';
-                        if (friendText) friendText.innerText = "Hai bạn chưa là bạn bè. Hãy kết bạn để bắt đầu trò chuyện.";
-                    }
+            // Kiểm tra user và trạng thái bạn bè
+            const userRef = ref(db, `users/${uid}`);
+            onValue(userRef, (uSnap) => {
+                if (!uSnap.exists()) {
+                    if (delB) delB.style.display = 'flex';
+                    if (inputContainer) inputContainer.style.display = 'none';
+                    return;
                 }
-            }, { onlyOnce: true });
-        });
-    });
 
-    // Dừng listener tin nhắn cũ nếu có
-    if (activeChatId) off(ref(db, `messages/${activeChatId}`));
-    
-    // Tạo chatId mới
-    activeChatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
-    
-    // Lắng nghe tin nhắn
-    const messagesRef = ref(db, `messages/${activeChatId}`);
-    const clearSnapRef = ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`);
-    
-    onValue(clearSnapRef, (clearSnap) => {
-        const clearTime = clearSnap.val() || 0;
-        onValue(messagesRef, (s) => {
-            const box = document.getElementById('chat-messages'); 
-            if (!box) return;
-            box.innerHTML = "";
-            
-            if (!s.exists()) {
-                box.innerHTML = '<div style="text-align: center; color: #999; margin-top: 50px;"><p>Chưa có tin nhắn nào</p><small>Hãy gửi tin nhắn đầu tiên</small></div>';
-                return;
-            }
-            
-            const messages = [];
-            s.forEach(m => messages.push({ key: m.key, ...m.val() }));
-            messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-            
-            messages.forEach(msg => {
-                if (msg.timestamp <= clearTime) return;
-                if (msg.deletedBy && msg.deletedBy[currentUser.uid]) return;
-
-                const d = document.createElement('div');
-                d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
-                let content = msg.revoked ? `<i style="color:#aaa">Tin nhắn đã bị thu hồi</i>` : (msg.text || '');
-                let ops = "";
-                if (msg.sender === currentUser.uid && !msg.revoked) {
-                    ops = `<div class="msg-ops"><span onclick="revokeMsg('${msg.key}')">Thu hồi</span> | <span onclick="deleteMsg('${msg.key}')">Xóa</span></div>`;
-                } else if (!msg.revoked) {
-                    ops = `<div class="msg-ops"><span onclick="deleteMsg('${msg.key}')">Xóa phía tôi</span></div>`;
+                const userData = uSnap.val();
+                if (userData.isLocked === true || userData.isLocked === "true") {
+                    if (banB) banB.style.display = 'flex';
+                    if (inputContainer) inputContainer.style.display = 'none';
+                    return;
                 }
-                d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`;
-                box.appendChild(d);
+
+                // Lấy trạng thái bạn bè
+                const myStatusRef = ref(db, `friend_status/${currentUser.uid}/${uid}`);
+                const theirStatusRef = ref(db, `friend_status/${uid}/${currentUser.uid}`);
+                
+                onValue(myStatusRef, (mySnap) => {
+                    const myS = mySnap.val();
+                    
+                    onValue(theirStatusRef, (theirSnap) => {
+                        const theirS = theirSnap.val();
+                        
+                        // Reset lại banners
+                        [delB, banB, blockB, friendB].forEach(b => { if (b) b.style.display = 'none'; });
+                        if (inputContainer) inputContainer.style.display = 'none';
+                        if (friendActions) friendActions.style.display = 'none';
+                        
+                        if (myS === 'blocked' || theirS === 'blocked') {
+                            if (blockB) {
+                                blockB.style.display = 'flex';
+                                blockB.innerHTML = myS === 'blocked' 
+                                    ? `Bạn đang chặn người này <br> <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` 
+                                    : `Bạn hiện không thể liên lạc với người này qua VieChat`;
+                            }
+                        } 
+                        else if (myS === 'outgoing') {
+                            if (friendB) {
+                                friendB.style.display = 'flex';
+                                if (friendText) friendText.innerText = "Bạn chưa thể trò chuyện cho đến khi họ chấp nhận lời mời kết bạn.";
+                            }
+                        } 
+                        else if (myS === 'incoming') {
+                            if (friendB) {
+                                friendB.style.display = 'flex';
+                                if (friendActions) friendActions.style.display = 'flex';
+                                if (friendText) friendText.innerText = `${name} muốn kết bạn với bạn.`;
+                                const acceptBtn = document.getElementById('banner-accept-btn');
+                                const rejectBtn = document.getElementById('banner-reject-btn');
+                                if (acceptBtn) acceptBtn.onclick = () => updateStatus(uid, 'accepted');
+                                if (rejectBtn) rejectBtn.onclick = () => updateStatus(uid, 'reject');
+                            }
+                        } 
+                        else if (myS === 'accepted') {
+                            // ĐÃ KẾT BẠN - HIỆN INPUT
+                            if (inputContainer) inputContainer.style.display = 'flex';
+                        } 
+                        else {
+                            if (friendB) {
+                                friendB.style.display = 'flex';
+                                if (friendText) friendText.innerText = "Hai bạn chưa là bạn bè. Hãy kết bạn để bắt đầu trò chuyện.";
+                            }
+                        }
+                    }, { onlyOnce: true });
+                });
             });
-            box.scrollTop = box.scrollHeight;
-        });
-    });
-};
+
+            // Dừng listener tin nhắn cũ
+            if (activeChatId) off(ref(db, `messages/${activeChatId}`));
+            
+            // Tạo chat ID mới
+            activeChatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+            
+            // LẮNG NGHE TIN NHẮN - QUAN TRỌNG
+            const messagesRef = ref(db, `messages/${activeChatId}`);
+            const clearSnapRef = ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`);
+            
+            onValue(clearSnapRef, (clearSnap) => {
+                const clearTime = clearSnap.val() || 0;
+                onValue(messagesRef, (s) => {
+                    const box = document.getElementById('chat-messages'); 
+                    if (!box) return;
+                    box.innerHTML = "";
+                    
+                    if (!s.exists()) {
+                        box.innerHTML = '<div style="text-align: center; color: #999; margin-top: 50px;"><p>Chưa có tin nhắn nào</p><small>Hãy gửi tin nhắn đầu tiên</small></div>';
+                        return;
+                    }
+                    
+                    const messages = [];
+                    s.forEach(m => messages.push({ key: m.key, ...m.val() }));
+                    messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                    
+                    messages.forEach(msg => {
+                        if (msg.timestamp <= clearTime) return;
+                        if (msg.deletedBy && msg.deletedBy[currentUser.uid]) return;
+
+                        const d = document.createElement('div');
+                        d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
+                        let content = msg.revoked ? `<i style="color:#aaa">Tin nhắn đã bị thu hồi</i>` : (msg.text || '');
+                        let ops = "";
+                        if (msg.sender === currentUser.uid && !msg.revoked) {
+                            ops = `<div class="msg-ops"><span onclick="revokeMsg('${msg.key}')">Thu hồi</span> | <span onclick="deleteMsg('${msg.key}')">Xóa</span></div>`;
+                        } else if (!msg.revoked) {
+                            ops = `<div class="msg-ops"><span onclick="deleteMsg('${msg.key}')">Xóa phía tôi</span></div>`;
+                        }
+                        d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`;
+                        box.appendChild(d);
+                    });
+                    box.scrollTop = box.scrollHeight;
+                });
+            });
+        };
         
         window.openChat = openChatFunction;
         
@@ -1396,14 +1380,20 @@ function openChatFunction(uid, name, el) {
 
         window.sendMessage = () => {
             const input = document.getElementById('message-input');
-            if(!input.value.trim() || !activeChatId) return;
+            if(!input.value.trim() || !activeChatId) {
+                console.log("Không thể gửi: thiếu tin nhắn hoặc chưa có chatId");
+                return;
+            }
             push(ref(db, `messages/${activeChatId}`), { 
                 sender: currentUser.uid, 
                 text: input.value, 
                 timestamp: serverTimestamp(),
                 revoked: false
+            }).then(() => {
+                input.value = "";
+            }).catch(err => {
+                console.error("Lỗi gửi tin nhắn:", err);
             });
-            input.value = "";
         };
 
         window.goHome = () => {
@@ -1437,7 +1427,6 @@ function openChatFunction(uid, name, el) {
             });
         };
         
-        // ========== MOBILE SIDEBAR TOGGLE ==========
         function initMobileSidebar() {
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('sidebarToggleBtn');
@@ -1445,22 +1434,18 @@ function openChatFunction(uid, name, el) {
             
             if (!sidebar || !toggleBtn || !overlay) return;
             
-            // Chỉ xử lý mở/đóng khi bấm nút toggle
             toggleBtn.onclick = function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 toggleSidebar();
             };
             
-            // Đóng sidebar khi bấm vào overlay
             overlay.onclick = function() {
                 closeSidebar();
             };
         }
         
-        // Khởi tạo sau khi DOM load
         setTimeout(initMobileSidebar, 500);
     </script>
 </body>
 </html>
-
