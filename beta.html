@@ -368,79 +368,102 @@
         }
         
         /* Mobile Responsive - FIX LỖI INPUT TRÀN */
-        @media (max-width: 790px) {
-            .app-container {
-                position: relative;
-            }
-            
-            .sidebar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                height: 100%;
-                transform: translateX(-100%);
-                width: 100%;
-                min-width: 100%;
-                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-                z-index: 100;
-            }
-            
-            /* FIX: Đảm bảo input không bị tràn */
-            .chat-window {
-                display: flex;
-                flex-direction: column;
-                height: 100%;
-                overflow: hidden;
-            }
-            
-            #chat-messages {
-                flex: 1;
-                overflow-y: auto;
-                padding-bottom: 10px;
-                -webkit-overflow-scrolling: touch;
-            }
-            
-            .input-area {
-                position: sticky;
-                bottom: 0;
-                background: white;
-                width: 100%;
-                z-index: 5;
-                flex-shrink: 0;
-            }
-            
-            .sidebar.open { 
-                transform: translateX(0); 
-            }
-            
-            .sidebar-toggle { 
-                display: flex; 
-            }
-            
-            .chat-window { 
-                width: 100%; 
-                z-index: 1;
-            }
-            
-            .msg-wrapper { 
-                max-width: 90%; 
-            }
-            
-            .sidebar-overlay {
-                position: fixed;
-                top: 0;
-                left: 100%;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 99;
-                display: none;
-            }
-            
-            .sidebar-overlay.active {
-                display: block;
-            }
-        }
+        /* Mobile Responsive - FIX LỖI INPUT TRÀN */
+@media (max-width: 790px) {
+    .app-container {
+        position: relative;
+    }
+    
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        width: 100%;
+        min-width: 100%;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        z-index: 100;
+    }
+    
+    /* === FIX QUAN TRỌNG: Đảm bảo chat window chiếm toàn bộ không gian === */
+    .chat-window {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    /* === FIX: Đảm bảo khu vực tin nhắn có thể cuộn === */
+    #chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px;
+        padding-bottom: 20px;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* === FIX QUAN TRỌNG NHẤT: Input cố định ở cuối === */
+    .input-area {
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        width: 100%;
+        z-index: 10;
+        flex-shrink: 0;
+        padding: 10px 12px;
+        border-top: 1px solid #eee;
+    }
+    
+    /* === Đảm bảo input không bị tràn === */
+    #message-input {
+        flex: 1;
+        min-width: 0;
+        font-size: 14px;
+        padding: 10px 12px;
+    }
+    
+    .input-area button {
+        flex-shrink: 0;
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+    
+    .sidebar.open { 
+        transform: translateX(0); 
+    }
+    
+    .sidebar-toggle { 
+        display: flex; 
+    }
+    
+    .chat-window { 
+        width: 100%; 
+        z-index: 1;
+    }
+    
+    .msg-wrapper { 
+        max-width: 90%; 
+    }
+    
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 100%;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 99;
+        display: none;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+}
         
         /* Scrollbar */
         .list-container::-webkit-scrollbar, #chat-messages::-webkit-scrollbar { width: 4px; }
