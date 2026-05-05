@@ -367,134 +367,155 @@
             border: 1px dashed var(--primary); 
         }
         
-     /* Mobile Responsive - Phần đã sửa */
-@media (max-width: 790px) {
-    .app-container {
-        position: relative;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100%;
-        transform: translateX(-100%);
-        width: 85%;
-        min-width: 85%;
-        max-width: 320px;
-        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        z-index: 100;
-        overflow-y: auto;
-        background: white;
-    }
-    
-    /* Fix input không bị tràn - QUAN TRỌNG */
-    .chat-window {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        width: 100%;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    /* Tin nhắn có thể cuộn */
-    #chat-messages {
-        flex: 1;
-        overflow-y: auto;
-        padding: 15px;
-        padding-bottom: 10px;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    /* Input area luôn ở dưới cùng, không bị tràn */
-    .input-area {
-        position: relative;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: white;
-        width: 100%;
-        padding: 12px 15px;
-        margin: 0;
-        border-top: 1px solid #eee;
-        flex-shrink: 0;
-        z-index: 5;
-    }
-    
-    /* Đảm bảo input không bị tràn */
-    #message-input {
-        font-size: 16px; /* Tránh zoom khi focus trên iOS */
-        min-width: 0;
-        flex: 1;
-    }
-    
-    .input-area button {
-        flex-shrink: 0;
-        white-space: nowrap;
-    }
-    
-    .sidebar.open { 
-        transform: translateX(0); 
-    }
-    
-    .sidebar-toggle { 
-        display: flex; 
-        background: none;
-        border: none;
-        font-size: 24px;
-        padding: 8px;
-        margin-right: 8px;
-        color: var(--primary);
-    }
-    
-    .msg-wrapper { 
-        max-width: 85%; 
-    }
-    
-    /* Overlay */
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 99;
-        display: none;
-    }
-    
-    .sidebar-overlay.active {
-        display: block;
-    }
-    
-    /* Header không bị che */
-    #chat-header {
-        flex-shrink: 0;
-        padding: 12px 15px;
-    }
-    
-    .header-left {
-        min-width: 0;
-    }
-    
-    #header-text {
-        font-size: 14px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        flex: 1;
-    }
-    
-    /* Các banner */
-    .status-banner {
-        flex-shrink: 0;
-        padding: 12px;
-    }
-}
+        /* Mobile Responsive - SỬA LỖI SIDEBAR */
+        @media (max-width: 790px) {
+            .app-container {
+                position: relative;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 280px;
+                max-width: 85%;
+                background: white;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 1001;
+                overflow-y: auto;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                border-right: none;
+            }
+            
+            .sidebar.open { 
+                transform: translateX(0); 
+            }
+            
+            .sidebar-toggle { 
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                background: transparent;
+                border: none;
+                font-size: 28px;
+                width: 40px;
+                height: 40px;
+                cursor: pointer;
+                color: var(--primary);
+                z-index: 1002;
+            }
+            
+            .sidebar-toggle:active {
+                opacity: 0.6;
+            }
+            
+            /* Overlay */
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 1000;
+                display: none;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            
+            .sidebar-overlay.active {
+                display: block;
+                opacity: 1;
+            }
+            
+            /* Chat window */
+            .chat-window {
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                width: 100%;
+                position: relative;
+                overflow: hidden;
+                z-index: 1;
+            }
+            
+            /* Tin nhắn có thể cuộn */
+            #chat-messages {
+                flex: 1;
+                overflow-y: auto;
+                padding: 15px;
+                padding-bottom: 10px;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            /* Input area */
+            .input-area {
+                position: relative;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: white;
+                width: 100%;
+                padding: 12px 15px;
+                margin: 0;
+                border-top: 1px solid #eee;
+                flex-shrink: 0;
+                z-index: 5;
+            }
+            
+            #message-input {
+                font-size: 16px;
+                min-width: 0;
+                flex: 1;
+            }
+            
+            .input-area button {
+                flex-shrink: 0;
+                white-space: nowrap;
+            }
+            
+            .msg-wrapper { 
+                max-width: 85%; 
+            }
+            
+            /* Header */
+            #chat-header {
+                flex-shrink: 0;
+                padding: 12px 15px;
+                z-index: 10;
+                background: white;
+            }
+            
+            .header-left {
+                min-width: 0;
+            }
+            
+            #header-text {
+                font-size: 14px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                flex: 1;
+            }
+            
+            /* Các banner */
+            .status-banner {
+                flex-shrink: 0;
+                padding: 12px;
+            }
+        }
+        
+        /* Desktop - ẩn nút toggle */
+        @media (min-width: 791px) {
+            .sidebar-toggle {
+                display: none !important;
+            }
+        }
         
         /* Scrollbar */
         .list-container::-webkit-scrollbar, #chat-messages::-webkit-scrollbar { width: 4px; }
@@ -796,13 +817,15 @@
         let deleteAccountModalInstance = null;
         let changeNameModalInstance = null;
 
-        // Hàm đóng sidebar - CHỈ ĐÓNG KHI BẤM VÀO BẠN BÈ
+        // Hàm đóng sidebar
         function closeSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
-            if (sidebar && window.innerWidth <= 768) {
+            if (sidebar) {
                 sidebar.classList.remove('open');
-                if (overlay) overlay.classList.remove('active');
+                if (overlay) {
+                    overlay.classList.remove('active');
+                }
             }
         }
 
@@ -810,16 +833,18 @@
         function openSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('sidebarOverlay');
-            if (sidebar && window.innerWidth <= 768) {
+            if (sidebar) {
                 sidebar.classList.add('open');
-                if (overlay) overlay.classList.add('active');
+                if (overlay) {
+                    overlay.classList.add('active');
+                }
             }
         }
 
         // Toggle sidebar
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            if (sidebar.classList.contains('open')) {
+            if (sidebar && sidebar.classList.contains('open')) {
                 closeSidebar();
             } else {
                 openSidebar();
@@ -1272,11 +1297,12 @@
                         
                         // KHI BẤM VÀO BẠN BÈ -> ĐÓNG SIDEBAR
                         div.onclick = (function(uidVal, nameVal, divEl) {
-                            return function() {
-                                closeSidebar(); // Đóng sidebar ngay lập tức
+                            return function(e) {
+                                e.stopPropagation();
+                                closeSidebar();
                                 setTimeout(() => {
                                     openChatFunction(uidVal, nameVal, divEl);
-                                }, 50);
+                                }, 150);
                             };
                         })(uid, data.name, div);
                         
@@ -1456,66 +1482,90 @@
             const toggleBtn = document.getElementById('sidebarToggleBtn');
             const overlay = document.getElementById('sidebarOverlay');
             
-            if (!sidebar || !toggleBtn || !overlay) return;
+            if (!sidebar || !toggleBtn) {
+                console.log("Không tìm thấy elements");
+                return;
+            }
             
-            // Chỉ xử lý mở/đóng khi bấm nút toggle
-            toggleBtn.onclick = function(e) {
+            // Xóa event cũ nếu có
+            const newToggleBtn = toggleBtn.cloneNode(true);
+            toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
+            
+            // Gán event mới cho nút toggle
+            newToggleBtn.onclick = function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 toggleSidebar();
             };
             
             // Đóng sidebar khi bấm vào overlay
-            overlay.onclick = function() {
-                closeSidebar();
-            };
+            if (overlay) {
+                overlay.onclick = function(e) {
+                    e.stopPropagation();
+                    closeSidebar();
+                };
+            }
+            
+            // Đóng sidebar khi bấm ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeSidebar();
+                }
+            });
+            
+            // Đảm bảo khi resize về desktop thì sidebar không bị kẹt
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 790) {
+                    closeSidebar();
+                    if (sidebar) {
+                        sidebar.style.transform = '';
+                    }
+                } else {
+                    if (sidebar && !sidebar.classList.contains('open')) {
+                        sidebar.style.transform = '';
+                    }
+                }
+            });
+        }
+
+        // Xử lý input trên mobile
+        function fixMobileInput() {
+            const messageInput = document.getElementById('message-input');
+            const chatMessages = document.getElementById('chat-messages');
+            
+            if (!messageInput || !chatMessages) return;
+            
+            messageInput.addEventListener('focus', function() {
+                setTimeout(() => {
+                    if (chatMessages) {
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                }, 300);
+            });
+            
+            if (window.visualViewport) {
+                let originalHeight = window.innerHeight;
+                
+                window.visualViewport.addEventListener('resize', function() {
+                    const currentHeight = window.visualViewport.height;
+                    
+                    if (currentHeight < originalHeight) {
+                        if (chatMessages) {
+                            setTimeout(() => {
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                            }, 100);
+                        }
+                    }
+                    originalHeight = currentHeight;
+                });
+            }
         }
         
-        // Khởi tạo sau khi DOM load
-        setTimeout(initMobileSidebar, 500);
-
-        // Thêm vào cuối hàm initMobileSidebar hoặc trong setTimeout
-function fixMobileInput() {
-    const messageInput = document.getElementById('message-input');
-    const chatMessages = document.getElementById('chat-messages');
-    const inputContainer = document.querySelector('.input-area');
-    
-    if (!messageInput || !chatMessages) return;
-    
-    // Xử lý khi input được focus trên mobile
-    messageInput.addEventListener('focus', function() {
-        setTimeout(() => {
-            if (chatMessages) {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-        }, 300);
-    });
-    
-    // Xử lý khi bàn phím đóng/mở (iOS)
-    if (window.visualViewport) {
-        let originalHeight = window.innerHeight;
-        
-        window.visualViewport.addEventListener('resize', function() {
-            const currentHeight = window.visualViewport.height;
-            
-            if (currentHeight < originalHeight) {
-                // Bàn phím mở
-                if (chatMessages) {
-                    setTimeout(() => {
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }, 100);
-                }
-            }
-            originalHeight = currentHeight;
-        });
-    }
-}
-
-// Gọi hàm này sau khi DOM load
-setTimeout(() => {
-    initMobileSidebar();
-    fixMobileInput();
-}, 500);
+        // Khởi tạo
+        setTimeout(function() {
+            initMobileSidebar();
+            fixMobileInput();
+        }, 100);
     </script>
 </body>
 </html>
