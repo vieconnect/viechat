@@ -49,7 +49,7 @@
             border-radius: 8px;
         }
         
-        .auth-card button {
+        /* .auth-card button {
             width: 100%;
             padding: 12px;
             background: var(--primary);
@@ -58,6 +58,39 @@
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
+        }
+         */
+        /* Checkbox style */
+        .terms-checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 10px 0 15px 0;
+            font-size: 13px;
+            text-align: left;
+        }
+        
+        .terms-checkbox input {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        
+        .terms-checkbox label {
+            cursor: pointer;
+            color: #555;
+        }
+        
+        .terms-checkbox a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .terms-checkbox a:hover {
+            text-decoration: underline;
         }
         
         :root { --primary: #0084ff; --bg: #f0f2f5; --text: #1c1e21; --light-gray: #e4e6eb; --danger: #f02849; --success: #42b72a; }
@@ -518,7 +551,7 @@
                 <div style="text-align: right; margin-bottom: 15px;">
                     <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Quên mật khẩu?</a>
                 </div>
-                <button onclick="handleAuth('login')">Đăng nhập</button>
+                <button onclick="handleAuth('login')" class="btn btn-primary" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">Đăng nhập</button>
                 <p style="margin-top: 15px;">Chưa có tài khoản? <a href="#" onclick="toggleAuth(true)">Đăng ký</a></p>
             </div>
 
@@ -527,10 +560,22 @@
                 <input type="email" id="signup-email" placeholder="Email">
                 <input type="password" id="signup-password" placeholder="Mật khẩu (6+ ký tự)">
                 <input type="password" id="signup-confirm-password" placeholder="Xác nhận mật khẩu">
-                <button onclick="handleAuth('signup')">Tạo tài khoản</button>
-                <p>Đã có tài khoản? <a href="#" onclick="toggleAuth(false)">Đăng nhập</a></p>
+                
+                <!-- Checkbox điều khoản -->
+                <div class="terms-checkbox">
+                    <input type="checkbox" id="terms-checkbox">
+                    <!-- <label for="terms-checkbox">
+                        Bằng việc đăng ký tài khoản, bạn đã đồng ý với <a href="#" onclick="showTermsModal(); return false;">Điều khoản sử dụng</a> của VieChat
+                    </label> -->
+                    <label for="terms-checkbox">
+                        Bằng việc đăng ký tài khoản, bạn đã đồng ý với <a href="./dieu-khoan-su-dung.html" target="_blank">Điều khoản sử dụng</a> của VieChat
+                    </label>
+                </div>
+                
+                <button onclick="handleAuth('signup')" class="btn btn-success" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">Tạo tài khoản</button>
+                <p><p>Đã có tài khoản? <a href="#" onclick="toggleAuth(false)">Đăng nhập</a></p></p>
             </div>
-            <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;"><small>&copy; 2026 VieConnect</small></div>
+            <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;"><small>&copy; 2026 VieConnect Technology</small></div>
         </div>
     </div>
     
@@ -743,6 +788,42 @@
         </div>
     </div>
 
+    <!-- Modal hiển thị điều khoản sử dụng -->
+    <!-- <div class="modal fade" id="termsModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Điều khoản sử dụng VieChat</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+                    <h6>1. Chấp nhận điều khoản</h6>
+                    <p>Khi đăng ký và sử dụng VieChat, bạn đồng ý tuân thủ các điều khoản và điều kiện được quy định tại đây.</p>
+                    
+                    <h6>2. Quyền và trách nhiệm của người dùng</h6>
+                    <p>- Bạn phải cung cấp thông tin chính xác, trung thực khi đăng ký tài khoản.<br>
+                    - Bạn chịu trách nhiệm bảo mật thông tin tài khoản của mình.<br>
+                    - Không sử dụng VieChat vào mục đích bất hợp pháp, quấy rối, lừa đảo hoặc gây hại cho người khác.<br>
+                    - Không đăng tải nội dung vi phạm pháp luật, thuần phong mỹ tục.</p>
+                    
+                    <h6>3. Xử lý vi phạm</h6>
+                    <p>VieChat có quyền khóa tài khoản tạm thời hoặc vĩnh viễn đối với người dùng vi phạm điều khoản sử dụng mà không cần thông báo trước.</p>
+                    
+                    <h6>4. Bảo mật thông tin</h6>
+                    <p>Chúng tôi cam kết bảo vệ thông tin cá nhân của người dùng theo chính sách bảo mật.</p>
+                    
+                    <h6>5. Thay đổi điều khoản</h6>
+                    <p>VieChat có quyền thay đổi, cập nhật điều khoản sử dụng bất kỳ lúc nào. Người dùng có trách nhiệm theo dõi các thay đổi.</p>
+                    
+                    <p class="text-muted mt-3"><small>Cập nhật lần cuối: Tháng 5 năm 2026</small></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đã hiểu</button>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
     <div class="modal fade" id="lockAccountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow">
@@ -828,6 +909,12 @@
         let currentStatusListenerRef = null;
         let currentMessagesListenerRef = null;
         let currentClearListenerRef = null;
+
+        // Hàm hiển thị modal điều khoản
+        window.showTermsModal = () => {
+            const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
+            termsModal.show();
+        };
 
         // Hàm reset giao diện chat về trạng thái ban đầu
         function resetChatUI() {
@@ -1045,6 +1132,11 @@
         window.toggleAuth = (isSignup) => {
             document.getElementById('login-form').style.display = isSignup ? 'none' : 'block';
             document.getElementById('signup-form').style.display = isSignup ? 'block' : 'none';
+            // Reset checkbox khi chuyển form
+            if (isSignup) {
+                const termsCheckbox = document.getElementById('terms-checkbox');
+                if (termsCheckbox) termsCheckbox.checked = false;
+            }
         };
 
         window.handleAuth = async (type) => {
@@ -1052,6 +1144,15 @@
             const pass = document.getElementById(type === 'signup' ? 'signup-password' : 'password').value;
             const name = type === 'signup' ? document.getElementById('signup-name').value.trim() : null;
             const confirmPass = type === 'signup' ? document.getElementById('signup-confirm-password').value : null;
+            
+            // Kiểm tra checkbox điều khoản khi đăng ký
+            if (type === 'signup') {
+                const termsChecked = document.getElementById('terms-checkbox').checked;
+                if (!termsChecked) {
+                    showAlert("Thông báo", "Vui lòng đọc và đồng ý với Điều khoản sử dụng của VieChat trước khi đăng ký tài khoản.");
+                    return;
+                }
+            }
             
             if (!email || !pass || (type === 'signup' && !name)) return showAlert("Thông báo", "Vui lòng điền đầy đủ thông tin!");
             if (type === 'signup' && pass !== confirmPass) return showAlert("Thông báo", "Mật khẩu và xác nhận mật khẩu không khớp.");
