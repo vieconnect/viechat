@@ -1247,26 +1247,31 @@ function openChatFunction(uid, name, el) {
     const friendActions = document.getElementById('friend-banner-actions');
     const inputContainer = document.getElementById('input-container');
 
+    // Reset tất cả
     [delB, banB, blockB, friendB].forEach(b => { if (b) b.style.display = 'none'; });
     if (inputContainer) inputContainer.style.display = 'none';
     if (friendActions) friendActions.style.display = 'none';
 
+    // Kiểm tra user có tồn tại và không bị khóa
     const userRef = ref(db, `users/${uid}`);
     onValue(userRef, (uSnap) => {
         const userData = uSnap.val();
         
         if (!uSnap.exists()) {
+            // Tài khoản không tồn tại
             if (delB) delB.style.display = 'flex';
             if (inputContainer) inputContainer.style.display = 'none';
             return;
         }
 
         if (userData.isLocked === true || userData.isLocked === "true") {
+            // Tài khoản bị khóa
             if (banB) banB.style.display = 'flex';
             if (inputContainer) inputContainer.style.display = 'none';
             return;
         }
 
+        // Tài khoản hợp lệ, kiểm tra trạng thái bạn bè
         const myStatusRef = ref(db, `friend_status/${currentUser.uid}/${uid}`);
         const theirStatusRef = ref(db, `friend_status/${uid}/${currentUser.uid}`);
         
@@ -1276,13 +1281,17 @@ function openChatFunction(uid, name, el) {
             onValue(theirStatusRef, (theirSnap) => {
                 const theirS = theirSnap.val();
                 
+                // Reset lại banners trước khi xét
                 if (delB) delB.style.display = 'none';
                 if (banB) banB.style.display = 'none';
                 if (blockB) blockB.style.display = 'none';
                 if (friendB) friendB.style.display = 'none';
                 if (inputContainer) inputContainer.style.display = 'none';
+                if (friendActions) friendActions.style.display = 'none';
                 
+                // Xử lý theo từng trạng thái
                 if (myS === 'blocked' || theirS === 'blocked') {
+                    // Bị chặn
                     if (blockB) {
                         blockB.style.display = 'flex';
                         blockB.innerHTML = myS === 'blocked' 
@@ -1291,12 +1300,14 @@ function openChatFunction(uid, name, el) {
                     }
                 } 
                 else if (myS === 'outgoing') {
+                    // Đã gửi lời mời, đang chờ
                     if (friendB) {
                         friendB.style.display = 'flex';
                         if (friendText) friendText.innerText = "Bạn chưa thể trò chuyện cho đến khi họ chấp nhận lời mời kết bạn.";
                     }
                 } 
                 else if (myS === 'incoming') {
+                    // Nhận được lời mời
                     if (friendB) {
                         friendB.style.display = 'flex';
                         if (friendActions) friendActions.style.display = 'flex';
@@ -1308,9 +1319,11 @@ function openChatFunction(uid, name, el) {
                     }
                 } 
                 else if (myS === 'accepted') {
+                    // ĐÃ KẾT BẠN - HIỆN Ô NHẬP TIN NHẮN
                     if (inputContainer) inputContainer.style.display = 'flex';
                 } 
                 else {
+                    // Chưa có quan hệ bạn bè
                     if (friendB) {
                         friendB.style.display = 'flex';
                         if (friendText) friendText.innerText = "Hai bạn chưa là bạn bè. Hãy kết bạn để bắt đầu trò chuyện.";
@@ -1320,9 +1333,13 @@ function openChatFunction(uid, name, el) {
         });
     });
 
+    // Dừng listener tin nhắn cũ nếu có
     if (activeChatId) off(ref(db, `messages/${activeChatId}`));
+    
+    // Tạo chatId mới
     activeChatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
     
+    // Lắng nghe tin nhắn
     const messagesRef = ref(db, `messages/${activeChatId}`);
     const clearSnapRef = ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`);
     
