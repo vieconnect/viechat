@@ -367,9 +367,7 @@
             border: 1px dashed var(--primary); 
         }
         
-        /* Mobile Responsive - FIX LỖI INPUT TRÀN */
-        /* Mobile Responsive - FIX LỖI INPUT TRÀN */
-@media (max-width: 790px) {
+       @media (max-width: 790px) {
     .app-container {
         position: relative;
     }
@@ -386,16 +384,13 @@
         z-index: 100;
     }
     
-    /* === FIX QUAN TRỌNG: Đảm bảo chat window chiếm toàn bộ không gian === */
     .chat-window {
         display: flex;
         flex-direction: column;
         height: 100%;
         overflow: hidden;
-        position: relative;
     }
     
-    /* === FIX: Đảm bảo khu vực tin nhắn có thể cuộn === */
     #chat-messages {
         flex: 1;
         overflow-y: auto;
@@ -404,12 +399,9 @@
         -webkit-overflow-scrolling: touch;
     }
     
-    /* === FIX QUAN TRỌNG NHẤT: Input cố định ở cuối === */
     .input-area {
         position: sticky;
         bottom: 0;
-        left: 0;
-        right: 0;
         background: white;
         width: 100%;
         z-index: 10;
@@ -418,7 +410,6 @@
         border-top: 1px solid #eee;
     }
     
-    /* === Đảm bảo input không bị tràn === */
     #message-input {
         flex: 1;
         min-width: 0;
@@ -429,7 +420,6 @@
     .input-area button {
         flex-shrink: 0;
         padding: 8px 16px;
-        font-size: 14px;
     }
     
     .sidebar.open { 
