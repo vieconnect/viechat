@@ -367,7 +367,7 @@
             border: 1px dashed var(--primary); 
         }
         
-        @media (max-width: 700px) {
+        @media (max-width: 790px) {
     .app-container {
         position: relative;
     }
@@ -389,7 +389,7 @@
         flex-direction: column;
         height: 100%;
         overflow: hidden;
-        width: 100vw; /* Đảm bảo full width */
+        width: 100vw;
     }
     
     #chat-messages {
@@ -406,28 +406,28 @@
         left: 0;
         right: 0;
         background: white;
-        width: 100vw; /* Full viewport width */
+        width: 100vw;
         z-index: 10;
         flex-shrink: 0;
         padding: 10px 12px;
         border-top: 1px solid #eee;
-        box-sizing: border-box; /* Quan trọng: đảm bảo padding không làm tràn */
+        box-sizing: border-box;
         display: flex;
         align-items: center;
-        gap: 8px; /* Giảm gap một chút */
-        margin: 0; /* Loại bỏ margin */
+        gap: 8px;
+        margin: 0;
     }
     
     #message-input {
         flex: 1;
-        min-width: 0; /* Quan trọng: cho phép input thu nhỏ */
-        max-width: calc(100% - 80px); /* Giới hạn width để dành chỗ cho button */
+        min-width: 0;
+        max-width: calc(100% - 80px);
         font-size: 14px;
         padding: 10px 12px;
         border-radius: 20px;
         border: 1px solid #ddd;
         outline: none;
-        box-sizing: border-box; /* Đảm bảo padding không làm tràn */
+        box-sizing: border-box;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -435,13 +435,13 @@
     
     #message-input:focus {
         border-color: var(--primary);
-        max-width: calc(100% - 80px); /* Giữ nguyên kích thước khi focus */
+        max-width: calc(100% - 80px);
     }
     
     .input-area button {
         flex-shrink: 0;
         flex-grow: 0;
-        min-width: 60px; /* Width cố định cho button */
+        min-width: 60px;
         max-width: 60px;
         padding: 8px 12px;
         font-size: 13px;
@@ -458,21 +458,6 @@
     
     .msg-wrapper { 
         max-width: 90%; 
-    }
-    
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 100%; /* Sửa từ left: 100% thành left: 0 */
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 99;
-        display: none;
-    }
-    
-    .sidebar-overlay.active {
-        display: block;
     }
 }
         
@@ -776,35 +761,31 @@
         let deleteAccountModalInstance = null;
         let changeNameModalInstance = null;
 
-        // Hàm đóng sidebar - CHỈ ĐÓNG KHI BẤM VÀO BẠN BÈ
-        function closeSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            if (sidebar && window.innerWidth <= 768) {
-                sidebar.classList.remove('open');
-                if (overlay) overlay.classList.remove('active');
-            }
-        }
+// Hàm đóng sidebar - CHỈ ĐÓNG KHI BẤM VÀO BẠN BÈ
+function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+    }
+}
 
-        // Hàm mở sidebar
-        function openSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            if (sidebar && window.innerWidth <= 768) {
-                sidebar.classList.add('open');
-                if (overlay) overlay.classList.add('active');
-            }
-        }
+// Hàm mở sidebar
+function openSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar && window.innerWidth <= 768) {
+        sidebar.classList.add('open');
+    }
+}
 
-        // Toggle sidebar
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar.classList.contains('open')) {
-                closeSidebar();
-            } else {
-                openSidebar();
-            }
-        }
+// Toggle sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar.classList.contains('open')) {
+        closeSidebar();
+    } else {
+        openSidebar();
+    }
+}
 
         function isValidName(name) {
             if (!name || !name.trim()) return false;
@@ -1251,14 +1232,14 @@
                         div.innerHTML = `<div><strong>${data.name}</strong><br><small>${data.email}</small></div><div class="btn-group">${actions}</div>`;
                         
                         // KHI BẤM VÀO BẠN BÈ -> ĐÓNG SIDEBAR
-                        div.onclick = (function(uidVal, nameVal, divEl) {
-                            return function() {
-                                closeSidebar(); // Đóng sidebar ngay lập tức
-                                setTimeout(() => {
-                                    openChatFunction(uidVal, nameVal, divEl);
-                                }, 50);
-                            };
-                        })(uid, data.name, div);
+div.onclick = (function(uidVal, nameVal, divEl) {
+    return function() {
+        closeSidebar(); // Vẫn giữ nguyên - đóng sidebar khi chọn bạn
+        setTimeout(() => {
+            openChatFunction(uidVal, nameVal, divEl);
+        }, 50);
+    };
+})(uid, data.name, div);
                         
                         document.getElementById(containerId).appendChild(div);
                     });
@@ -1430,29 +1411,34 @@
             });
         };
         
-        // ========== MOBILE SIDEBAR TOGGLE ==========
-        function initMobileSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const toggleBtn = document.getElementById('sidebarToggleBtn');
-            const overlay = document.getElementById('sidebarOverlay');
-            
-            if (!sidebar || !toggleBtn || !overlay) return;
-            
-            // Chỉ xử lý mở/đóng khi bấm nút toggle
-            toggleBtn.onclick = function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-                toggleSidebar();
-            };
-            
-            // Đóng sidebar khi bấm vào overlay
-            overlay.onclick = function() {
+// ========== MOBILE SIDEBAR TOGGLE ==========
+function initMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('sidebarToggleBtn');
+    
+    if (!sidebar || !toggleBtn) return;
+    
+    // Chỉ xử lý mở/đóng khi bấm nút toggle
+    toggleBtn.onclick = function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        toggleSidebar();
+    };
+    
+    // Đóng sidebar khi click bên ngoài (không cần overlay)
+    document.addEventListener('click', function(e) {
+        if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+            const isClickInsideSidebar = sidebar.contains(e.target);
+            const isToggleBtn = toggleBtn.contains(e.target);
+            if (!isClickInsideSidebar && !isToggleBtn) {
                 closeSidebar();
-            };
+            }
         }
-        
-        // Khởi tạo sau khi DOM load
-        setTimeout(initMobileSidebar, 500);
+    });
+}
+
+// Khởi tạo sau khi DOM load
+setTimeout(initMobileSidebar, 500);
     </script>
 </body>
 </html>
