@@ -365,7 +365,7 @@
             border: 1px dashed var(--primary); 
         }
         
-        /* Mobile Responsive - SỬA LỖI INPUT TRÀN */
+        /* Mobile Responsive */
 @media (max-width: 790px) {
     .app-container {
         position: fixed;
@@ -412,7 +412,6 @@
         z-index: 1002;
     }
     
-    /* QUAN TRỌNG: Chat window chiếm toàn bộ chiều cao */
     .chat-window {
         display: flex;
         flex-direction: column;
@@ -423,17 +422,15 @@
         background: white;
     }
     
-    /* Tin nhắn có thể cuộn - chiếm không gian còn lại */
     #chat-messages {
         flex: 1;
         overflow-y: auto;
         padding: 15px;
         padding-bottom: 10px;
         -webkit-overflow-scrolling: touch;
-        min-height: 0; /* QUAN TRỌNG: Cho phép flex shrink */
+        min-height: 0;
     }
     
-    /* Input area - cố định ở dưới cùng */
     .input-area {
         flex-shrink: 0;
         background: white;
@@ -450,7 +447,6 @@
         right: 0;
     }
     
-    /* Đảm bảo input không bị tràn */
     #message-input {
         font-size: 16px;
         min-width: 0;
@@ -472,7 +468,6 @@
         max-width: 85%; 
     }
     
-    /* Header */
     #chat-header {
         flex-shrink: 0;
         padding: 12px 15px;
@@ -492,19 +487,16 @@
         flex: 1;
     }
     
-    /* Các banner */
     .status-banner {
         flex-shrink: 0;
         padding: 12px;
     }
 }
         
-        /* Scrollbar */
         .list-container::-webkit-scrollbar, #chat-messages::-webkit-scrollbar { width: 4px; }
         .list-container::-webkit-scrollbar-track, #chat-messages::-webkit-scrollbar-track { background: #f1f1f1; }
         .list-container::-webkit-scrollbar-thumb, #chat-messages::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
         
-        /* Modal responsive */
         .modal-dialog { margin: 16px; }
         .modal-content { border-radius: 16px; }
         @media (max-width: 576px) {
@@ -751,16 +743,47 @@
         </div>
     </div>
 
-    <div class="modal fade" id="lockAccountModal" data-bs-backdrop="static" tabindex="-1">
+    <div class="modal fade" id="lockAccountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+            <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">⚠️ TÀI KHOẢN BỊ KHÓA</h5>
+                    <h5 class="modal-title fw-bold">⚠️ ĐĂNG NHẬP BỊ HẠN CHẾ</h5>
                 </div>
-                <div class="modal-body">
-                    <p class="text-center">Tài khoản đã bị khóa.</p>
-                    <table class="table"><tbody><tr><th>Tên:</th><td id="displayName">---</td></tr>\n                        <tr><th>Lý do:</th><td id="displayLockReason">---</td></tr>\n                    </tbody></table>
-                    <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Đã hiểu</button>
+                <div class="modal-body p-4">
+                    <p class="text-center text-muted mb-4">Hệ thống ghi nhận vi phạm và đã tạm dừng quyền truy cập của tài khoản này.</p>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless">
+                            <tbody>
+                                <tr>
+                                    <th class="text-secondary">Tên:</th>
+                                    <td id="displayName" class="fw-bold">---</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-secondary" style="width: 40%;">ID:</th>
+                                    <td id="displayLockID" class="fw-bold text-dark">---</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-secondary">Lý do:</th>
+                                    <td id="displayLockReason" class="text-danger">---</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-secondary">Bắt đầu:</th>
+                                    <td id="displayLockStart">---</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-secondary">Thời gian hạn chế:</th>
+                                    <td id="displayLockDuration" class="fw-bold">---</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="alert alert-light border mt-3 small">
+                        Mọi thắc mắc vui lòng liên hệ bộ phận hỗ trợ VieConnect để được giải quyết<br>
+                        <a href="/dieu-khoan-su-dung.html" target="_blank">Xem điều khoản sử dụng của VieConnect</a>
+                    </div>
+                    <center><button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal" style="border-radius: 50px;">Đã hiểu</button></center>
                 </div>
             </div>
         </div>
@@ -795,24 +818,77 @@
         let changePasswordModalInstance = null;
         let deleteAccountModalInstance = null;
         let changeNameModalInstance = null;
+        
+        // QUAN TRỌNG: Biến để kiểm soát trạng thái chat
+        let isChatActive = false;
+        let currentChatUid = null;
+        
+        // Lưu các listener để cleanup
+        let currentUserListenerRef = null;
+        let currentStatusListenerRef = null;
+        let currentMessagesListenerRef = null;
+        let currentClearListenerRef = null;
 
-        // Hàm đóng sidebar
+        // Hàm reset giao diện chat về trạng thái ban đầu
+        function resetChatUI() {
+            // Ẩn tất cả banners
+            const banners = ['banned-banner', 'block-banner', 'deleted-banner', 'friend-request-banner'];
+            banners.forEach(id => {
+                const banner = document.getElementById(id);
+                if (banner) banner.style.display = 'none';
+            });
+            
+            // Ẩn input
+            const inputContainer = document.getElementById('input-container');
+            if (inputContainer) inputContainer.style.display = 'none';
+            
+            // Reset messages area
+            const messagesBox = document.getElementById('chat-messages');
+            if (messagesBox) {
+                messagesBox.innerHTML = `<div style="text-align: center; color: #999; margin-top: 50px;"><p>Hãy chọn một người bạn để nhắn tin</p></div>`;
+            }
+            
+            // Reset header
+            const headerText = document.getElementById('header-text');
+            if (headerText) headerText.innerText = "Chọn một cuộc trò chuyện";
+            
+            const homeBtn = document.getElementById('home-btn-header');
+            if (homeBtn) homeBtn.style.display = 'none';
+            
+            const deleteBtn = document.getElementById('delete-history-btn');
+            if (deleteBtn) deleteBtn.style.display = 'none';
+        }
+        
+        // Hàm cleanup tất cả listeners chat
+        function cleanupChatListeners() {
+            if (currentUserListenerRef && currentChatUid) {
+                off(ref(db, `users/${currentChatUid}`), currentUserListenerRef);
+                currentUserListenerRef = null;
+            }
+            if (currentStatusListenerRef) {
+                off(ref(db, `friend_status`), currentStatusListenerRef);
+                currentStatusListenerRef = null;
+            }
+            if (currentMessagesListenerRef && activeChatId) {
+                off(ref(db, `messages/${activeChatId}`), currentMessagesListenerRef);
+                currentMessagesListenerRef = null;
+            }
+            if (currentClearListenerRef && activeChatId && currentUser) {
+                off(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), currentClearListenerRef);
+                currentClearListenerRef = null;
+            }
+        }
+
         function closeSidebar() {
             const sidebar = document.getElementById('sidebar');
-            if (sidebar) {
-                sidebar.classList.remove('open');
-            }
+            if (sidebar) sidebar.classList.remove('open');
         }
 
-        // Hàm mở sidebar
         function openSidebar() {
             const sidebar = document.getElementById('sidebar');
-            if (sidebar) {
-                sidebar.classList.add('open');
-            }
+            if (sidebar) sidebar.classList.add('open');
         }
 
-        // Toggle sidebar
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             if (sidebar && sidebar.classList.contains('open')) {
@@ -822,19 +898,13 @@
             }
         }
 
-        // Đóng sidebar khi click bên ngoài (vào chat window)
         function setupOutsideClick() {
             const chatWindow = document.getElementById('chatWindow');
             const sidebar = document.getElementById('sidebar');
-            
             if (chatWindow) {
                 chatWindow.addEventListener('click', function(e) {
-                    // Kiểm tra nếu click không phải vào sidebar và sidebar đang mở
-                    if (sidebar && sidebar.classList.contains('open')) {
-                        // Kiểm tra xem click có phải vào sidebar không
-                        if (!sidebar.contains(e.target)) {
-                            closeSidebar();
-                        }
+                    if (sidebar && sidebar.classList.contains('open') && !sidebar.contains(e.target)) {
+                        closeSidebar();
                     }
                 });
             }
@@ -908,7 +978,10 @@
 
         window.showLockInfo = (data) => {
             document.getElementById('displayName').innerText = data.name || "Người dùng";
-            document.getElementById('displayLockReason').innerText = data.reason || "Vi phạm chính sách cộng đồng";
+            document.getElementById('displayLockID').innerText = data.uid || "";
+            document.getElementById('displayLockReason').innerText = data.reason || "";
+            document.getElementById('displayLockStart').innerText = data.start || "";
+            document.getElementById('displayLockDuration').innerText = data.duration || "";
             new bootstrap.Modal(document.getElementById('lockAccountModal')).show();
         };
 
@@ -936,7 +1009,10 @@
                             signOut(auth).then(() => {
                                 window.showLockInfo({
                                     name: data.name,
-                                    reason: data.lockReason
+                                    uid: data.lockID,
+                                    reason: data.lockReason,
+                                    start: data.lockStart,
+                                    duration: data.lockDuration
                                 });
                             });
                             return;
@@ -946,16 +1022,18 @@
                         document.getElementById('my-email').innerText = user.email;
                         document.getElementById('my-name').innerText = data.name || "Người dùng";
                         syncLists();
-                        setupOutsideClick(); // Thiết lập click outside
+                        setupOutsideClick();
                     }
                 });
             } else {
-                cleanupListeners();
+                cleanupChatListeners();
                 currentUser = null;
                 activeChatId = null;
+                isChatActive = false;
+                currentChatUid = null;
                 authScreen.style.display = 'flex';
                 mainApp.style.display = 'none';
-                goHome();
+                resetChatUI();
             }
         });
 
@@ -985,10 +1063,11 @@
                     await set(ref(db, `users/${res.user.uid}`), { 
                         email: email.toLowerCase(), 
                         name: name,
-                        isLocked: false,
+                        lockID: "",
                         lockReason: "",
                         lockStart: "",
-                        lockDuration: ""
+                        lockDuration: "",
+                        isLocked: false,
                     });
                     showAlert("Thông báo", "Đăng ký tài khoản thành công!");
                     window.toggleAuth(false);
@@ -1019,7 +1098,6 @@
 
         document.getElementById('sendResetBtn').onclick = () => window.sendPasswordReset();
 
-        // ========== MODAL ĐỔI TÊN ==========
         window.showChangeNameModal = () => {
             document.getElementById('changeNameInput').value = '';
             const modalEl = document.getElementById('changeNameModal');
@@ -1076,7 +1154,6 @@
         
         document.getElementById('changeNameSubmitBtn').onclick = () => processChangeName();
 
-        // ========== MODAL ĐỔI MẬT KHẨU ==========
         window.showChangePasswordModal = () => {
             document.getElementById('oldPasswordInput').value = '';
             document.getElementById('newPasswordInput').value = '';
@@ -1135,7 +1212,6 @@
         
         document.getElementById('changePasswordSubmitBtn').onclick = () => processChangePassword();
 
-        // ========== MODAL XÓA TÀI KHOẢN ==========
         window.showDeleteAccountModal = () => {
             document.getElementById('deleteConfirmCode').value = '';
             const modalEl = document.getElementById('deleteAccountModal');
@@ -1181,7 +1257,6 @@
         
         document.getElementById('confirmDeleteAccountBtn').onclick = () => processDeleteAccount();
 
-        // ========== CÁC HÀM CHAT ==========
         window.findUser = async () => {
             const email = document.getElementById('search-input').value.trim().toLowerCase();
             const resBox = document.getElementById('search-result');
@@ -1224,6 +1299,13 @@
             
             if (status === 'accepted') {
                 await update(ref(db), { [myPath]: "accepted", [theirPath]: "accepted" });
+                setTimeout(() => {
+                    const friendItem = document.getElementById(`item-${uid}`);
+                    const friendName = friendItem ? friendItem.querySelector('strong')?.innerText : '';
+                    if (friendName) {
+                        openChatFunction(uid, friendName, friendItem);
+                    }
+                }, 500);
             } else if (status === 'blocked') {
                 await set(ref(db, myPath), "blocked");
             } else if (status === 'unblock') {
@@ -1285,7 +1367,6 @@
                         
                         div.innerHTML = `<div><strong>${data.name}</strong><br><small>${data.email}</small></div><div class="btn-group">${actions}</div>`;
                         
-                        // KHI BẤM VÀO BẠN BÈ -> ĐÓNG SIDEBAR
                         div.onclick = (function(uidVal, nameVal, divEl) {
                             return function(e) {
                                 e.stopPropagation();
@@ -1302,122 +1383,161 @@
             });
         }
 
-        // Hàm openChat chính
-    // Hàm openChat chính
-function openChatFunction(uid, name, el) {
-    document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
-    if (el) el.classList.add('active');
-    document.getElementById('header-text').innerText = name;
-    document.getElementById('home-btn-header').style.display = 'block';
-    document.getElementById('delete-history-btn').style.display = 'inline-block';
-
-    const delB = document.getElementById('deleted-banner');
-    const banB = document.getElementById('banned-banner');
-    const blockB = document.getElementById('block-banner');
-    const friendB = document.getElementById('friend-request-banner');
-    const friendText = document.getElementById('friend-banner-text');
-    const friendActions = document.getElementById('friend-banner-actions');
-    const inputContainer = document.getElementById('input-container');
-
-    // Ẩn tất cả banner và input
-    [delB, banB, blockB, friendB].forEach(b => b.style.display = 'none');
-    inputContainer.style.display = 'none';
-
-    onValue(ref(db, `users/${uid}`), (uSnap) => {
-        const userData = uSnap.val();
-        
-        // Trường hợp 1: Tài khoản không tồn tại
-        if (!uSnap.exists()) {
-            delB.style.display = 'flex';
-            inputContainer.style.display = 'none';
-            return;
-        }
-        
-        // Trường hợp 2: Tài khoản bị khóa/cấm
-        if (userData.isLocked === true || userData.isLocked === "true") {
-            banB.style.display = 'flex';
-            inputContainer.style.display = 'none';
-            return;
-        }
-        
-        // Tài khoản tồn tại và không bị khóa, kiểm tra trạng thái bạn bè
-        banB.style.display = 'none';
-        
-        onValue(ref(db, `friend_status`), (fsSnap) => {
-            const myS = fsSnap.child(currentUser.uid).child(uid).val();
-            const theirS = fsSnap.child(uid).child(currentUser.uid).val();
-
-            friendB.style.display = 'none';
-            blockB.style.display = 'none';
-            inputContainer.style.display = 'none';
-
-            // Trường hợp 3: Bị chặn
-            if (myS === 'blocked' || theirS === 'blocked') {
-                blockB.style.display = 'flex';
-                blockB.innerHTML = myS === 'blocked' 
-                    ? `Bạn đang chặn người này <br> <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` 
-                    : `Bạn hiện không thể liên lạc với người này qua VieChat`;
-            } 
-            // Trường hợp 4: Đã gửi lời mời nhưng chưa được chấp nhận
-            else if (myS === 'outgoing') {
-                friendB.style.display = 'flex';
-                friendActions.style.display = 'none';
-                friendText.innerText = "Bạn chưa thể trò chuyện cho đến khi họ chấp nhận lời mời kết bạn.";
-            } 
-            // Trường hợp 5: Nhận được lời mời kết bạn
-            else if (myS === 'incoming') {
-                friendB.style.display = 'flex';
-                friendActions.style.display = 'flex';
-                friendText.innerText = `${name} muốn kết bạn với bạn.`;
-                document.getElementById('banner-accept-btn').onclick = () => updateStatus(uid, 'accepted');
-                document.getElementById('banner-reject-btn').onclick = () => updateStatus(uid, 'reject');
-            } 
-            // Trường hợp 6: Đã là bạn bè - HIỂN THỊ INPUT
-            else if (myS === 'accepted') {
-                inputContainer.style.display = 'flex';
-            } 
-            // Trường hợp 7: Chưa kết bạn
-            else {
-                friendB.style.display = 'flex';
-                friendActions.style.display = 'none';
-                friendText.innerText = "Hai bạn chưa là bạn bè. Hãy kết bạn để bắt đầu trò chuyện.";
-            }
-        });
-    });
-
-    // Xóa listener cũ và tạo mới cho messages
-    if(activeChatId) off(ref(db, `messages/${activeChatId}`));
-    activeChatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
-    
-    onValue(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), (clearSnap) => {
-        const clearTime = clearSnap.val() || 0;
-        onValue(ref(db, `messages/${activeChatId}`), (s) => {
-            const box = document.getElementById('chat-messages'); 
-            box.innerHTML = "";
-            s.forEach(m => {
-                const msg = m.val(), mid = m.key;
-                if (msg.timestamp <= clearTime) return;
-                if (msg.deletedBy && msg.deletedBy[currentUser.uid]) return;
-
-                const d = document.createElement('div');
-                d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
+        // HÀM OPEN CHAT CHÍNH - ĐÃ TỐI ƯU
+        function openChatFunction(uid, name, el) {
+            // Cleanup listeners cũ trước khi mở chat mới
+            cleanupChatListeners();
+            
+            // Reset UI về trạng thái ban đầu
+            resetChatUI();
+            
+            // Cập nhật trạng thái chat
+            isChatActive = true;
+            currentChatUid = uid;
+            
+            // Update UI elements
+            document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+            if (el) el.classList.add('active');
+            document.getElementById('header-text').innerText = name;
+            document.getElementById('home-btn-header').style.display = 'block';
+            document.getElementById('delete-history-btn').style.display = 'inline-block';
+            
+            // Lấy references
+            const delB = document.getElementById('deleted-banner');
+            const banB = document.getElementById('banned-banner');
+            const blockB = document.getElementById('block-banner');
+            const friendB = document.getElementById('friend-request-banner');
+            const friendText = document.getElementById('friend-banner-text');
+            const friendActions = document.getElementById('friend-banner-actions');
+            const inputContainer = document.getElementById('input-container');
+            
+            // Tạo listener cho user data
+            currentUserListenerRef = onValue(ref(db, `users/${uid}`), (uSnap) => {
+                // Chỉ xử lý nếu chat vẫn đang active
+                if (!isChatActive || currentChatUid !== uid) return;
                 
-                let content = msg.revoked ? `<i style="color:#aaa">Tin nhắn đã bị thu hồi</i>` : msg.text;
-                let ops = "";
+                const userData = uSnap.val();
                 
-                if (msg.sender === currentUser.uid && !msg.revoked) {
-                    ops = `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>`;
-                } else if (!msg.revoked) {
-                    ops = `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>`;
+                if (!uSnap.exists()) {
+                    if (delB) delB.style.display = 'flex';
+                    if (inputContainer) inputContainer.style.display = 'none';
+                    if (banB) banB.style.display = 'none';
+                    if (blockB) blockB.style.display = 'none';
+                    if (friendB) friendB.style.display = 'none';
+                    return;
                 }
+                
+                if (userData.isLocked === true || userData.isLocked === "true") {
+                    if (banB) banB.style.display = 'flex';
+                    if (inputContainer) inputContainer.style.display = 'none';
+                    if (delB) delB.style.display = 'none';
+                    if (blockB) blockB.style.display = 'none';
+                    if (friendB) friendB.style.display = 'none';
+                    return;
+                }
+                
+                if (banB) banB.style.display = 'none';
+                if (delB) delB.style.display = 'none';
+                
+                // Tạo listener cho status
+                if (currentStatusListenerRef) {
+                    off(ref(db, `friend_status`), currentStatusListenerRef);
+                }
+                
+                currentStatusListenerRef = onValue(ref(db, `friend_status`), (fsSnap) => {
+                    if (!isChatActive || currentChatUid !== uid) return;
+                    
+                    const myS = fsSnap.child(currentUser.uid).child(uid).val();
+                    const theirS = fsSnap.child(uid).child(currentUser.uid).val();
 
-                d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`;
-                box.appendChild(d);
+                    if (friendB) friendB.style.display = 'none';
+                    if (blockB) blockB.style.display = 'none';
+                    if (inputContainer) inputContainer.style.display = 'none';
+
+                    if (myS === 'blocked' || theirS === 'blocked') {
+                        if (blockB) {
+                            blockB.style.display = 'flex';
+                            blockB.innerHTML = myS === 'blocked' 
+                                ? `Bạn đang chặn người này <br> <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` 
+                                : `Bạn hiện không thể liên lạc với người này qua VieChat`;
+                        }
+                    } else if (myS === 'outgoing') {
+                        if (friendB) {
+                            friendB.style.display = 'flex';
+                            if (friendActions) friendActions.style.display = 'none';
+                            if (friendText) friendText.innerText = "Bạn chưa thể trò chuyện cho đến khi họ chấp nhận lời mời kết bạn.";
+                        }
+                    } else if (myS === 'incoming') {
+                        if (friendB) {
+                            friendB.style.display = 'flex';
+                            if (friendActions) friendActions.style.display = 'flex';
+                            if (friendText) friendText.innerText = `${name} muốn kết bạn với bạn.`;
+                            const acceptBtn = document.getElementById('banner-accept-btn');
+                            const rejectBtn = document.getElementById('banner-reject-btn');
+                            if (acceptBtn) acceptBtn.onclick = () => updateStatus(uid, 'accepted');
+                            if (rejectBtn) rejectBtn.onclick = () => updateStatus(uid, 'reject');
+                        }
+                    } else if (myS === 'accepted') {
+                        if (inputContainer) inputContainer.style.display = 'flex';
+                    } else {
+                        if (friendB) {
+                            friendB.style.display = 'flex';
+                            if (friendActions) friendActions.style.display = 'none';
+                            if (friendText) friendText.innerText = "Hai bạn chưa là bạn bè. Hãy kết bạn để bắt đầu trò chuyện.";
+                        }
+                    }
+                });
             });
-            box.scrollTop = box.scrollHeight;
-        });
-    });
-};
+            
+            // Xử lý messages
+            if(activeChatId && currentMessagesListenerRef) {
+                off(ref(db, `messages/${activeChatId}`), currentMessagesListenerRef);
+            }
+            activeChatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+            
+            if (currentClearListenerRef && currentUser) {
+                off(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), currentClearListenerRef);
+            }
+            
+            currentClearListenerRef = onValue(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), (clearSnap) => {
+                if (!isChatActive) return;
+                
+                const clearTime = clearSnap.val() || 0;
+                
+                if (currentMessagesListenerRef) {
+                    off(ref(db, `messages/${activeChatId}`), currentMessagesListenerRef);
+                }
+                
+                currentMessagesListenerRef = onValue(ref(db, `messages/${activeChatId}`), (s) => {
+                    if (!isChatActive) return;
+                    
+                    const box = document.getElementById('chat-messages'); 
+                    if (!box) return;
+                    box.innerHTML = "";
+                    s.forEach(m => {
+                        const msg = m.val(), mid = m.key;
+                        if (msg.timestamp <= clearTime) return;
+                        if (msg.deletedBy && msg.deletedBy[currentUser.uid]) return;
+
+                        const d = document.createElement('div');
+                        d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
+                        
+                        let content = msg.revoked ? `<i style="color:#aaa">Tin nhắn đã bị thu hồi</i>` : msg.text;
+                        let ops = "";
+                        
+                        if (msg.sender === currentUser.uid && !msg.revoked) {
+                            ops = `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>`;
+                        } else if (!msg.revoked) {
+                            ops = `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>`;
+                        }
+
+                        d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`;
+                        box.appendChild(d);
+                    });
+                    box.scrollTop = box.scrollHeight;
+                });
+            });
+        };
         
         window.openChat = openChatFunction;
         
@@ -1435,7 +1555,7 @@ function openChatFunction(uid, name, el) {
 
         window.sendMessage = () => {
             const input = document.getElementById('message-input');
-            if(!input.value.trim() || !activeChatId) return;
+            if(!input.value.trim() || !activeChatId || !isChatActive) return;
             push(ref(db, `messages/${activeChatId}`), { 
                 sender: currentUser.uid, 
                 text: input.value, 
@@ -1445,21 +1565,30 @@ function openChatFunction(uid, name, el) {
             input.value = "";
         };
 
+        // HÀM GO HOME - CLEANUP HOÀN TOÀN
         window.goHome = () => {
-            if(activeChatId) off(ref(db, `messages/${activeChatId}`));
-            activeChatId = null;
-            document.getElementById('header-text').innerText = "Chọn một cuộc trò chuyện";
-            document.getElementById('home-btn-header').style.display = 'none';
-            document.getElementById('delete-history-btn').style.display = 'none';
-            document.getElementById('chat-messages').innerHTML = `<div style="text-align: center; color: #999; margin-top: 50px;"><p>Hãy chọn một người bạn để nhắn tin</p></div>`;
-            document.getElementById('input-container').style.display = 'none';
-            document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+            // Đánh dấu chat không còn active
+            isChatActive = false;
             
-            const banners = ['banned-banner', 'block-banner', 'deleted-banner', 'friend-request-banner'];
-            banners.forEach(id => document.getElementById(id).style.display = 'none');
+            // Cleanup tất cả listeners
+            cleanupChatListeners();
+            
+            // Reset activeChatId
+            activeChatId = null;
+            currentChatUid = null;
+            
+            // Reset UI hoàn toàn
+            resetChatUI();
+            
+            // Remove active class từ các items
+            document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
         };
 
-        window.logout = () => signOut(auth);
+        window.logout = () => {
+            isChatActive = false;
+            cleanupChatListeners();
+            signOut(auth);
+        };
         
         window.clearChatHistory = async () => {
             if (!activeChatId) return;
@@ -1476,157 +1605,79 @@ function openChatFunction(uid, name, el) {
             });
         };
         
-        // ========== MOBILE SIDEBAR TOGGLE (không có overlay) ==========
         function initMobileSidebar() {
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('sidebarToggleBtn');
+            if (!sidebar || !toggleBtn) return;
             
-            if (!sidebar || !toggleBtn) {
-                console.log("Không tìm thấy elements");
-                return;
-            }
-            
-            // Xóa event cũ nếu có
             const newToggleBtn = toggleBtn.cloneNode(true);
             toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
             
-            // Gán event mới cho nút toggle
             newToggleBtn.onclick = function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 toggleSidebar();
             };
             
-            // Đóng sidebar khi bấm ESC
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    closeSidebar();
-                }
+                if (e.key === 'Escape') closeSidebar();
             });
             
-            // Đảm bảo khi resize về desktop thì sidebar không bị kẹt
             window.addEventListener('resize', function() {
                 if (window.innerWidth > 790) {
                     closeSidebar();
-                    if (sidebar) {
-                        sidebar.style.transform = '';
-                    }
-                } else {
-                    if (sidebar && !sidebar.classList.contains('open')) {
-                        sidebar.style.transform = '';
-                    }
                 }
             });
         }
 
-        // Xử lý input trên mobile
-        function fixMobileInput() {
+        function setMobileViewportHeight() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+            
+            const mainApp = document.getElementById('main-app');
+            const appContainer = document.querySelector('.app-container');
+            const chatWindow = document.querySelector('.chat-window');
+            
+            if (mainApp) mainApp.style.height = `${window.innerHeight}px`;
+            if (appContainer) appContainer.style.height = `${window.innerHeight}px`;
+            if (chatWindow) chatWindow.style.height = `${window.innerHeight}px`;
+        }
+
+        function handleKeyboardOnMobile() {
             const messageInput = document.getElementById('message-input');
             const chatMessages = document.getElementById('chat-messages');
+            if (!messageInput) return;
             
-            if (!messageInput || !chatMessages) return;
+            let originalHeight = window.innerHeight;
             
             messageInput.addEventListener('focus', function() {
                 setTimeout(() => {
-                    if (chatMessages) {
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }
-                }, 300);
+                    if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 100);
             });
             
-            if (window.visualViewport) {
-                let originalHeight = window.innerHeight;
-                
-                window.visualViewport.addEventListener('resize', function() {
-                    const currentHeight = window.visualViewport.height;
-                    
-                    if (currentHeight < originalHeight) {
-                        if (chatMessages) {
-                            setTimeout(() => {
-                                chatMessages.scrollTop = chatMessages.scrollHeight;
-                            }, 100);
-                        }
-                    }
-                    originalHeight = currentHeight;
-                });
-            }
-        }
-        
-        // Khởi tạo
-        setTimeout(function() {
-            initMobileSidebar();
-            fixMobileInput();
-        }, 100);
-
-        // Hàm xử lý chiều cao động cho mobile
-function setMobileViewportHeight() {
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-    
-    // Cập nhật chiều cao cho các container chính
-    const mainApp = document.getElementById('main-app');
-    const appContainer = document.querySelector('.app-container');
-    const chatWindow = document.querySelector('.chat-window');
-    
-    if (mainApp) {
-        mainApp.style.height = `${window.innerHeight}px`;
-    }
-    if (appContainer) {
-        appContainer.style.height = `${window.innerHeight}px`;
-    }
-    if (chatWindow) {
-        chatWindow.style.height = `${window.innerHeight}px`;
-    }
-}
-
-// Hàm xử lý khi keyboard mở trên mobile
-function handleKeyboardOnMobile() {
-    const messageInput = document.getElementById('message-input');
-    const chatMessages = document.getElementById('chat-messages');
-    
-    if (!messageInput) return;
-    
-    let originalHeight = window.innerHeight;
-    
-    messageInput.addEventListener('focus', function() {
-        setTimeout(() => {
-            if (chatMessages) {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-        }, 100);
-    });
-    
-    // Lắng nghe sự thay đổi kích thước (khi bàn phím mở/đóng)
-    window.addEventListener('resize', function() {
-        const currentHeight = window.innerHeight;
-        
-        if (currentHeight < originalHeight) {
-            // Bàn phím mở - cuộn xuống cuối
-            setTimeout(() => {
-                if (chatMessages) {
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
+            window.addEventListener('resize', function() {
+                const currentHeight = window.innerHeight;
+                if (currentHeight < originalHeight) {
+                    setTimeout(() => {
+                        if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }, 100);
+                } else if (currentHeight > originalHeight) {
+                    setMobileViewportHeight();
                 }
-            }, 100);
-        } else if (currentHeight > originalHeight) {
-            // Bàn phím đóng
-            setMobileViewportHeight();
+                originalHeight = currentHeight;
+            });
         }
         
-        originalHeight = currentHeight;
-    });
-}
-
-// Cập nhật chiều cao khi orientation change
-window.addEventListener('orientationchange', function() {
-    setTimeout(setMobileViewportHeight, 100);
-});
-
-// Khởi tạo
-setTimeout(function() {
-    setMobileViewportHeight();
-    handleKeyboardOnMobile();
-    initMobileSidebar();
-}, 100);
+        window.addEventListener('orientationchange', function() {
+            setTimeout(setMobileViewportHeight, 100);
+        });
+        
+        setTimeout(function() {
+            setMobileViewportHeight();
+            handleKeyboardOnMobile();
+            initMobileSidebar();
+        }, 100);
     </script>
 </body>
 </html>
