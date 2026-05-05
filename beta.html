@@ -113,20 +113,7 @@
             color: var(--primary);
         }
         
-        /* Overlay - chỉ hiển thị khi sidebar mở trên mobile */
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 15;
-            pointer-events: auto;
-        }
-        
-        /* Chat window - luôn ở trên overlay nhưng không bị che */
+        /* Chat window */
         .chat-window {
             flex: 1;
             display: flex;
@@ -367,7 +354,7 @@
             border: 1px dashed var(--primary); 
         }
         
-        /* Mobile Responsive - SỬA LỖI SIDEBAR */
+        /* Mobile Responsive - Không có overlay */
         @media (max-width: 790px) {
             .app-container {
                 position: relative;
@@ -412,25 +399,6 @@
             
             .sidebar-toggle:active {
                 opacity: 0.6;
-            }
-            
-            /* Overlay */
-            .sidebar-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 1000;
-                display: none;
-                opacity: 0;
-                transition: opacity 0.3s ease;
-            }
-            
-            .sidebar-overlay.active {
-                display: block;
-                opacity: 1;
             }
             
             /* Chat window */
@@ -508,6 +476,11 @@
                 flex-shrink: 0;
                 padding: 12px;
             }
+            
+            /* Đóng sidebar khi click bên ngoài bằng cách click vào chat-window */
+            .chat-window {
+                cursor: pointer;
+            }
         }
         
         /* Desktop - ẩn nút toggle */
@@ -532,9 +505,6 @@
     </style>
 </head>
 <body>
-    <!-- Overlay -->
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
-    
     <!-- Màn hình Đăng nhập/Đăng ký -->
     <div id="auth-screen">
         <div class="auth-card">
@@ -594,7 +564,7 @@
                 </div>
             </div>
 
-            <div class="chat-window">
+            <div class="chat-window" id="chatWindow">
                 <div id="chat-header">
                     <div class="header-left">
                         <button class="sidebar-toggle" id="sidebarToggleBtn">☰</button>
@@ -780,7 +750,7 @@
                 </div>
                 <div class="modal-body">
                     <p class="text-center">Tài khoản đã bị khóa.</p>
-                    <table class="table"><tbody><tr><th>Tên:</th><td id="displayName">---</td></tr><tr><th>Lý do:</th><td id="displayLockReason">---</td></tr></tbody></table>
+                    <table class="table"><tbody><tr><th>Tên:</th><td id="displayName">---</td></tr>\n                        <tr><th>Lý do:</th><td id="displayLockReason">---</td></tr>\n                    </tbody></table>
                     <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Đã hiểu</button>
                 </div>
             </div>
@@ -820,24 +790,16 @@
         // Hàm đóng sidebar
         function closeSidebar() {
             const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
             if (sidebar) {
                 sidebar.classList.remove('open');
-                if (overlay) {
-                    overlay.classList.remove('active');
-                }
             }
         }
 
         // Hàm mở sidebar
         function openSidebar() {
             const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
             if (sidebar) {
                 sidebar.classList.add('open');
-                if (overlay) {
-                    overlay.classList.add('active');
-                }
             }
         }
 
@@ -848,6 +810,24 @@
                 closeSidebar();
             } else {
                 openSidebar();
+            }
+        }
+
+        // Đóng sidebar khi click bên ngoài (vào chat window)
+        function setupOutsideClick() {
+            const chatWindow = document.getElementById('chatWindow');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (chatWindow) {
+                chatWindow.addEventListener('click', function(e) {
+                    // Kiểm tra nếu click không phải vào sidebar và sidebar đang mở
+                    if (sidebar && sidebar.classList.contains('open')) {
+                        // Kiểm tra xem click có phải vào sidebar không
+                        if (!sidebar.contains(e.target)) {
+                            closeSidebar();
+                        }
+                    }
+                });
             }
         }
 
@@ -957,6 +937,7 @@
                         document.getElementById('my-email').innerText = user.email;
                         document.getElementById('my-name').innerText = data.name || "Người dùng";
                         syncLists();
+                        setupOutsideClick(); // Thiết lập click outside
                     }
                 });
             } else {
@@ -1476,11 +1457,10 @@
             });
         };
         
-        // ========== MOBILE SIDEBAR TOGGLE ==========
+        // ========== MOBILE SIDEBAR TOGGLE (không có overlay) ==========
         function initMobileSidebar() {
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('sidebarToggleBtn');
-            const overlay = document.getElementById('sidebarOverlay');
             
             if (!sidebar || !toggleBtn) {
                 console.log("Không tìm thấy elements");
@@ -1497,14 +1477,6 @@
                 e.preventDefault();
                 toggleSidebar();
             };
-            
-            // Đóng sidebar khi bấm vào overlay
-            if (overlay) {
-                overlay.onclick = function(e) {
-                    e.stopPropagation();
-                    closeSidebar();
-                };
-            }
             
             // Đóng sidebar khi bấm ESC
             document.addEventListener('keydown', function(e) {
