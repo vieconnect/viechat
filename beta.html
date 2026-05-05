@@ -367,7 +367,7 @@
             border: 1px dashed var(--primary); 
         }
         
-       @media (max-width: 790px) {
+        @media (max-width: 790px) {
     .app-container {
         position: relative;
     }
@@ -389,6 +389,7 @@
         flex-direction: column;
         height: 100%;
         overflow: hidden;
+        width: 100vw; /* Đảm bảo full width */
     }
     
     #chat-messages {
@@ -402,24 +403,49 @@
     .input-area {
         position: sticky;
         bottom: 0;
+        left: 0;
+        right: 0;
         background: white;
-        width: 100%;
+        width: 100vw; /* Full viewport width */
         z-index: 10;
         flex-shrink: 0;
         padding: 10px 12px;
         border-top: 1px solid #eee;
+        box-sizing: border-box; /* Quan trọng: đảm bảo padding không làm tràn */
+        display: flex;
+        align-items: center;
+        gap: 8px; /* Giảm gap một chút */
+        margin: 0; /* Loại bỏ margin */
     }
     
     #message-input {
         flex: 1;
-        min-width: 0;
+        min-width: 0; /* Quan trọng: cho phép input thu nhỏ */
+        max-width: calc(100% - 80px); /* Giới hạn width để dành chỗ cho button */
         font-size: 14px;
         padding: 10px 12px;
+        border-radius: 20px;
+        border: 1px solid #ddd;
+        outline: none;
+        box-sizing: border-box; /* Đảm bảo padding không làm tràn */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    #message-input:focus {
+        border-color: var(--primary);
+        max-width: calc(100% - 80px); /* Giữ nguyên kích thước khi focus */
     }
     
     .input-area button {
         flex-shrink: 0;
-        padding: 8px 16px;
+        flex-grow: 0;
+        min-width: 60px; /* Width cố định cho button */
+        max-width: 60px;
+        padding: 8px 12px;
+        font-size: 13px;
+        white-space: nowrap;
     }
     
     .sidebar.open { 
@@ -430,11 +456,6 @@
         display: flex; 
     }
     
-    .chat-window { 
-        width: 100%; 
-        z-index: 1;
-    }
-    
     .msg-wrapper { 
         max-width: 90%; 
     }
@@ -442,7 +463,7 @@
     .sidebar-overlay {
         position: fixed;
         top: 0;
-        left: 100%;
+        left: 0; /* Sửa từ left: 100% thành left: 0 */
         right: 0;
         bottom: 0;
         background: rgba(0,0,0,0.5);
