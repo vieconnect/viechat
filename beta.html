@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>VieChat</title>
+    <title>VieChat - Nhắn tin với người lạ</title>
     <style>
         /* Sử dụng vh động */
 :root {
@@ -49,18 +49,6 @@
             border-radius: 8px;
         }
         
-        /* .auth-card button {
-            width: 100%;
-            padding: 12px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-         */
-        /* Checkbox style */
         .terms-checkbox {
             display: flex;
             align-items: center;
@@ -87,10 +75,6 @@
         .terms-checkbox a {
             color: var(--primary);
             text-decoration: none;
-        }
-        
-        .terms-checkbox a:hover {
-            text-decoration: underline;
         }
         
         :root { --primary: #0084ff; --bg: #f0f2f5; --text: #1c1e21; --light-gray: #e4e6eb; --danger: #f02849; --success: #42b72a; }
@@ -536,6 +520,21 @@
             .modal-dialog { margin: 10px; }
             .modal-body { padding: 16px; }
         }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .text-muted { font-size: 13px; text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -561,21 +560,17 @@
                 <input type="password" id="signup-password" placeholder="Mật khẩu (6+ ký tự)">
                 <input type="password" id="signup-confirm-password" placeholder="Xác nhận mật khẩu">
                 
-                <!-- Checkbox điều khoản -->
                 <div class="terms-checkbox">
                     <input type="checkbox" id="terms-checkbox">
-                    <!-- <label for="terms-checkbox">
-                        Bằng việc đăng ký tài khoản, bạn đã đồng ý với <a href="#" onclick="showTermsModal(); return false;">Điều khoản sử dụng</a> của VieChat
-                    </label> -->
                     <label for="terms-checkbox">
-                        Bằng việc đăng ký tài khoản, bạn đã đồng ý với <a href="/dieu-khoan-su-dung.html" target="_blank">Điều khoản sử dụng</a> của VieChat
+                        Bằng việc đăng ký tài khoản, bạn đã đồng ý với <a href="#" onclick="showTermsModal(); return false;">Điều khoản sử dụng</a> của VieChat
                     </label>
                 </div>
                 
                 <button onclick="handleAuth('signup')" class="btn btn-success" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">Tạo tài khoản</button>
                 <p><p>Đã có tài khoản? <a href="#" onclick="toggleAuth(false)">Đăng nhập</a></p></p>
             </div>
-            <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;"><small>&copy; 2026 VieConnect</small></div>
+            <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;"><small>&copy; 2026 VieConnect Technology</small></div>
         </div>
     </div>
     
@@ -607,6 +602,8 @@
                     <div id="outgoing-list"></div>
                     <div class="section-title">DANH SÁCH BẠN BÈ</div>
                     <div id="friend-list"></div>
+                    <div class="section-title">TIN NHẮN TỪ NGƯỜI LẠ</div>
+                    <div id="stranger-list"></div>
                 </div>
             </div>
 
@@ -642,6 +639,10 @@
                         <button class="btn-icon bg-success" id="banner-accept-btn">Chấp nhận</button>
                         <button class="btn-icon bg-danger" id="banner-reject-btn">Từ chối</button>
                     </div>
+                </div>
+                <!-- Banner giới hạn tin nhắn với người lạ -->
+                <div id="stranger-limit-banner" class="status-banner banner-gray" style="display: none;">
+                    <span id="stranger-limit-text"></span>
                 </div>
 
                 <div class="input-area" id="input-container" style="display:none;">
@@ -788,8 +789,7 @@
         </div>
     </div>
 
-    <!-- Modal hiển thị điều khoản sử dụng -->
-    <!-- <div class="modal fade" id="termsModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal fade" id="termsModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
@@ -799,22 +799,17 @@
                 <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
                     <h6>1. Chấp nhận điều khoản</h6>
                     <p>Khi đăng ký và sử dụng VieChat, bạn đồng ý tuân thủ các điều khoản và điều kiện được quy định tại đây.</p>
-                    
                     <h6>2. Quyền và trách nhiệm của người dùng</h6>
                     <p>- Bạn phải cung cấp thông tin chính xác, trung thực khi đăng ký tài khoản.<br>
                     - Bạn chịu trách nhiệm bảo mật thông tin tài khoản của mình.<br>
                     - Không sử dụng VieChat vào mục đích bất hợp pháp, quấy rối, lừa đảo hoặc gây hại cho người khác.<br>
                     - Không đăng tải nội dung vi phạm pháp luật, thuần phong mỹ tục.</p>
-                    
                     <h6>3. Xử lý vi phạm</h6>
                     <p>VieChat có quyền khóa tài khoản tạm thời hoặc vĩnh viễn đối với người dùng vi phạm điều khoản sử dụng mà không cần thông báo trước.</p>
-                    
                     <h6>4. Bảo mật thông tin</h6>
                     <p>Chúng tôi cam kết bảo vệ thông tin cá nhân của người dùng theo chính sách bảo mật.</p>
-                    
                     <h6>5. Thay đổi điều khoản</h6>
                     <p>VieChat có quyền thay đổi, cập nhật điều khoản sử dụng bất kỳ lúc nào. Người dùng có trách nhiệm theo dõi các thay đổi.</p>
-                    
                     <p class="text-muted mt-3"><small>Cập nhật lần cuối: Tháng 5 năm 2026</small></p>
                 </div>
                 <div class="modal-footer">
@@ -822,7 +817,7 @@
                 </div>
             </div>
         </div>
-    </div> -->
+    </div>
 
     <div class="modal fade" id="lockAccountModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -832,34 +827,17 @@
                 </div>
                 <div class="modal-body p-4">
                     <p class="text-center text-muted mb-4">Hệ thống ghi nhận vi phạm và đã tạm dừng quyền truy cập của tài khoản này.</p>
-                    
                     <div class="table-responsive">
                         <table class="table table-sm table-borderless">
                             <tbody>
-                                <tr>
-                                    <th class="text-secondary">Tên:</th>
-                                    <td id="displayName" class="fw-bold">---</td>
-                                </tr>
-                                <tr>
-                                    <th class="text-secondary" style="width: 40%;">ID:</th>
-                                    <td id="displayLockID" class="fw-bold text-dark">---</td>
-                                </tr>
-                                <tr>
-                                    <th class="text-secondary">Lý do:</th>
-                                    <td id="displayLockReason" class="text-danger">---</td>
-                                </tr>
-                                <tr>
-                                    <th class="text-secondary">Bắt đầu:</th>
-                                    <td id="displayLockStart">---</td>
-                                </tr>
-                                <tr>
-                                    <th class="text-secondary">Thời gian hạn chế:</th>
-                                    <td id="displayLockDuration" class="fw-bold">---</td>
-                                </tr>
+                                <tr><th class="text-secondary">Tên:</th><td id="displayName" class="fw-bold">---</td></tr>
+                                <tr><th class="text-secondary" style="width: 40%;">ID:</th><td id="displayLockID" class="fw-bold text-dark">---</td></tr>
+                                <tr><th class="text-secondary">Lý do:</th><td id="displayLockReason" class="text-danger">---</td></tr>
+                                <tr><th class="text-secondary">Bắt đầu:</th><td id="displayLockStart">---</td></tr>
+                                <tr><th class="text-secondary">Thời gian hạn chế:</th><td id="displayLockDuration" class="fw-bold">---</td></tr>
                             </tbody>
                         </table>
                     </div>
-
                     <div class="alert alert-light border mt-3 small">
                         Mọi thắc mắc vui lòng liên hệ bộ phận hỗ trợ VieConnect để được giải quyết<br>
                         <a href="/dieu-khoan-su-dung.html" target="_blank">Xem điều khoản sử dụng của VieConnect</a>
@@ -900,53 +878,39 @@
         let deleteAccountModalInstance = null;
         let changeNameModalInstance = null;
         
-        // QUAN TRỌNG: Biến để kiểm soát trạng thái chat
         let isChatActive = false;
         let currentChatUid = null;
         
-        // Lưu các listener để cleanup
         let currentUserListenerRef = null;
         let currentStatusListenerRef = null;
         let currentMessagesListenerRef = null;
         let currentClearListenerRef = null;
 
-        // Hàm hiển thị modal điều khoản
         window.showTermsModal = () => {
             const termsModal = new bootstrap.Modal(document.getElementById('termsModal'));
             termsModal.show();
         };
 
-        // Hàm reset giao diện chat về trạng thái ban đầu
         function resetChatUI() {
-            // Ẩn tất cả banners
-            const banners = ['banned-banner', 'block-banner', 'deleted-banner', 'friend-request-banner'];
+            const banners = ['banned-banner', 'block-banner', 'deleted-banner', 'friend-request-banner', 'stranger-limit-banner'];
             banners.forEach(id => {
                 const banner = document.getElementById(id);
                 if (banner) banner.style.display = 'none';
             });
-            
-            // Ẩn input
             const inputContainer = document.getElementById('input-container');
             if (inputContainer) inputContainer.style.display = 'none';
-            
-            // Reset messages area
             const messagesBox = document.getElementById('chat-messages');
             if (messagesBox) {
                 messagesBox.innerHTML = `<div style="text-align: center; color: #999; margin-top: 50px;"><p>Hãy chọn một người bạn để nhắn tin</p></div>`;
             }
-            
-            // Reset header
             const headerText = document.getElementById('header-text');
             if (headerText) headerText.innerText = "Chọn một cuộc trò chuyện";
-            
             const homeBtn = document.getElementById('home-btn-header');
             if (homeBtn) homeBtn.style.display = 'none';
-            
             const deleteBtn = document.getElementById('delete-history-btn');
             if (deleteBtn) deleteBtn.style.display = 'none';
         }
         
-        // Hàm cleanup tất cả listeners chat
         function cleanupChatListeners() {
             if (currentUserListenerRef && currentChatUid) {
                 off(ref(db, `users/${currentChatUid}`), currentUserListenerRef);
@@ -1109,6 +1073,7 @@
                         document.getElementById('my-email').innerText = user.email;
                         document.getElementById('my-name').innerText = data.name || "Người dùng";
                         syncLists();
+                        syncStrangerList();
                         setupOutsideClick();
                     }
                 });
@@ -1132,7 +1097,6 @@
         window.toggleAuth = (isSignup) => {
             document.getElementById('login-form').style.display = isSignup ? 'none' : 'block';
             document.getElementById('signup-form').style.display = isSignup ? 'block' : 'none';
-            // Reset checkbox khi chuyển form
             if (isSignup) {
                 const termsCheckbox = document.getElementById('terms-checkbox');
                 if (termsCheckbox) termsCheckbox.checked = false;
@@ -1145,7 +1109,6 @@
             const name = type === 'signup' ? document.getElementById('signup-name').value.trim() : null;
             const confirmPass = type === 'signup' ? document.getElementById('signup-confirm-password').value : null;
             
-            // Kiểm tra checkbox điều khoản khi đăng ký
             if (type === 'signup') {
                 const termsChecked = document.getElementById('terms-checkbox').checked;
                 if (!termsChecked) {
@@ -1358,6 +1321,7 @@
         
         document.getElementById('confirmDeleteAccountBtn').onclick = () => processDeleteAccount();
 
+        // TÌM KIẾM NGƯỜI DÙNG: THÊM NÚT NHẮN TIN
         window.findUser = async () => {
             const email = document.getElementById('search-input').value.trim().toLowerCase();
             const resBox = document.getElementById('search-result');
@@ -1379,11 +1343,105 @@
                 } else if (currentStatus === "outgoing") {
                     buttonHtml = `<button disabled style="background:#ccc; padding:5px 15px; border-radius:4px;">Đang chờ</button>`;
                 } else {
-                    buttonHtml = `<button onclick="sendFriendRequest('${targetUid}')" style="background:var(--success); color:white; border:none; padding:5px 15px; border-radius:4px;">Gửi lời mời</button>`;
+                    buttonHtml = `<button onclick="sendFriendRequest('${targetUid}')" style="background:var(--success); color:white; border:none; padding:5px 15px; border-radius:4px;">Gửi lời mời</button>
+                                  <button onclick="startChatWithStranger('${targetUid}', '${targetData.name}')" style="background:var(--primary); color:white; border:none; padding:5px 15px; border-radius:4px;">Nhắn tin</button>`;
                 }
 
-                resBox.innerHTML = `<div class="search-result-item"><strong>${targetData.name}</strong><br><small>${targetData.email}</small><div style="margin-top:8px">${buttonHtml}</div></div>`;
+                resBox.innerHTML = `<div class="search-result-item"><strong>${targetData.name}</strong><br><small>${targetData.email}</small><div style="margin-top:8px; display: flex; gap: 8px; justify-content: center;">${buttonHtml}</div></div>`;
             } else showAlert("Thông báo", "Không tìm thấy người dùng này!");
+        };
+
+        // BẮT ĐẦU TRÒ CHUYỆN VỚI NGƯỜI LẠ
+        window.startChatWithStranger = async (targetUid, targetName) => {
+            // Kiểm tra xem có đang bị chặn hay không
+            const myStatus = await get(ref(db, `friend_status/${currentUser.uid}/${targetUid}`));
+            if (myStatus.val() === 'blocked') {
+                showAlert("Thông báo", "Bạn đã chặn người này, hãy bỏ chặn để nhắn tin.");
+                return;
+            }
+            const theirStatus = await get(ref(db, `friend_status/${targetUid}/${currentUser.uid}`));
+            if (theirStatus.val() === 'blocked') {
+                showAlert("Thông báo", "Người này đã chặn bạn.");
+                return;
+            }
+            // Mở chat (sẽ kiểm tra giới hạn bên trong openChatFunction)
+            const dummyEl = document.createElement('div');
+            dummyEl.id = `item-${targetUid}`;
+            dummyEl.classList.add('item');
+            dummyEl.innerHTML = `<div><strong>${targetName}</strong></div>`;
+            openChatFunction(targetUid, targetName, dummyEl);
+        };
+
+        // CẬP NHẬT DANH SÁCH NGƯỜI LẠ
+        function syncStrangerList() {
+            const strangerRef = ref(db, `stranger_conversations/${currentUser.uid}`);
+            onValue(strangerRef, (snap) => {
+                const container = document.getElementById('stranger-list');
+                container.innerHTML = "";
+                if (!snap.exists()) return;
+                snap.forEach((child) => {
+                    const strangerId = child.key;
+                    const data = child.val();
+                    onValue(ref(db, `users/${strangerId}`), (userSnap) => {
+                        if (!userSnap.exists()) return;
+                        const strangerInfo = userSnap.val();
+                        const existingItem = document.getElementById(`stranger-item-${strangerId}`);
+                        if (existingItem) existingItem.remove();
+                        
+                        const div = document.createElement('div');
+                        div.id = `stranger-item-${strangerId}`;
+                        div.className = 'item';
+                        let remaining = 2 - (data.count || 0);
+                        let limitText = remaining > 0 ? `(còn ${remaining} tin)` : `(đã hết lượt)`;
+                        div.innerHTML = `<div><strong>${strangerInfo.name}</strong><br><small>${strangerInfo.email}</small><br><small style="color:#888;">${limitText}</small></div>
+                                        <div class="btn-group">
+                                            <button class="btn-icon bg-danger" onclick="event.stopPropagation();removeStrangerConversation('${strangerId}')">🗑 Xóa</button>
+                                            <button class="btn-icon bg-success" onclick="event.stopPropagation();sendFriendRequestFromStranger('${strangerId}')">➕ Kết bạn</button>
+                                            <button class="btn-icon bg-secondary text-dark" onclick="event.stopPropagation();blockStranger('${strangerId}')">🚫 Chặn</button>
+                                        </div>`;
+                        div.onclick = (function(uid, name) {
+                            return function(e) {
+                                e.stopPropagation();
+                                closeSidebar();
+                                setTimeout(() => {
+                                    openChatFunction(uid, name, div);
+                                }, 150);
+                            };
+                        })(strangerId, strangerInfo.name);
+                        container.appendChild(div);
+                    });
+                });
+            });
+        }
+
+        window.sendFriendRequestFromStranger = async (targetUid) => {
+            await sendFriendRequest(targetUid);
+            // Xóa khỏi danh sách người lạ khi đã gửi lời mời
+            await remove(ref(db, `stranger_conversations/${currentUser.uid}/${targetUid}`));
+            // Không xóa phía bên kia để họ vẫn thấy nếu muốn
+            showAlert("Đã gửi", "Đã gửi lời mời kết bạn.");
+        };
+
+        window.blockStranger = async (targetUid) => {
+            showConfirm(`Chặn người dùng này? Bạn sẽ không nhận được tin nhắn từ họ.`, async () => {
+                await set(ref(db, `friend_status/${currentUser.uid}/${targetUid}`), "blocked");
+                await remove(ref(db, `stranger_conversations/${currentUser.uid}/${targetUid}`));
+                showAlert("Đã chặn", "Đã chặn người dùng.");
+            });
+        };
+
+        window.removeStrangerConversation = async (strangerId) => {
+            showConfirm(`Xóa cuộc trò chuyện với người lạ? Toàn bộ tin nhắn sẽ bị xóa khỏi phía bạn và được coi như chưa từng trò chuyện.`, async () => {
+                const chatId = currentUser.uid < strangerId ? `${currentUser.uid}_${strangerId}` : `${strangerId}_${currentUser.uid}`;
+                // Xóa lịch sử phía người dùng (clear)
+                const now = Date.now();
+                await set(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`), now);
+                // Xóa stranger_conversations của currentUser
+                await remove(ref(db, `stranger_conversations/${currentUser.uid}/${strangerId}`));
+                // Nếu đang mở chat với người này thì quay về home
+                if (currentChatUid === strangerId) goHome();
+                showAlert("Đã xóa", "Cuộc trò chuyện đã được xóa khỏi danh sách của bạn.");
+            });
         };
 
         window.sendFriendRequest = async (targetUid) => {
@@ -1400,6 +1458,9 @@
             
             if (status === 'accepted') {
                 await update(ref(db), { [myPath]: "accepted", [theirPath]: "accepted" });
+                // Xóa stranger_conversations nếu có
+                await remove(ref(db, `stranger_conversations/${currentUser.uid}/${uid}`));
+                await remove(ref(db, `stranger_conversations/${uid}/${currentUser.uid}`));
                 setTimeout(() => {
                     const friendItem = document.getElementById(`item-${uid}`);
                     const friendName = friendItem ? friendItem.querySelector('strong')?.innerText : '';
@@ -1409,6 +1470,7 @@
                 }, 500);
             } else if (status === 'blocked') {
                 await set(ref(db, myPath), "blocked");
+                await remove(ref(db, `stranger_conversations/${currentUser.uid}/${uid}`));
             } else if (status === 'unblock') {
                 await set(ref(db, myPath), "accepted");
             } else if (['remove', 'reject', 'cancel'].includes(status)) {
@@ -1484,26 +1546,25 @@
             });
         }
 
-        // HÀM OPEN CHAT CHÍNH - ĐÃ TỐI ƯU
+        // HÀM OPEN CHAT CÓ HIỆU ỨNG LOADING VÀ KIỂM TRA GIỚI HẠN NGƯỜI LẠ
         function openChatFunction(uid, name, el) {
-            // Cleanup listeners cũ trước khi mở chat mới
+            // Cleanup cũ
             cleanupChatListeners();
-            
-            // Reset UI về trạng thái ban đầu
             resetChatUI();
             
-            // Cập nhật trạng thái chat
+            // Hiệu ứng loading
+            const messagesBox = document.getElementById('chat-messages');
+            messagesBox.innerHTML = `<div class="spinner"></div><div class="text-muted">Đang tải cuộc trò chuyện...</div>`;
+            
             isChatActive = true;
             currentChatUid = uid;
             
-            // Update UI elements
             document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
             if (el) el.classList.add('active');
             document.getElementById('header-text').innerText = name;
             document.getElementById('home-btn-header').style.display = 'block';
             document.getElementById('delete-history-btn').style.display = 'inline-block';
             
-            // Lấy references
             const delB = document.getElementById('deleted-banner');
             const banB = document.getElementById('banned-banner');
             const blockB = document.getElementById('block-banner');
@@ -1511,49 +1572,46 @@
             const friendText = document.getElementById('friend-banner-text');
             const friendActions = document.getElementById('friend-banner-actions');
             const inputContainer = document.getElementById('input-container');
+            const limitBanner = document.getElementById('stranger-limit-banner');
+            const limitText = document.getElementById('stranger-limit-text');
             
-            // Tạo listener cho user data
+            // Kiểm tra realtime user
             currentUserListenerRef = onValue(ref(db, `users/${uid}`), (uSnap) => {
-                // Chỉ xử lý nếu chat vẫn đang active
                 if (!isChatActive || currentChatUid !== uid) return;
-                
                 const userData = uSnap.val();
-                
                 if (!uSnap.exists()) {
                     if (delB) delB.style.display = 'flex';
                     if (inputContainer) inputContainer.style.display = 'none';
                     if (banB) banB.style.display = 'none';
                     if (blockB) blockB.style.display = 'none';
                     if (friendB) friendB.style.display = 'none';
+                    if (limitBanner) limitBanner.style.display = 'none';
+                    messagesBox.innerHTML = `<div style="text-align:center; margin-top:50px;">Người dùng không tồn tại</div>`;
                     return;
                 }
-                
                 if (userData.isLocked === true || userData.isLocked === "true") {
                     if (banB) banB.style.display = 'flex';
                     if (inputContainer) inputContainer.style.display = 'none';
                     if (delB) delB.style.display = 'none';
                     if (blockB) blockB.style.display = 'none';
                     if (friendB) friendB.style.display = 'none';
+                    if (limitBanner) limitBanner.style.display = 'none';
                     return;
                 }
-                
                 if (banB) banB.style.display = 'none';
                 if (delB) delB.style.display = 'none';
                 
-                // Tạo listener cho status
-                if (currentStatusListenerRef) {
-                    off(ref(db, `friend_status`), currentStatusListenerRef);
-                }
-                
-                currentStatusListenerRef = onValue(ref(db, `friend_status`), (fsSnap) => {
+                // Lắng nghe trạng thái bạn bè
+                if (currentStatusListenerRef) off(ref(db, `friend_status`), currentStatusListenerRef);
+                currentStatusListenerRef = onValue(ref(db, `friend_status`), async (fsSnap) => {
                     if (!isChatActive || currentChatUid !== uid) return;
-                    
                     const myS = fsSnap.child(currentUser.uid).child(uid).val();
                     const theirS = fsSnap.child(uid).child(currentUser.uid).val();
 
                     if (friendB) friendB.style.display = 'none';
                     if (blockB) blockB.style.display = 'none';
                     if (inputContainer) inputContainer.style.display = 'none';
+                    if (limitBanner) limitBanner.style.display = 'none';
 
                     if (myS === 'blocked' || theirS === 'blocked') {
                         if (blockB) {
@@ -1562,13 +1620,17 @@
                                 ? `Bạn đang chặn người này <br> <button class="home-btn" style="margin-top:5px" onclick="updateStatus('${uid}','unblock')">Bỏ chặn</button>` 
                                 : `Bạn hiện không thể liên lạc với người này qua VieChat`;
                         }
-                    } else if (myS === 'outgoing') {
+                        messagesBox.innerHTML = `<div style="text-align:center; margin-top:50px;">Trò chuyện bị chặn</div>`;
+                    } 
+                    else if (myS === 'outgoing') {
                         if (friendB) {
                             friendB.style.display = 'flex';
                             if (friendActions) friendActions.style.display = 'none';
                             if (friendText) friendText.innerText = "Bạn chưa thể trò chuyện cho đến khi họ chấp nhận lời mời kết bạn.";
                         }
-                    } else if (myS === 'incoming') {
+                        messagesBox.innerHTML = `<div style="text-align:center; margin-top:50px;">Chờ họ chấp nhận lời mời kết bạn</div>`;
+                    } 
+                    else if (myS === 'incoming') {
                         if (friendB) {
                             friendB.style.display = 'flex';
                             if (friendActions) friendActions.style.display = 'flex';
@@ -1578,67 +1640,77 @@
                             if (acceptBtn) acceptBtn.onclick = () => updateStatus(uid, 'accepted');
                             if (rejectBtn) rejectBtn.onclick = () => updateStatus(uid, 'reject');
                         }
-                    } else if (myS === 'accepted') {
+                        messagesBox.innerHTML = `<div style="text-align:center; margin-top:50px;">Chấp nhận lời mời để trò chuyện</div>`;
+                    } 
+                    else if (myS === 'accepted') {
                         if (inputContainer) inputContainer.style.display = 'flex';
-                    } else {
-                        if (friendB) {
-                            friendB.style.display = 'flex';
-                            if (friendActions) friendActions.style.display = 'none';
-                            if (friendText) friendText.innerText = "Hai bạn chưa là bạn bè. Hãy kết bạn để bắt đầu trò chuyện.";
+                        // load messages normally
+                        loadMessages(uid);
+                    } 
+                    else {
+                        // Chưa kết bạn -> kiểm tra giới hạn stranger
+                        const convSnap = await get(ref(db, `stranger_conversations/${currentUser.uid}/${uid}`));
+                        let count = convSnap.exists() ? convSnap.val().count || 0 : 0;
+                        let remaining = 2 - count;
+                        if (remaining > 0) {
+                            if (limitBanner) {
+                                limitBanner.style.display = 'flex';
+                                limitText.innerText = `Bạn chưa kết bạn. Bạn có thể nhắn thêm ${remaining} tin nhắn. Sau 2 tin, hãy kết bạn để tiếp tục trò chuyện.`;
+                            }
+                            if (inputContainer) inputContainer.style.display = 'flex';
+                            loadMessages(uid);
+                        } else {
+                            if (limitBanner) {
+                                limitBanner.style.display = 'flex';
+                                limitText.innerText = `Bạn đã hết lượt nhắn tin với người lạ. Hãy gửi lời mời kết bạn để trò chuyện thêm.`;
+                            }
+                            if (inputContainer) inputContainer.style.display = 'none';
+                            messagesBox.innerHTML = `<div style="text-align:center; margin-top:50px;">Đã đạt giới hạn 2 tin nhắn. Hãy kết bạn để tiếp tục.</div>`;
                         }
                     }
                 });
             });
-            
-            // Xử lý messages
-            if(activeChatId && currentMessagesListenerRef) {
-                off(ref(db, `messages/${activeChatId}`), currentMessagesListenerRef);
-            }
+        }
+
+        async function loadMessages(uid) {
             activeChatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
-            
             if (currentClearListenerRef && currentUser) {
                 off(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), currentClearListenerRef);
             }
-            
             currentClearListenerRef = onValue(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), (clearSnap) => {
                 if (!isChatActive) return;
-                
                 const clearTime = clearSnap.val() || 0;
-                
-                if (currentMessagesListenerRef) {
-                    off(ref(db, `messages/${activeChatId}`), currentMessagesListenerRef);
-                }
-                
+                if (currentMessagesListenerRef) off(ref(db, `messages/${activeChatId}`), currentMessagesListenerRef);
                 currentMessagesListenerRef = onValue(ref(db, `messages/${activeChatId}`), (s) => {
                     if (!isChatActive) return;
-                    
-                    const box = document.getElementById('chat-messages'); 
+                    const box = document.getElementById('chat-messages');
                     if (!box) return;
                     box.innerHTML = "";
+                    let hasMessages = false;
                     s.forEach(m => {
                         const msg = m.val(), mid = m.key;
                         if (msg.timestamp <= clearTime) return;
                         if (msg.deletedBy && msg.deletedBy[currentUser.uid]) return;
-
+                        hasMessages = true;
                         const d = document.createElement('div');
                         d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
-                        
                         let content = msg.revoked ? `<i style="color:#aaa">Tin nhắn đã bị thu hồi</i>` : msg.text;
                         let ops = "";
-                        
                         if (msg.sender === currentUser.uid && !msg.revoked) {
                             ops = `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>`;
                         } else if (!msg.revoked) {
                             ops = `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>`;
                         }
-
                         d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`;
                         box.appendChild(d);
                     });
+                    if (!hasMessages && !box.innerHTML.trim()) {
+                        box.innerHTML = `<div style="text-align: center; color: #999; margin-top: 50px;">Chưa có tin nhắn nào. Hãy gửi tin nhắn đầu tiên!</div>`;
+                    }
                     box.scrollTop = box.scrollHeight;
                 });
             });
-        };
+        }
         
         window.openChat = openChatFunction;
         
@@ -1654,9 +1726,30 @@
             });
         };
 
-        window.sendMessage = () => {
+        window.sendMessage = async () => {
             const input = document.getElementById('message-input');
             if(!input.value.trim() || !activeChatId || !isChatActive) return;
+            const otherUid = currentChatUid;
+            // Kiểm tra xem có phải bạn bè chưa
+            const statusSnap = await get(ref(db, `friend_status/${currentUser.uid}/${otherUid}`));
+            const status = statusSnap.val();
+            if (status !== 'accepted') {
+                // Chưa kết bạn, kiểm tra giới hạn
+                const convSnap = await get(ref(db, `stranger_conversations/${currentUser.uid}/${otherUid}`));
+                let count = convSnap.exists() ? convSnap.val().count || 0 : 0;
+                if (count >= 2) {
+                    showAlert("Thông báo", "Bạn đã đạt giới hạn 2 tin nhắn với người lạ. Hãy kết bạn để tiếp tục.");
+                    return;
+                }
+                // Cập nhật count cho cả 2 bên
+                const newCount = count + 1;
+                await set(ref(db, `stranger_conversations/${currentUser.uid}/${otherUid}`), { count: newCount, lastUpdated: serverTimestamp() });
+                // Cập nhật cho người nhận
+                const theirSnap = await get(ref(db, `stranger_conversations/${otherUid}/${currentUser.uid}`));
+                let theirCount = theirSnap.exists() ? theirSnap.val().count || 0 : 0;
+                await set(ref(db, `stranger_conversations/${otherUid}/${currentUser.uid}`), { count: theirCount + 1, lastUpdated: serverTimestamp() });
+            }
+            // Gửi tin nhắn
             push(ref(db, `messages/${activeChatId}`), { 
                 sender: currentUser.uid, 
                 text: input.value, 
@@ -1666,22 +1759,12 @@
             input.value = "";
         };
 
-        // HÀM GO HOME - CLEANUP HOÀN TOÀN
         window.goHome = () => {
-            // Đánh dấu chat không còn active
             isChatActive = false;
-            
-            // Cleanup tất cả listeners
             cleanupChatListeners();
-            
-            // Reset activeChatId
             activeChatId = null;
             currentChatUid = null;
-            
-            // Reset UI hoàn toàn
             resetChatUI();
-            
-            // Remove active class từ các items
             document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
         };
 
@@ -1710,35 +1793,27 @@
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('sidebarToggleBtn');
             if (!sidebar || !toggleBtn) return;
-            
             const newToggleBtn = toggleBtn.cloneNode(true);
             toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
-            
             newToggleBtn.onclick = function(e) {
                 e.stopPropagation();
                 e.preventDefault();
                 toggleSidebar();
             };
-            
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') closeSidebar();
             });
-            
             window.addEventListener('resize', function() {
-                if (window.innerWidth > 790) {
-                    closeSidebar();
-                }
+                if (window.innerWidth > 790) closeSidebar();
             });
         }
 
         function setMobileViewportHeight() {
             const vh = window.innerHeight * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
-            
             const mainApp = document.getElementById('main-app');
             const appContainer = document.querySelector('.app-container');
             const chatWindow = document.querySelector('.chat-window');
-            
             if (mainApp) mainApp.style.height = `${window.innerHeight}px`;
             if (appContainer) appContainer.style.height = `${window.innerHeight}px`;
             if (chatWindow) chatWindow.style.height = `${window.innerHeight}px`;
@@ -1748,15 +1823,12 @@
             const messageInput = document.getElementById('message-input');
             const chatMessages = document.getElementById('chat-messages');
             if (!messageInput) return;
-            
             let originalHeight = window.innerHeight;
-            
             messageInput.addEventListener('focus', function() {
                 setTimeout(() => {
                     if (chatMessages) chatMessages.scrollTop = chatMessages.scrollHeight;
                 }, 100);
             });
-            
             window.addEventListener('resize', function() {
                 const currentHeight = window.innerHeight;
                 if (currentHeight < originalHeight) {
