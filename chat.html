@@ -33,7 +33,7 @@
         .msg-wrapper { display: flex; flex-direction: column; max-width: 75%; }
         .msg-wrapper.sent { align-self: flex-end; align-items: flex-end; }
         .msg-wrapper.received { align-self: flex-start; align-items: flex-start; }
-        .msg-bubble { padding: 10px 15px; border-radius: 18px; font-size: 14px; }
+        .msg-bubble { padding: 10px 15px; border-radius: 18px; font-size: 14px; word-break: break-word; }
         .sent .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
         .received .msg-bubble { background: var(--light-gray); color: var(--text); border-bottom-left-radius: 4px; }
         .msg-ops { font-size: 10px; color: #999; margin-top: 4px; display: none; gap: 8px; cursor: pointer; }
@@ -102,21 +102,13 @@
                 </div>
                 
                 <div id="block-banner" class="status-banner banner-red"></div>
-                <div id="deleted-banner" class="status-banner banner-gray">
-                    <strong>Không thể gửi tin nhắn đến tài khoản này</strong>
-                    <div class="text-secondary">Tài khoản này không còn tồn tại hoặc đã bị xóa.</div>
-                </div>
-                <div id="banned-banner" class="status-banner banner-gray">
-                    <strong>Không thể gửi tin nhắn đến tài khoản này</strong>
-                    <div class="text-secondary">Tài khoản này đã bị đình chỉ và không thể nhận được tin nhắn.</div>
-                </div>
+                <div id="deleted-banner" class="status-banner banner-gray">Tài khoản không tồn tại hoặc đã bị xóa.</div>
+                <div id="banned-banner" class="status-banner banner-gray">Tài khoản này hiện đang bị khóa hệ thống.</div>
                 <div id="friend-request-banner" class="status-banner banner-gray">
                     <span id="friend-banner-text"></span>
                     <div id="friend-banner-actions" style="margin-top:10px; display:none; gap:10px;">
-                        <center>
-                            <button class="btn btn-success btn-sm" id="banner-accept-btn">Chấp nhận</button>
+                        <button class="btn btn-success btn-sm" id="banner-accept-btn">Chấp nhận</button>
                         <button class="btn btn-danger btn-sm" id="banner-reject-btn">Từ chối</button>
-                        </center>
                     </div>
                 </div>
 
@@ -226,13 +218,20 @@
         let pendingConfirmCallback = null;
         let isChatActive = false, currentChatUid = null;
         
+        let globalFriendStatusListener = null, globalMessagesListener = null;
         let currentUserListenerRef = null, currentStatusListenerRef = null, currentMessagesListenerRef = null, currentClearListenerRef = null;
+        
         let userInfoModalObj = null, privacySettingsModalObj = null;
         let changeNameModalObj = null, changePasswordModalObj = null, deleteAccountModalObj = null;
 
         function resetChatUI() {
-            ['banned-banner', 'block-banner', 'deleted-banner', 'friend-request-banner'].forEach(id => document.getElementById(id).style.display = 'none');
-            document.getElementById('friend-banner-actions').style.display = 'none';
+            ['banned-banner', 'block-banner', 'deleted-banner', 'friend-request-banner'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.display = 'none';
+            });
+            const bannerActions = document.getElementById('friend-banner-actions');
+            if (bannerActions) bannerActions.style.display = 'none';
+            
             document.getElementById('input-container').style.display = 'none';
             document.getElementById('chat-messages').innerHTML = `<div style="text-align: center; color: #999; margin-top: 50px;"><p>Hãy chọn một người bạn để nhắn tin</p></div>`;
             document.getElementById('header-text').innerText = "Chọn một cuộc trò chuyện";
@@ -248,9 +247,19 @@
             currentUserListenerRef = null; currentStatusListenerRef = null; currentMessagesListenerRef = null; currentClearListenerRef = null;
         }
 
+        function cleanupGlobalListeners() {
+            if (globalFriendStatusListener && currentUser) off(ref(db, `friend_status/${currentUser.uid}`), globalFriendStatusListener);
+            if (globalMessagesListener) off(ref(db, `messages`), globalMessagesListener);
+            globalFriendStatusListener = null; globalMessagesListener = null;
+        }
+
         onAuthStateChanged(auth, (user) => {
-            if (!user) { cleanupChatListeners(); currentUser = null; window.location.href = "index.html"; }
-            else {
+            if (!user) { 
+                cleanupChatListeners(); 
+                cleanupGlobalListeners();
+                currentUser = null; 
+                window.location.href = "index.html"; 
+            } else {
                 currentUser = user;
                 onValue(ref(db, `users/${user.uid}`), (snap) => {
                     const data = snap.val();
@@ -284,7 +293,6 @@
             modal.show();
         };
 
-        // MODAL ĐỔI TÊN HỆ THỐNG
         window.showChangeNameModal = () => {
             document.getElementById('changeNameInput').value = document.getElementById('my-name').innerText;
             changeNameModalObj = new bootstrap.Modal(document.getElementById('changeNameModal'));
@@ -299,7 +307,6 @@
             showAlert("Thành công", "Đã cập nhật tên hiển thị.");
         };
 
-        // MODAL ĐỔI MẬT KHẨU HỆ THỐNG
         window.showChangePasswordModal = () => {
             document.getElementById('oldPasswordInput').value = "";
             document.getElementById('newPasswordInput').value = "";
@@ -328,7 +335,6 @@
             }
         };
 
-        // MODAL XÓA TÀI KHOẢN HỆ THỐNG
         window.showDeleteAccountModal = () => {
             document.getElementById('deleteConfirmCode').value = "";
             deleteAccountModalObj = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
@@ -352,7 +358,6 @@
             });
         };
 
-        // CÀI ĐẶT PRIVACY
         window.showPrivacyModal = async () => {
             const snap = await get(ref(db, `users/${currentUser.uid}`));
             if(snap.exists()){
@@ -477,8 +482,13 @@
             } else if (['remove', 'reject', 'cancel', 'delete_stranger_chat'].includes(status)) {
                 showConfirm("Bạn có chắc chắn muốn thực hiện hành động này?", async () => {
                     const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+                    
+                    // SỬA ĐỔI CHÍNH TẠI ĐÂY: Xử lý khi nhấn nút xóa ở danh sách người lạ
                     if (status === 'delete_stranger_chat') {
+                        // 1. Lưu thời gian xóa hiện tại vào phía người xóa để ẩn các tin nhắn cũ
                         await set(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`), Date.now());
+                        // 2. Đồng thời đánh dấu mối quan hệ này là "deleted_stranger" ở phía bạn để loại bỏ khỏi danh sách hiển thị realtime của bạn
+                        await set(ref(db, myPath), "deleted_stranger");
                     } else if (status === 'reject') {
                         await set(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`), Date.now());
                         await remove(ref(db, myPath)); 
@@ -494,12 +504,14 @@
         };
 
         function syncLists() {
-            onValue(ref(db, `friend_status/${currentUser.uid}`), (statusSnap) => {
+            cleanupGlobalListeners();
+
+            globalFriendStatusListener = onValue(ref(db, `friend_status/${currentUser.uid}`), (statusSnap) => {
                 const relations = statusSnap.val() || {};
+                
                 document.getElementById('incoming-list').innerHTML = ""; 
                 document.getElementById('outgoing-list').innerHTML = ""; 
                 document.getElementById('friend-list').innerHTML = "";
-                document.getElementById('stranger-list').innerHTML = "";
 
                 statusSnap.forEach((child) => {
                     const status = child.val();
@@ -508,6 +520,7 @@
                     get(ref(db, `users/${uid}`)).then((u) => {
                         if (!u.exists()) return;
                         const data = u.val();
+                        
                         const oldEl = document.getElementById(`item-${uid}`);
                         if (oldEl) oldEl.remove();
                         
@@ -528,13 +541,22 @@
                             const container = document.getElementById(status === 'incoming' ? 'incoming-list' : status === 'outgoing' ? 'outgoing-list' : 'friend-list');
                             if (container) container.appendChild(div);
                         } else if (status === 'blocked') {
-                            document.getElementById('stranger-list').appendChild(div);
+                            const containerStr = document.getElementById('stranger-list');
+                            if (containerStr) containerStr.appendChild(div);
                         }
                     });
                 });
 
-                get(ref(db, `messages`)).then((msgsSnap) => {
+                if (globalMessagesListener) off(ref(db, `messages`), globalMessagesListener);
+                
+                globalMessagesListener = onValue(ref(db, `messages`), (msgsSnap) => {
+                    const strangerListContainer = document.getElementById('stranger-list');
+                    const blockedItems = strangerListContainer.querySelectorAll('.item');
+                    strangerListContainer.innerHTML = "";
+                    blockedItems.forEach(item => strangerListContainer.appendChild(item));
+
                     if (!msgsSnap.exists()) return;
+                    
                     msgsSnap.forEach((chatDoc) => {
                         const chatId = chatDoc.key;
                         if (chatId.includes(currentUser.uid)) {
@@ -542,10 +564,12 @@
                             const targetUid = parts[0] === currentUser.uid ? parts[1] : parts[0];
                             const currentRel = relations[targetUid];
                             
+                            // CHỈ HIỂN THỊ REALTIME NẾU: Chưa có mối quan hệ, hoặc mối quan hệ đang bị blocked (Không hiển thị khi có giá trị là "deleted_stranger")
                             if (!currentRel || currentRel === 'blocked') {
                                 get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`)).then((clearSnap) => {
                                     const clearTime = clearSnap.val() || 0;
                                     let hasVisibleMsg = false;
+                                    
                                     chatDoc.forEach((m) => {
                                         const msg = m.val();
                                         if (msg.timestamp > clearTime && !(msg.deletedBy && msg.deletedBy[currentUser.uid])) {
@@ -583,7 +607,6 @@
             });
         }
 
-        // ĐỒNG BỘ THỜI GIAN THỰC TOÀN BỘ TRẠNG THÁI (KHÓA, XÓA, KHÔNG TỒN TẠI) ĐỂ ẨN INPUT LẬP TỨC
         function openChatFunction(uid, name, el) {
             cleanupChatListeners(); resetChatUI(); isChatActive = true; currentChatUid = uid;
             document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
@@ -595,7 +618,6 @@
             currentUserListenerRef = onValue(ref(db, `users/${uid}`), (uSnap) => {
                 if (!isChatActive || currentChatUid !== uid) return;
                 
-                // 1. Kiểm tra tài khoản đối phương có tồn tại không
                 if (!uSnap.exists()) { 
                     document.getElementById('input-container').style.display = 'none';
                     ['banned-banner', 'block-banner', 'friend-request-banner'].forEach(id => document.getElementById(id).style.display = 'none');
@@ -607,7 +629,6 @@
                 const userData = uSnap.val();
                 document.getElementById('header-text').innerText = name || userData.name;
                 
-                // 2. Kiểm tra tài khoản đối phương có bị KHÓA ngay lập tức không
                 if (userData.isLocked === true || userData.isLocked === "true") { 
                     document.getElementById('input-container').style.display = 'none';
                     ['deleted-banner', 'block-banner', 'friend-request-banner'].forEach(id => document.getElementById(id).style.display = 'none');
@@ -615,7 +636,6 @@
                     return; 
                 }
 
-                // Nếu tài khoản hợp lệ bình thường, xử lý tiếp logic mối quan hệ bạn bè/người lạ
                 if (currentStatusListenerRef) off(ref(db, `friend_status`), currentStatusListenerRef);
                 
                 currentStatusListenerRef = onValue(ref(db, `friend_status`), (fsSnap) => {
@@ -682,8 +702,19 @@
         
         window.revokeMsg = (mid) => showConfirm("Thu hồi tin nhắn?", () => update(ref(db, `messages/${activeChatId}/${mid}`), { revoked: true }));
         window.deleteMsg = (mid) => showConfirm("Xóa tin nhắn phía bạn?", () => update(ref(db, `messages/${activeChatId}/${mid}/deletedBy`), { [currentUser.uid]: true }));
-        window.sendMessage = () => {
+        window.sendMessage = async () => {
             const input = document.getElementById('message-input'); if(!input.value.trim()) return;
+            
+            // KHI GỬI TIN NHẮN MỚI: Nếu trạng thái của đối phương là 'deleted_stranger' (từng bấm xóa), ta tự động xóa nhãn đó đi để họ nhận được thông báo tin nhắn mới trở lại realtime
+            const myPath = `friend_status/${currentUser.uid}/${currentChatUid}`;
+            const theirPath = `friend_status/${currentChatUid}/${currentUser.uid}`;
+            
+            const mySnap = await get(ref(db, myPath));
+            if (mySnap.val() === 'deleted_stranger') await remove(ref(db, myPath));
+            
+            const theirSnap = await get(ref(db, theirPath));
+            if (theirSnap.val() === 'deleted_stranger') await remove(ref(db, theirPath));
+
             push(ref(db, `messages/${activeChatId}`), { sender: currentUser.uid, text: input.value, timestamp: serverTimestamp(), revoked: false }); input.value = "";
         };
         window.goHome = () => { isChatActive = false; cleanupChatListeners(); activeChatId = null; currentChatUid = null; resetChatUI(); };
@@ -693,38 +724,14 @@
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
         function setupOutsideClick() { document.getElementById('chatWindow').onclick = (e) => { const sb = document.getElementById('sidebar'); if (sb.classList.contains('open') && !sb.contains(e.target)) closeSidebar(); }; }
         
-        setTimeout(() => {
-            document.getElementById('sidebarToggleBtn').onclick = (e) => { e.stopPropagation(); toggleSidebar(); };
-            window.addEventListener('resize', () => { if(window.innerWidth > 790) closeSidebar(); });
-        }, 100);
-
-                        function initMobileSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const toggleBtn = document.getElementById('sidebarToggleBtn');
-            if (!sidebar || !toggleBtn) return;
-            const newToggleBtn = toggleBtn.cloneNode(true);
-            toggleBtn.parentNode.replaceChild(newToggleBtn, toggleBtn);
-            newToggleBtn.onclick = function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-                toggleSidebar();
-            };
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') closeSidebar();
-            });
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 790) closeSidebar();
-            });
-        }
-
         function setMobileViewportHeight() {
-            const vh = window.innerHeight * 0.01;
+            let vh = window.innerHeight * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
             const mainApp = document.getElementById('main-app');
-            const appContainer = document.querySelector('.app-container');
-            const chatWindow = document.querySelector('.chat-window');
             if (mainApp) mainApp.style.height = `${window.innerHeight}px`;
+            const appContainer = document.querySelector('.app-container');
             if (appContainer) appContainer.style.height = `${window.innerHeight}px`;
+            const chatWindow = document.getElementById('chatWindow');
             if (chatWindow) chatWindow.style.height = `${window.innerHeight}px`;
         }
 
@@ -758,7 +765,8 @@
         setTimeout(function() {
             setMobileViewportHeight();
             handleKeyboardOnMobile();
-            initMobileSidebar();
+            document.getElementById('sidebarToggleBtn').onclick = (e) => { e.stopPropagation(); toggleSidebar(); };
+            window.addEventListener('resize', () => { if(window.innerWidth > 790) closeSidebar(); });
         }, 100);
     </script>
 </body>
