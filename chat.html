@@ -41,6 +41,7 @@
         .status-banner { padding: 15px; text-align: center; font-size: 13px; display: none; flex-direction: column; align-items: center; gap: 8px; }
         .banner-red { background: #fff1f0; color: #cf1322; }
         .banner-gray { background: #f5f5f5; color: #595959; }
+        .friend-request-banner { background: #f5f5f5; color: #595959; }
         .input-area { padding: 15px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 10px; background: white; }
         #message-input { flex: 1; border-radius: 20px; padding: 10px 15px; border: 1px solid #ddd; outline: none; }
         .input-area button { padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer; }
@@ -102,11 +103,17 @@
                 </div>
                 
                 <div id="block-banner" class="status-banner banner-red"></div>
-                <div id="deleted-banner" class="status-banner banner-gray">Tài khoản không tồn tại hoặc đã bị xóa.</div>
-                <div id="banned-banner" class="status-banner banner-gray">Tài khoản này hiện đang bị khóa hệ thống.</div>
+                <div id="deleted-banner" class="status-banner banner-gray">
+                    <strong>Không thể gửi tin nhắn đến tài khoản này</strong>
+                    <div class="text-secondary">Tài khoản này không còn tồn tại hoặc đã bị xóa và không thể nhận được tin nhắn</div>
+                </div>
+                <div id="banned-banner" class="status-banner banner-gray">
+                    <strong>Không thể gửi tin nhắn đến tài khoản này</strong>
+                    <div class="text-secondary">Tài khoản này đã bị đình chỉ và không thể nhận được tin nhắn</div>
+                </div>
                 <div id="friend-request-banner" class="status-banner banner-gray">
                     <span id="friend-banner-text"></span>
-                    <div id="friend-banner-actions" style="margin-top:10px; display:none; gap:10px;">
+                    <div id="friend-banner-actions" style="margin-top:10px; display:none; gap:10px;align-items: center; justify-content: center;">
                         <button class="btn btn-success btn-sm" id="banner-accept-btn">Chấp nhận</button>
                         <button class="btn btn-danger btn-sm" id="banner-reject-btn">Từ chối</button>
                     </div>
@@ -345,13 +352,14 @@
             const code = document.getElementById('deleteConfirmCode').value.trim();
             if(code !== "XOATOANBO") { showAlert("Lỗi", "Mã xác nhận không chính xác."); return; }
             
+            if (deleteAccountModalObj) deleteAccountModalObj.hide();
+            
             showConfirm("Hành động này không thể hoàn tác. Bạn có thực sự chắc chắn?", async () => {
                 try {
                     const uid = currentUser.uid;
                     await remove(ref(db, `users/${uid}`));
                     await remove(ref(db, `friend_status/${uid}`));
                     await deleteUser(auth.currentUser);
-                    deleteAccountModalObj.hide();
                 } catch (error) {
                     showAlert("Lỗi xác thực", "Vui lòng đăng xuất, đăng nhập lại và thực hiện lại thao tác này.");
                 }
@@ -433,7 +441,8 @@
                         if (currentStatus === "outgoing") {
                             actionAreaHtml += `<button class="btn btn-secondary" disabled>Đang chờ chấp nhận</button>`;
                         } else if (currentStatus === "incoming") {
-                            actionAreaHtml += `<button class="btn btn-success" onclick="updateStatus('${targetUid}','accepted'); closeModalObj()">Chấp nhận kết bạn</button>`;
+                            // Cập nhật để đóng cả sidebar khi bấm chấp nhận trên modal tìm kiếm
+                            actionAreaHtml += `<button class="btn btn-success" onclick="updateStatus('${targetUid}','accepted'); closeModalObj(); closeSidebar();">Chấp nhận kết bạn</button>`;
                         } else {
                             actionAreaHtml += `<button class="btn btn-success" onclick="sendFriendRequestFromModal('${targetUid}')">Kết bạn</button>`;
                         }
@@ -453,14 +462,20 @@
         };
 
         window.closeModalObj = () => { if(userInfoModalObj) userInfoModalObj.hide(); };
+        
         window.sendFriendRequestFromModal = async (targetUid) => {
             await set(ref(db, `friend_status/${currentUser.uid}/${targetUid}`), "outgoing");
             await set(ref(db, `friend_status/${targetUid}/${currentUser.uid}`), "incoming");
             closeModalObj();
+            closeSidebar(); // Đóng sidebar khi click kết bạn
             showAlert("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!");
         };
 
-        window.directMessageFromModal = (uid, name) => { closeModalObj(); openChatFunction(uid, name, null); };
+        window.directMessageFromModal = (uid, name) => { 
+            closeModalObj(); 
+            closeSidebar(); // Đóng sidebar khi click nhắn tin ngay
+            openChatFunction(uid, name, null); 
+        };
 
         window.updateStatus = async (uid, status) => {
             const myPath = `friend_status/${currentUser.uid}/${uid}`, theirPath = `friend_status/${uid}/${currentUser.uid}`;
@@ -483,11 +498,8 @@
                 showConfirm("Bạn có chắc chắn muốn thực hiện hành động này?", async () => {
                     const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
                     
-                    // SỬA ĐỔI CHÍNH TẠI ĐÂY: Xử lý khi nhấn nút xóa ở danh sách người lạ
                     if (status === 'delete_stranger_chat') {
-                        // 1. Lưu thời gian xóa hiện tại vào phía người xóa để ẩn các tin nhắn cũ
                         await set(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`), Date.now());
-                        // 2. Đồng thời đánh dấu mối quan hệ này là "deleted_stranger" ở phía bạn để loại bỏ khỏi danh sách hiển thị realtime của bạn
                         await set(ref(db, myPath), "deleted_stranger");
                     } else if (status === 'reject') {
                         await set(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`), Date.now());
@@ -564,7 +576,6 @@
                             const targetUid = parts[0] === currentUser.uid ? parts[1] : parts[0];
                             const currentRel = relations[targetUid];
                             
-                            // CHỈ HIỂN THỊ REALTIME NẾU: Chưa có mối quan hệ, hoặc mối quan hệ đang bị blocked (Không hiển thị khi có giá trị là "deleted_stranger")
                             if (!currentRel || currentRel === 'blocked') {
                                 get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`)).then((clearSnap) => {
                                     const clearTime = clearSnap.val() || 0;
@@ -702,10 +713,10 @@
         
         window.revokeMsg = (mid) => showConfirm("Thu hồi tin nhắn?", () => update(ref(db, `messages/${activeChatId}/${mid}`), { revoked: true }));
         window.deleteMsg = (mid) => showConfirm("Xóa tin nhắn phía bạn?", () => update(ref(db, `messages/${activeChatId}/${mid}/deletedBy`), { [currentUser.uid]: true }));
+        
         window.sendMessage = async () => {
             const input = document.getElementById('message-input'); if(!input.value.trim()) return;
             
-            // KHI GỬI TIN NHẮN MỚI: Nếu trạng thái của đối phương là 'deleted_stranger' (từng bấm xóa), ta tự động xóa nhãn đó đi để họ nhận được thông báo tin nhắn mới trở lại realtime
             const myPath = `friend_status/${currentUser.uid}/${currentChatUid}`;
             const theirPath = `friend_status/${currentChatUid}/${currentUser.uid}`;
             
@@ -717,12 +728,13 @@
 
             push(ref(db, `messages/${activeChatId}`), { sender: currentUser.uid, text: input.value, timestamp: serverTimestamp(), revoked: false }); input.value = "";
         };
+        
         window.goHome = () => { isChatActive = false; cleanupChatListeners(); activeChatId = null; currentChatUid = null; resetChatUI(); };
         window.clearChatHistory = () => { showConfirm("Xóa lịch sử?", async () => { await set(ref(db, `users/${currentUser.uid}/cleared_chats/${activeChatId}`), Date.now()); resetChatUI(); }); };
         
-        function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); }
+        window.closeSidebar = () => { document.getElementById('sidebar').classList.remove('open'); }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
-        function setupOutsideClick() { document.getElementById('chatWindow').onclick = (e) => { const sb = document.getElementById('sidebar'); if (sb.classList.contains('open') && !sb.contains(e.target)) closeSidebar(); }; }
+        function setupOutsideClick() { document.getElementById('chatWindow').onclick = (e) => { const sb = document.getElementById('sidebar'); if (sb.classList.contains('open') && !sb.contains(e.target)) window.closeSidebar(); }; }
         
         function setMobileViewportHeight() {
             let vh = window.innerHeight * 0.01;
@@ -766,7 +778,7 @@
             setMobileViewportHeight();
             handleKeyboardOnMobile();
             document.getElementById('sidebarToggleBtn').onclick = (e) => { e.stopPropagation(); toggleSidebar(); };
-            window.addEventListener('resize', () => { if(window.innerWidth > 790) closeSidebar(); });
+            window.addEventListener('resize', () => { if(window.innerWidth > 790) window.closeSidebar(); });
         }, 100);
     </script>
 </body>
