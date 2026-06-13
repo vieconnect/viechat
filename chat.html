@@ -41,7 +41,6 @@
         .status-banner { padding: 15px; text-align: center; font-size: 13px; display: none; flex-direction: column; align-items: center; gap: 8px; }
         .banner-red { background: #fff1f0; color: #cf1322; }
         .banner-gray { background: #f5f5f5; color: #595959; }
-        .friend-request-banner { padding: 15px; text-align: center; font-size: 13px; display: none; flex-direction: column; align-items: center; gap: 8px; }
         .input-area { padding: 15px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 10px; background: white; }
         #message-input { flex: 1; border-radius: 20px; padding: 10px 15px; border: 1px solid #ddd; outline: none; }
         .input-area button { padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer; }
@@ -103,19 +102,22 @@
                 </div>
                 
                 <div id="block-banner" class="status-banner banner-red"></div>
-                <div id="deleted-banner" class="status-banner banner-gray">Tài khoản này không tồn tại.</div>
+                <div id="deleted-banner" class="status-banner banner-gray">
+                    <strong>Không thể gửi tin nhắn đến tài khoản này</strong>
+                    <div class="text-secondary">Tài khoản này không còn tồn tại hoặc đã bị xóa.</div>
+                </div>
                 <div id="banned-banner" class="status-banner banner-gray">
                     <strong>Không thể gửi tin nhắn đến tài khoản này</strong>
-                    <div class="text-secondary">Tài khoản này đã bị đình chỉ và không thể nhận được tin nhắn. </div>
+                    <div class="text-secondary">Tài khoản này đã bị đình chỉ và không thể nhận được tin nhắn.</div>
                 </div>
                 <div id="friend-request-banner" class="status-banner banner-gray">
                     <span id="friend-banner-text"></span>
-                    <center>
                     <div id="friend-banner-actions" style="margin-top:10px; display:none; gap:10px;">
-                        <button class="btn btn-success btn-sm" id="banner-accept-btn">Chấp nhận</button>
+                        <center>
+                            <button class="btn btn-success btn-sm" id="banner-accept-btn">Chấp nhận</button>
                         <button class="btn btn-danger btn-sm" id="banner-reject-btn">Từ chối</button>
+                        </center>
                     </div>
-                    </center>
                 </div>
 
                 <div class="input-area" id="input-container" style="display:none;">
@@ -154,7 +156,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">Cài đặt Quyền riêng tư & Thông tin</h5>
+                    <h5 class="modal-title fw-bold">Cài đặt Quyền riêng tư</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -167,29 +169,22 @@
                         <label class="form-label">Ngày sinh</label>
                         <input type="date" class="form-control" id="privInputBirthday">
                     </div>
-                    
                     <h6 class="fw-bold border-bottom pb-1 pt-2 text-secondary">Quyền hiển thị hiển thị công khai</h6>
                     <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="privSwitchShowGender">
-                        <label class="form-check-label" for="privSwitchShowGender">Hiển thị giới tính khi người khác tìm kiếm</label>
+                        <input class="form-check-input" type="checkbox" id="privSwitchShowGender"><label class="form-check-label">Hiển thị giới tính khi người khác tìm kiếm</label>
                     </div>
                     <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" id="privSwitchShowBirthday">
-                        <label class="form-check-label" for="privSwitchShowBirthday">Hiển thị ngày sinh khi người khác tìm kiếm</label>
+                        <input class="form-check-input" type="checkbox" id="privSwitchShowBirthday"><label class="form-check-label">Hiển thị ngày sinh khi người khác tìm kiếm</label>
                     </div>
-
                     <h6 class="fw-bold border-bottom pb-1 pt-2 text-secondary">Tương tác & kết nối</h6>
                     <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="privSwitchAllowSearch">
-                        <label class="form-check-label" for="privSwitchAllowSearch">Cho phép mọi người tìm kiếm tôi bằng Email</label>
+                        <input class="form-check-input" type="checkbox" id="privSwitchAllowSearch"><label class="form-check-label">Cho phép mọi người tìm kiếm tôi bằng Email</label>
                     </div>
                     <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="privSwitchAllowFriend">
-                        <label class="form-check-label" for="privSwitchAllowFriend">Cho phép người lạ gửi lời mời kết bạn</label>
+                        <input class="form-check-input" type="checkbox" id="privSwitchAllowFriend"><label class="form-check-label">Cho phép người lạ gửi lời mời kết bạn</label>
                     </div>
                     <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="privSwitchAllowStrangerChat">
-                        <label class="form-check-label" for="privSwitchAllowStrangerChat">Cho phép người lạ nhắn tin khi chưa kết bạn</label>
+                        <input class="form-check-input" type="checkbox" id="privSwitchAllowStrangerChat"><label class="form-check-label">Cho phép người lạ nhắn tin khi chưa kết bạn</label>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -289,7 +284,7 @@
             modal.show();
         };
 
-        // GIỮ NGUYÊN LOGIC ĐỔI TÊN HỆ THỐNG CỦA BẠN
+        // MODAL ĐỔI TÊN HỆ THỐNG
         window.showChangeNameModal = () => {
             document.getElementById('changeNameInput').value = document.getElementById('my-name').innerText;
             changeNameModalObj = new bootstrap.Modal(document.getElementById('changeNameModal'));
@@ -304,7 +299,7 @@
             showAlert("Thành công", "Đã cập nhật tên hiển thị.");
         };
 
-        // GIỮ NGUYÊN LOGIC ĐỔI MẬT KHẨU CỦA BẠN
+        // MODAL ĐỔI MẬT KHẨU HỆ THỐNG
         window.showChangePasswordModal = () => {
             document.getElementById('oldPasswordInput').value = "";
             document.getElementById('newPasswordInput').value = "";
@@ -333,7 +328,7 @@
             }
         };
 
-        // GIỮ NGUYÊN LOGIC XÓA TÀI KHOẢN CỦA BẠN
+        // MODAL XÓA TÀI KHOẢN HỆ THỐNG
         window.showDeleteAccountModal = () => {
             document.getElementById('deleteConfirmCode').value = "";
             deleteAccountModalObj = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
@@ -352,12 +347,12 @@
                     await deleteUser(auth.currentUser);
                     deleteAccountModalObj.hide();
                 } catch (error) {
-                    showAlert("Lỗi xác thực", "Vui lòng đăng xuất, đăng nhập lại và thực hiện lại thao tác này ngay lập tức để xác thực hệ thống.");
+                    showAlert("Lỗi xác thực", "Vui lòng đăng xuất, đăng nhập lại và thực hiện lại thao tác này.");
                 }
             });
         };
 
-        // ĐỒNG BỘ CÀI ĐẶT PRIVACY LÊN MODAL GIAO DIỆN
+        // CÀI ĐẶT PRIVACY
         window.showPrivacyModal = async () => {
             const snap = await get(ref(db, `users/${currentUser.uid}`));
             if(snap.exists()){
@@ -375,7 +370,6 @@
             }
         };
 
-        // LƯU CÀI ĐẶT PRIVACY LÊN DATABASE
         window.savePrivacySettings = async () => {
             const upd = {
                 gender: document.getElementById('privInputGender').value,
@@ -391,7 +385,6 @@
             showAlert("Thành công", "Đã cập nhật cấu hình quyền riêng tư.");
         };
 
-        // TÌM KIẾM USER VỚI LOGIC BIẾN PRIVACY ALLOWSEARCH
         window.findUser = async () => {
             const email = document.getElementById('search-input').value.trim().toLowerCase();
             if (!email || email === currentUser.email) return;
@@ -428,7 +421,6 @@
                 document.getElementById('modalUserPrivacyAlert').style.display = isHiddenInfo ? 'block' : 'none';
 
                 let actionAreaHtml = "";
-                
                 if (currentStatus === "accepted") {
                     actionAreaHtml += `<button class="btn btn-primary px-4" onclick="directMessageFromModal('${targetUid}','${targetData.name}')">Nhắn tin ngay</button>`;
                 } else {
@@ -448,7 +440,6 @@
 
                 document.getElementById('modalUserActionArea').innerHTML = actionAreaHtml;
                 document.getElementById('search-input').value = "";
-                
                 userInfoModalObj = new bootstrap.Modal(document.getElementById('userInfoModal'));
                 userInfoModalObj.show();
             } else {
@@ -457,7 +448,6 @@
         };
 
         window.closeModalObj = () => { if(userInfoModalObj) userInfoModalObj.hide(); };
-
         window.sendFriendRequestFromModal = async (targetUid) => {
             await set(ref(db, `friend_status/${currentUser.uid}/${targetUid}`), "outgoing");
             await set(ref(db, `friend_status/${targetUid}/${currentUser.uid}`), "incoming");
@@ -465,10 +455,7 @@
             showAlert("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!");
         };
 
-        window.directMessageFromModal = (uid, name) => {
-            closeModalObj();
-            openChatFunction(uid, name, null);
-        };
+        window.directMessageFromModal = (uid, name) => { closeModalObj(); openChatFunction(uid, name, null); };
 
         window.updateStatus = async (uid, status) => {
             const myPath = `friend_status/${currentUser.uid}/${uid}`, theirPath = `friend_status/${uid}/${currentUser.uid}`;
@@ -506,11 +493,9 @@
             }
         };
 
-        // CHUẨN HÓA KHÔNG BỊ LỖI NGOẶC VÀ GIẢI QUYẾT BÓNG MA LẮNG NGHE LỒNG NHAU
         function syncLists() {
             onValue(ref(db, `friend_status/${currentUser.uid}`), (statusSnap) => {
                 const relations = statusSnap.val() || {};
-                
                 document.getElementById('incoming-list').innerHTML = ""; 
                 document.getElementById('outgoing-list').innerHTML = ""; 
                 document.getElementById('friend-list').innerHTML = "";
@@ -523,7 +508,6 @@
                     get(ref(db, `users/${uid}`)).then((u) => {
                         if (!u.exists()) return;
                         const data = u.val();
-                        
                         const oldEl = document.getElementById(`item-${uid}`);
                         if (oldEl) oldEl.remove();
                         
@@ -551,7 +535,6 @@
 
                 get(ref(db, `messages`)).then((msgsSnap) => {
                     if (!msgsSnap.exists()) return;
-                    
                     msgsSnap.forEach((chatDoc) => {
                         const chatId = chatDoc.key;
                         if (chatId.includes(currentUser.uid)) {
@@ -563,7 +546,6 @@
                                 get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`)).then((clearSnap) => {
                                     const clearTime = clearSnap.val() || 0;
                                     let hasVisibleMsg = false;
-                                    
                                     chatDoc.forEach((m) => {
                                         const msg = m.val();
                                         if (msg.timestamp > clearTime && !(msg.deletedBy && msg.deletedBy[currentUser.uid])) {
@@ -581,7 +563,6 @@
                                             div.id = `item-${targetUid}`; 
                                             div.className = `item ${activeChatId === chatId ? 'active' : ''}`;
                                             let acts = '';
-                                            
                                             if (currentRel === 'blocked') {
                                                 acts = `<button class="btn-icon bg-primary" onclick="event.stopPropagation();updateStatus('${targetUid}','unblock_stranger')">Mở chặn</button>`;
                                             } else {
@@ -589,7 +570,6 @@
                                                        <button class="btn-icon bg-secondary text-dark" title="Chặn" onclick="event.stopPropagation();updateStatus('${targetUid}','blocked')">🚫</button>
                                                        <button class="btn-icon bg-danger" title="Xóa cuộc trò chuyện" onclick="event.stopPropagation();updateStatus('${targetUid}','delete_stranger_chat')">🗑</button>`;
                                             }
-
                                             div.innerHTML = `<div><strong>${data.name} <span class="badge bg-warning text-dark" style="font-size:9px;">Lạ</span></strong><br><small>${data.email}</small></div><div class="btn-group">${acts}</div>`;
                                             div.onclick = () => { closeSidebar(); openChatFunction(targetUid, data.name, div); };
                                             document.getElementById('stranger-list').appendChild(div);
@@ -603,6 +583,7 @@
             });
         }
 
+        // ĐỒNG BỘ THỜI GIAN THỰC TOÀN BỘ TRẠNG THÁI (KHÓA, XÓA, KHÔNG TỒN TẠI) ĐỂ ẨN INPUT LẬP TỨC
         function openChatFunction(uid, name, el) {
             cleanupChatListeners(); resetChatUI(); isChatActive = true; currentChatUid = uid;
             document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
@@ -613,10 +594,29 @@
             
             currentUserListenerRef = onValue(ref(db, `users/${uid}`), (uSnap) => {
                 if (!isChatActive || currentChatUid !== uid) return;
-                if (!uSnap.exists()) { document.getElementById('deleted-banner').style.display = 'block'; return; }
+                
+                // 1. Kiểm tra tài khoản đối phương có tồn tại không
+                if (!uSnap.exists()) { 
+                    document.getElementById('input-container').style.display = 'none';
+                    ['banned-banner', 'block-banner', 'friend-request-banner'].forEach(id => document.getElementById(id).style.display = 'none');
+                    document.getElementById('deleted-banner').style.display = 'block'; 
+                    document.getElementById('header-text').innerText = "Tài khoản không khả dụng";
+                    return; 
+                }
+                
                 const userData = uSnap.val();
                 document.getElementById('header-text').innerText = name || userData.name;
-                if (userData.isLocked === true || userData.isLocked === "true") { document.getElementById('banned-banner').style.display = 'block'; return; }
+                
+                // 2. Kiểm tra tài khoản đối phương có bị KHÓA ngay lập tức không
+                if (userData.isLocked === true || userData.isLocked === "true") { 
+                    document.getElementById('input-container').style.display = 'none';
+                    ['deleted-banner', 'block-banner', 'friend-request-banner'].forEach(id => document.getElementById(id).style.display = 'none');
+                    document.getElementById('banned-banner').style.display = 'block'; 
+                    return; 
+                }
+
+                // Nếu tài khoản hợp lệ bình thường, xử lý tiếp logic mối quan hệ bạn bè/người lạ
+                if (currentStatusListenerRef) off(ref(db, `friend_status`), currentStatusListenerRef);
                 
                 currentStatusListenerRef = onValue(ref(db, `friend_status`), (fsSnap) => {
                     if (!isChatActive || currentChatUid !== uid) return;
@@ -626,6 +626,8 @@
                     document.getElementById('friend-request-banner').style.display = 'none';
                     document.getElementById('friend-banner-actions').style.display = 'none';
                     document.getElementById('block-banner').style.display = 'none';
+                    document.getElementById('deleted-banner').style.display = 'none';
+                    document.getElementById('banned-banner').style.display = 'none';
                     document.getElementById('input-container').style.display = 'none';
 
                     if (myS === 'blocked' || theirS === 'blocked') {
@@ -696,7 +698,7 @@
             window.addEventListener('resize', () => { if(window.innerWidth > 790) closeSidebar(); });
         }, 100);
 
-                function initMobileSidebar() {
+                        function initMobileSidebar() {
             const sidebar = document.getElementById('sidebar');
             const toggleBtn = document.getElementById('sidebarToggleBtn');
             if (!sidebar || !toggleBtn) return;
