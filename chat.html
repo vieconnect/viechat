@@ -13,125 +13,93 @@
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); height: 100vh; width: 100vw; overflow: hidden; color: var(--text); }
         #main-app { display: flex; width: 100vw; height: 100vh; position: fixed; top: 0; left: 0; background: white; }
         .app-container { width: 100%; height: 100%; background: white; display: flex; overflow: hidden; position: relative; }
-        .sidebar { width: 350px; min-width: 350px; border-right: 1px solid #eee; display: flex; flex-direction: column; background: #fff; transition: transform 0.3s ease; z-index: 20; height: 100%; position: relative; }
+        .sidebar { width: 420px; min-width: 420px; max-width: 420px; border-right: 1px solid #eee; display: flex; flex-direction: column; background: #fff; transition: transform 0.3s ease; z-index: 20; height: 100%; position: relative; }
         .sidebar-toggle { display: none; background: none; border: none; font-size: 24px; cursor: pointer; padding: 8px; margin-right: 8px; color: var(--primary); }
         .chat-window { flex: 1; display: flex; flex-direction: column; background: #fff; position: relative; overflow: hidden; height: 100%; z-index: 10; }
         .user-profile { padding: 15px; border-bottom: 1px solid #eee; background: #f8f9fa; }
         .profile-actions { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
         .profile-actions button { font-size: 10px; padding: 6px; flex: 1 1 22%; cursor: pointer; border: 1px solid #ddd; border-radius: 4px; background: white; }
-        .search-box { padding: 15px; border-bottom: 1px solid #eee; display: flex; gap: 5px; }
-        .search-box input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
-        .search-btn { background: var(--primary); color: white; border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .list-container { flex: 1; overflow-y: auto; }
-        .section-title { font-size: 11px; font-weight: bold; padding: 10px 15px; color: #65676b; background: #f0f2f5; }
-        .item { padding: 12px 15px; border-bottom: 1px solid #f0f2f5; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+        .search-box { padding: 15px; border-bottom: 1px solid #eee; }
+        .search-box button { font-size: 14px; }
+        .list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+        .section-title { font-size: 11px; font-weight: bold; padding: 10px 15px; color: #65676b; background: #f0f2f5; border-bottom: 1px solid #e4e6eb; }
+        .item { padding: 12px 15px; border-bottom: 1px solid #f0f2f5; display: flex; align-items: center; justify-content: space-between; cursor: pointer; min-height: 60px; }
         .item.active { background: #e7f3ff; border-left: 4px solid var(--primary); }
-        .btn-group { display: flex; gap: 4px; }
+        .btn-group { display: flex; gap: 4px; flex-shrink: 0; }
         .btn-icon { padding: 5px 8px; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: white; }
         #chat-header { padding: 15px 20px; border-bottom: 1px solid #eee; font-weight: 600; display: flex; align-items: center; justify-content: space-between; background: white; }
         .header-left { display: flex; align-items: center; gap: 10px; flex: 1; }
         #chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #f9f9f9; }
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 75%; }
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; }
         .msg-wrapper.sent { align-self: flex-end; align-items: flex-end; }
         .msg-wrapper.received { align-self: flex-start; align-items: flex-start; }
         .msg-bubble { padding: 10px 15px; border-radius: 18px; font-size: 14px; word-break: break-word; }
         .sent .msg-bubble { background: var(--primary); color: white; border-bottom-right-radius: 4px; }
         .received .msg-bubble { background: var(--light-gray); color: var(--text); border-bottom-left-radius: 4px; }
+        .msg-bubble img { max-width: 250px; max-height: 250px; border-radius: 8px; display: block; margin: 4px 0; }
+        .msg-bubble video { max-width: 250px; max-height: 250px; border-radius: 8px; display: block; margin: 4px 0; }
+        .msg-bubble .file-attachment { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: rgba(0,0,0,0.05); border-radius: 8px; text-decoration: none; color: inherit; cursor: pointer; }
+        .msg-bubble .file-attachment:hover { background: rgba(0,0,0,0.1); }
+        .msg-bubble .file-name { font-size: 13px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+        .msg-bubble .file-size { font-size: 11px; color: #888; }
         .msg-ops { font-size: 10px; color: #999; margin-top: 4px; display: none; gap: 8px; cursor: pointer; }
         .msg-wrapper:hover .msg-ops { display: flex; }
         .status-banner { padding: 15px; text-align: center; font-size: 13px; display: none; flex-direction: column; align-items: center; gap: 8px; }
         .banner-red { background: #fff1f0; color: #cf1322; }
         .banner-gray { background: #f5f5f5; color: #595959; }
         .friend-request-banner { background: #f5f5f5; color: #595959; }
-        .input-area { padding: 15px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 10px; background: white; }
-        #message-input { flex: 1; border-radius: 20px; padding: 10px 15px; border: 1px solid #ddd; outline: none; }
-        .input-area button { padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer; }
+        .input-area { padding: 15px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 10px; background: white; flex-wrap: wrap; }
+        #message-input { flex: 1; border-radius: 20px; padding: 10px 15px; border: 1px solid #ddd; outline: none; min-width: 100px; font-size: 14px; }
+        .input-area button { padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; }
+        .file-upload-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: #65676b; padding: 4px 8px; }
+        .file-upload-btn:hover { color: var(--primary); }
         
-        .verified-icon {
-            color: var(--verified);
-            margin-left: 4px;
-            font-size: 16px;
-            display: inline;
-        }
-        .verified-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background-color: var(--verified);
-            color: white;
-            font-size: 12px;
-            border-radius: 20px;
-            padding: 4px 12px;
-            gap: 6px;
-            font-weight: 500;
-        }
-        .verified-badge i {
-            font-size: 11px;
-        }
+        .tab-container { display: flex; border-bottom: 1px solid #e4e6eb; background: #f8f9fa; flex-shrink: 0; }
+        .tab-btn { flex: 1; padding: 10px 4px; border: none; background: none; cursor: pointer; font-size: 12px; font-weight: 600; color: #65676b; transition: all 0.2s; position: relative; }
+        .tab-btn:hover { color: var(--primary); }
+        .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
+        .tab-btn .tab-badge { background: #e4e6eb; color: #65676b; border-radius: 10px; padding: 1px 6px; font-size: 10px; margin-left: 4px; }
+        .tab-btn.active .tab-badge { background: var(--primary); color: white; }
+        .tab-content { flex: 1; overflow-y: auto; display: none; }
+        .tab-content.active { display: block; }
         
-        .search-result-card {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        .search-user-info {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .search-user-avatar {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary), #0056b3);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 20px;
-        }
-        .search-user-details h6 {
-            margin: 0;
-            font-weight: 600;
-        }
-        .search-user-details p {
-            margin: 0;
-            font-size: 12px;
-            color: #6c757d;
-        }
-        .search-user-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: flex-end;
-        }
-        .name-with-verified {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        @media (max-width: 576px) {
-            .search-result-card {
-                flex-direction: column;
-                text-align: center;
-            }
-            .search-user-info {
-                flex-direction: column;
-                text-align: center;
-            }
-            .search-user-actions {
-                justify-content: center;
-            }
-        }
+        .verified-icon { color: var(--verified); margin-left: 4px; font-size: 16px; display: inline; }
+        .verified-badge { display: inline-flex; align-items: center; justify-content: center; background-color: var(--verified); color: white; font-size: 12px; border-radius: 20px; padding: 4px 12px; gap: 6px; font-weight: 500; }
+        .verified-badge i { font-size: 11px; }
+        
+        .search-result-card { display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap; }
+        .search-user-info { flex: 1; display: flex; align-items: center; gap: 12px; }
+        .search-user-avatar { width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary), #0056b3); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; flex-shrink: 0; }
+        .search-user-details h6 { margin: 0; font-weight: 600; font-size: 15px; }
+        .search-user-details p { margin: 0; font-size: 12px; color: #6c757d; }
+        .search-user-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+        .name-with-verified { display: inline-flex; align-items: center; gap: 4px; }
+        
+        .empty-message { text-align: center; color: #999; padding: 30px 15px; font-size: 14px; }
+        
+        .file-preview-container { display: none; width: 100%; padding: 10px; background: #f8f9fa; border-radius: 8px; align-items: center; gap: 10px; }
+        .file-preview-container .file-info { flex: 1; font-size: 13px; overflow: hidden; }
+        .file-preview-container .file-info .name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .file-preview-container .file-info .size { color: #6c757d; font-size: 12px; }
+        .file-preview-container .remove-file { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 18px; }
+        .file-preview-container .file-icon { font-size: 28px; color: var(--primary); }
+        
+        #my-name { font-size: 16px; }
+        #my-email { font-size: 13px; }
+        #header-text { font-size: 15px; }
+        #delete-history-btn { font-size: 11px; }
+        #home-btn-header { font-size: 12px; }
+        
+        .file-uploading { opacity: 0.6; pointer-events: none; }
         
         @media (max-width: 790px) {
-            .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: 280px; transform: translateX(-100%); z-index: 1001; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+            .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: 320px; transform: translateX(-100%); z-index: 1001; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
             .sidebar.open { transform: translateX(0); }
             .sidebar-toggle { display: inline-flex !important; }
+            .search-user-avatar { width: 40px; height: 40px; font-size: 16px; }
+            .item { padding: 10px 12px; min-height: 50px; }
+            .tab-btn { font-size: 11px; padding: 8px 2px; }
+            .sidebar { width: 320px; min-width: 320px; }
         }
     </style>
 </head>
@@ -156,15 +124,38 @@
                     <button class="btn btn-outline-primary w-100" onclick="openSearchModal()">🔍 Tìm kiếm bạn bè</button>
                 </div>
                 
+                <div class="tab-container">
+                    <button class="tab-btn active" data-tab="incoming" onclick="switchTab('incoming')">
+                        <i class="fas fa-user-plus"></i> Lời mời
+                        <span class="tab-badge" id="incoming-badge">0</span>
+                    </button>
+                    <button class="tab-btn" data-tab="outgoing" onclick="switchTab('outgoing')">
+                        <i class="fas fa-paper-plane"></i> Đã gửi
+                        <span class="tab-badge" id="outgoing-badge">0</span>
+                    </button>
+                    <button class="tab-btn" data-tab="friends" onclick="switchTab('friends')">
+                        <i class="fas fa-users"></i> Bạn bè
+                        <span class="tab-badge" id="friends-badge">0</span>
+                    </button>
+                    <button class="tab-btn" data-tab="strangers" onclick="switchTab('strangers')">
+                        <i class="fas fa-user"></i> Người lạ
+                        <span class="tab-badge" id="strangers-badge">0</span>
+                    </button>
+                </div>
+                
                 <div class="list-container">
-                    <div class="section-title">LỜI MỜI KẾT BẠN</div>
-                    <div id="incoming-list"></div>
-                    <div class="section-title">YÊU CẦU ĐÃ GỬI</div>
-                    <div id="outgoing-list"></div>
-                    <div class="section-title">DANH SÁCH BẠN BÈ</div>
-                    <div id="friend-list"></div>
-                    <div class="section-title">TIN NHẮN TỪ NGƯỜI LẠ</div>
-                    <div id="stranger-list"></div>
+                    <div class="tab-content active" id="tab-incoming">
+                        <div id="incoming-list"></div>
+                    </div>
+                    <div class="tab-content" id="tab-outgoing">
+                        <div id="outgoing-list"></div>
+                    </div>
+                    <div class="tab-content" id="tab-friends">
+                        <div id="friend-list"></div>
+                    </div>
+                    <div class="tab-content" id="tab-strangers">
+                        <div id="stranger-list"></div>
+                    </div>
                 </div>
             </div>
 
@@ -202,8 +193,21 @@
                 </div>
 
                 <div class="input-area" id="input-container" style="display:none;">
+                    <div class="file-preview-container" id="filePreviewContainer">
+                        <span class="file-icon" id="filePreviewIcon"><i class="fas fa-file"></i></span>
+                        <div class="file-info">
+                            <div class="name" id="filePreviewName">file.pdf</div>
+                            <div class="size" id="filePreviewSize">1.2 MB</div>
+                        </div>
+                        <button class="remove-file" onclick="removeSelectedFile()">✕</button>
+                    </div>
+                    
+                    <input type="file" id="fileInput" style="display:none;" onchange="handleFileSelect(event)">
+                    <button class="file-upload-btn" onclick="document.getElementById('fileInput').click()" title="Đính kèm file">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
                     <input type="text" id="message-input" placeholder="Nhập tin nhắn..." onkeypress="if(event.key==='Enter') sendMessage()">
-                    <button onclick="sendMessage()">Gửi</button>
+                    <button onclick="sendMessage()" id="sendBtn">Gửi</button>
                 </div>
             </div>
         </div>
@@ -289,6 +293,7 @@
         </div>
     </div>
 
+    <!-- MODAL QUYỀN RIÊNG TƯ -->
     <div class="modal fade" id="privacySettingsModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -332,6 +337,7 @@
         </div>
     </div>
 
+    <!-- MODALS CHUNG -->
     <div class="modal fade" id="commonModal" tabindex="-1" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="commonModalTitle">Thông báo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="commonModalBody"></div><div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button></div></div></div></div>
     <div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5>Xác nhận</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="confirmModalBody"></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-danger" id="confirmModalOkBtn">Đồng ý</button></div></div></div></div>
     <div class="modal fade" id="changeNameModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-primary text-white"><h5>Đổi tên hiển thị</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="text" class="form-control" id="changeNameInput"></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-primary" id="changeNameSubmitBtn">Cập nhật</button></div></div></div></div>
@@ -362,6 +368,8 @@
         let currentUser = null, activeChatId = null;
         let pendingConfirmCallback = null;
         let isChatActive = false, currentChatUid = null;
+        let selectedFile = null;
+        let selectedFileData = null; // Lưu dữ liệu file dạng Base64
         
         let globalFriendStatusListener = null, globalMessagesListener = null;
         let currentUserListenerRef = null, currentStatusListenerRef = null, currentMessagesListenerRef = null, currentClearListenerRef = null;
@@ -391,7 +399,6 @@
             return checkAge(birthday) < 12;
         }
 
-        // ========== HÀM HIỂN THỊ CẢNH BÁO ĐỘ TUỔI ==========
         function showAgeWarning() {
             if (ageWarningShown) return;
             ageWarningShown = true;
@@ -404,18 +411,158 @@
             ageWarningModalObj.show();
         }
 
-        // ========== ĐÓNG CẢNH BÁO VÀ MỞ QUYỀN RIÊNG TƯ ==========
         window.closeAgeWarningAndOpenPrivacy = () => {
             if (ageWarningModalObj) {
                 ageWarningModalObj.hide();
                 ageWarningModalObj = null;
             }
-            // Mở modal quyền riêng tư sau khi đóng
             setTimeout(() => {
                 showPrivacyModal();
             }, 300);
         };
 
+        // ========== TAB SWITCHING ==========
+        window.switchTab = (tabName) => {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            document.querySelector(`.tab-btn[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        };
+
+        function updateBadgeCounts(counts) {
+            if (counts.incoming !== undefined) {
+                document.getElementById('incoming-badge').textContent = counts.incoming;
+                document.getElementById('incoming-badge').style.display = counts.incoming > 0 ? 'inline' : 'none';
+            }
+            if (counts.outgoing !== undefined) {
+                document.getElementById('outgoing-badge').textContent = counts.outgoing;
+                document.getElementById('outgoing-badge').style.display = counts.outgoing > 0 ? 'inline' : 'none';
+            }
+            if (counts.friends !== undefined) {
+                document.getElementById('friends-badge').textContent = counts.friends;
+                document.getElementById('friends-badge').style.display = counts.friends > 0 ? 'inline' : 'none';
+            }
+            if (counts.strangers !== undefined) {
+                document.getElementById('strangers-badge').textContent = counts.strangers;
+                document.getElementById('strangers-badge').style.display = counts.strangers > 0 ? 'inline' : 'none';
+            }
+        }
+
+        // ========== FILE HANDLING (Base64 - lưu vào Realtime DB) ==========
+        
+        // Chuyển file sang Base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        window.handleFileSelect = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Giới hạn file 2MB (Realtime DB không nên lưu file quá lớn)
+            if (file.size > 2 * 1024 * 1024) {
+                showAlert("Lỗi", "File quá lớn. Vui lòng chọn file nhỏ hơn 2MB để lưu vào database.");
+                event.target.value = '';
+                return;
+            }
+            
+            try {
+                // Đọc file thành Base64
+                const base64Data = await fileToBase64(file);
+                selectedFile = file;
+                selectedFileData = base64Data;
+                
+                const container = document.getElementById('filePreviewContainer');
+                const icon = document.getElementById('filePreviewIcon');
+                const name = document.getElementById('filePreviewName');
+                const size = document.getElementById('filePreviewSize');
+                
+                container.style.display = 'flex';
+                
+                if (file.type.startsWith('image/')) {
+                    icon.innerHTML = '<i class="fas fa-image"></i>';
+                } else if (file.type.startsWith('video/')) {
+                    icon.innerHTML = '<i class="fas fa-video"></i>';
+                } else if (file.type === 'application/pdf') {
+                    icon.innerHTML = '<i class="fas fa-file-pdf"></i>';
+                } else if (file.type.startsWith('audio/')) {
+                    icon.innerHTML = '<i class="fas fa-music"></i>';
+                } else {
+                    icon.innerHTML = '<i class="fas fa-file"></i>';
+                }
+                
+                name.textContent = file.name;
+                size.textContent = (file.size / 1024).toFixed(1) + ' KB';
+                
+                document.getElementById('fileInput').value = '';
+            } catch (error) {
+                console.error('Lỗi đọc file:', error);
+                showAlert("Lỗi", "Không thể đọc file. Vui lòng thử lại.");
+                event.target.value = '';
+            }
+        };
+
+        window.removeSelectedFile = () => {
+            selectedFile = null;
+            selectedFileData = null;
+            document.getElementById('filePreviewContainer').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+        };
+
+        // Hàm tạo file attachment để hiển thị trong tin nhắn
+        function renderFileMessage(fileData) {
+            const isImage = fileData.type && fileData.type.startsWith('image/');
+            const isVideo = fileData.type && fileData.type.startsWith('video/');
+            const size = formatFileSize(fileData.size);
+            
+            // Tạo data URL từ Base64
+            const dataUrl = fileData.data;
+            
+            if (isImage) {
+                return `<img src="${dataUrl}" alt="${fileData.name}" loading="lazy" style="max-width:250px; max-height:250px; border-radius:8px; display:block; margin:4px 0;">
+                        <div style="font-size:12px; color:#666; margin-top:2px;">📎 ${fileData.name}</div>`;
+            } else if (isVideo) {
+                return `<video controls src="${dataUrl}" style="max-width:250px; max-height:250px; border-radius:8px; display:block; margin:4px 0;"></video>
+                        <div style="font-size:12px; color:#666; margin-top:2px;">📎 ${fileData.name}</div>`;
+            } else {
+                // Tạo link tải file từ dữ liệu Base64
+                const downloadLink = dataUrl;
+                return `<a href="${downloadLink}" download="${fileData.name}" class="file-attachment" style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:rgba(0,0,0,0.05); border-radius:8px; text-decoration:none; color:inherit; cursor:pointer;">
+                    <i class="fas ${getFileIconClass(fileData.type)}" style="font-size:28px; color:var(--primary);"></i>
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${fileData.name}</div>
+                        <div style="font-size:11px; color:#888;">${size}</div>
+                    </div>
+                    <i class="fas fa-download" style="color:#888;"></i>
+                </a>`;
+            }
+        }
+
+        function getFileIconClass(mimeType) {
+            if (!mimeType) return 'fa-file';
+            if (mimeType.startsWith('image/')) return 'fa-image';
+            if (mimeType.startsWith('video/')) return 'fa-video';
+            if (mimeType === 'application/pdf') return 'fa-file-pdf';
+            if (mimeType.startsWith('audio/')) return 'fa-music';
+            if (mimeType.includes('word') || mimeType.includes('document')) return 'fa-file-word';
+            if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'fa-file-excel';
+            if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('archive')) return 'fa-file-archive';
+            return 'fa-file';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+        }
+
+        // ========== ĐÓNG MODAL ==========
         function closeAllModals() {
             if (activeModalInstance) {
                 activeModalInstance.hide();
@@ -444,6 +591,7 @@
             document.getElementById('header-text').innerText = "Chọn một cuộc trò chuyện";
             document.getElementById('home-btn-header').style.display = 'none';
             document.getElementById('delete-history-btn').style.display = 'none';
+            removeSelectedFile();
         }
         
         function cleanupChatListeners() {
@@ -482,9 +630,7 @@
                         document.getElementById('my-email').innerText = user.email;
                         document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
                         
-                        // ========== KIỂM TRA ĐỘ TUỔI KHI ĐĂNG NHẬP ==========
                         if (data.birthday && isUnderAge(data.birthday) && !ageWarningShown) {
-                            // Hiển thị cảnh báo sau khi đã load xong giao diện
                             setTimeout(() => {
                                 showAgeWarning();
                             }, 1000);
@@ -701,9 +847,7 @@
             };
             await update(ref(db, `users/${currentUser.uid}`), upd);
             
-            // Kiểm tra lại tuổi sau khi cập nhật
             if (newBirthday && !isUnderAge(newBirthday)) {
-                // Nếu đã đủ tuổi, đóng modal cảnh báo nếu đang mở
                 if (ageWarningModalObj) {
                     ageWarningModalObj.hide();
                     ageWarningModalObj = null;
@@ -830,8 +974,6 @@
                 if (m === '<') return '&lt;';
                 if (m === '>') return '&gt;';
                 return m;
-            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
-                return c;
             });
         }
         
@@ -1011,10 +1153,12 @@
 
             globalFriendStatusListener = onValue(ref(db, `friend_status/${currentUser.uid}`), (statusSnap) => {
                 const relations = statusSnap.val() || {};
+                let counts = { incoming: 0, outgoing: 0, friends: 0, strangers: 0 };
                 
                 document.getElementById('incoming-list').innerHTML = ""; 
                 document.getElementById('outgoing-list').innerHTML = ""; 
                 document.getElementById('friend-list').innerHTML = "";
+                document.getElementById('stranger-list').innerHTML = "";
 
                 statusSnap.forEach((child) => {
                     const status = child.val();
@@ -1032,20 +1176,39 @@
                         div.className = `item ${activeChatId && activeChatId.includes(uid) ? 'active' : ''}`;
                         
                         let acts = '';
-                        if(status === 'incoming') acts = `<button class="btn-icon bg-success" onclick="event.stopPropagation();updateStatus('${uid}','accepted')">✔</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','reject')">✖</button>`;
-                        else if(status === 'outgoing') acts = `<button class="btn-icon bg-secondary" onclick="event.stopPropagation();updateStatus('${uid}','cancel')">Hủy</button>`;
-                        else if(status === 'accepted') acts = `<button class="btn-icon bg-secondary text-dark" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','remove')">🗑</button>`;
-                        else if(status === 'blocked') acts = `<button class="btn-icon bg-primary" onclick="event.stopPropagation();updateStatus('${uid}','unblock')">Mở</button>`;
+                        if(status === 'incoming') {
+                            counts.incoming++;
+                            acts = `<button class="btn-icon bg-success" onclick="event.stopPropagation();updateStatus('${uid}','accepted')">✔</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','reject')">✖</button>`;
+                        }
+                        else if(status === 'outgoing') {
+                            counts.outgoing++;
+                            acts = `<button class="btn-icon bg-secondary" onclick="event.stopPropagation();updateStatus('${uid}','cancel')">Hủy</button>`;
+                        }
+                        else if(status === 'accepted') {
+                            counts.friends++;
+                            acts = `<button class="btn-icon bg-secondary text-dark" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','remove')">🗑</button>`;
+                        }
+                        else if(status === 'blocked') {
+                            counts.strangers++;
+                            acts = `<button class="btn-icon bg-primary" onclick="event.stopPropagation();updateStatus('${uid}','unblock')">Mở</button>`;
+                        }
                         
                         const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
                         
                         div.innerHTML = `<div><strong>${escapeHtml(data.name)}${verifiedHtml}</strong><br><small>${escapeHtml(data.email)}</small></div><div class="btn-group">${acts}</div>`;
                         div.onclick = () => { closeSidebar(); openChatFunction(uid, data.name, div); };
                         
-                        if (['incoming', 'outgoing', 'accepted', 'blocked'].includes(status)) {
-                            const container = document.getElementById(status === 'incoming' ? 'incoming-list' : status === 'outgoing' ? 'outgoing-list' : status === 'blocked' ? 'stranger-list' : 'friend-list');
-                            if (container) container.appendChild(div);
+                        if (status === 'incoming') {
+                            document.getElementById('incoming-list').appendChild(div);
+                        } else if (status === 'outgoing') {
+                            document.getElementById('outgoing-list').appendChild(div);
+                        } else if (status === 'accepted') {
+                            document.getElementById('friend-list').appendChild(div);
+                        } else if (status === 'blocked') {
+                            document.getElementById('stranger-list').appendChild(div);
                         }
+                        
+                        updateBadgeCounts(counts);
                     });
                 });
 
@@ -1098,6 +1261,10 @@
                                             div.innerHTML = `<div><strong>${escapeHtml(data.name)}${verifiedHtml} <span class="badge bg-warning text-dark" style="font-size:9px;">Lạ</span></strong><br><small>${escapeHtml(data.email)}</small></div><div class="btn-group">${acts}</div>`;
                                             div.onclick = () => { closeSidebar(); openChatFunction(targetUid, data.name, div); };
                                             document.getElementById('stranger-list').appendChild(div);
+                                            
+                                            const strangerItems2 = document.querySelectorAll('#stranger-list .item');
+                                            document.getElementById('strangers-badge').textContent = strangerItems2.length;
+                                            document.getElementById('strangers-badge').style.display = strangerItems2.length > 0 ? 'inline' : 'none';
                                         });
                                     }
                                 });
@@ -1193,7 +1360,16 @@
                         const msg = m.val(), mid = m.key;
                         if (msg.timestamp <= clearTime || (msg.deletedBy && msg.deletedBy[currentUser.uid])) return;
                         const d = document.createElement('div'); d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
-                        let content = msg.revoked ? `<i class="text-muted">Tin nhắn đã thu hồi</i>` : escapeHtml(msg.text);
+                        
+                        let content = '';
+                        if (msg.revoked) {
+                            content = `<i class="text-muted">Tin nhắn đã thu hồi</i>`;
+                        } else if (msg.file) {
+                            content = renderFileMessage(msg.file);
+                        } else {
+                            content = escapeHtml(msg.text);
+                        }
+                        
                         let ops = msg.sender === currentUser.uid && !msg.revoked ? `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>` : (!msg.revoked ? `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>` : '');
                         d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`; box.appendChild(d);
                     });
@@ -1206,7 +1382,8 @@
         window.deleteMsg = (mid) => showConfirm("Xóa tin nhắn phía bạn?", () => update(ref(db, `messages/${activeChatId}/${mid}/deletedBy`), { [currentUser.uid]: true }));
         
         window.sendMessage = async () => {
-            const input = document.getElementById('message-input'); if(!input.value.trim()) return;
+            const text = document.getElementById('message-input').value.trim();
+            if (!selectedFile && !text) return;
             
             const myPath = `friend_status/${currentUser.uid}/${currentChatUid}`;
             const theirPath = `friend_status/${currentChatUid}/${currentUser.uid}`;
@@ -1217,7 +1394,26 @@
             const theirSnap = await get(ref(db, theirPath));
             if (theirSnap.val() === 'deleted_stranger') await remove(ref(db, theirPath));
 
-            push(ref(db, `messages/${activeChatId}`), { sender: currentUser.uid, text: input.value, timestamp: serverTimestamp(), revoked: false }); input.value = "";
+            const msgData = {
+                sender: currentUser.uid,
+                text: text || '',
+                timestamp: serverTimestamp(),
+                revoked: false
+            };
+            
+            // Thêm file dạng Base64 vào tin nhắn nếu có
+            if (selectedFile && selectedFileData) {
+                msgData.file = {
+                    name: selectedFile.name,
+                    size: selectedFile.size,
+                    type: selectedFile.type || 'application/octet-stream',
+                    data: selectedFileData // Lưu trực tiếp Base64 vào database
+                };
+                removeSelectedFile();
+            }
+            
+            await push(ref(db, `messages/${activeChatId}`), msgData);
+            document.getElementById('message-input').value = "";
         };
         
         window.goHome = () => { isChatActive = false; cleanupChatListeners(); activeChatId = null; currentChatUid = null; resetChatUI(); };
