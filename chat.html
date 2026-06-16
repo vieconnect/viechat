@@ -16,9 +16,15 @@
         .sidebar { width: 420px; min-width: 420px; max-width: 420px; border-right: 1px solid #eee; display: flex; flex-direction: column; background: #fff; transition: transform 0.3s ease; z-index: 20; height: 100%; position: relative; }
         .sidebar-toggle { display: none; background: none; border: none; font-size: 24px; cursor: pointer; padding: 8px; margin-right: 8px; color: var(--primary); }
         .chat-window { flex: 1; display: flex; flex-direction: column; background: #fff; position: relative; overflow: hidden; height: 100%; z-index: 10; }
-        .user-profile { padding: 15px; border-bottom: 1px solid #eee; background: #f8f9fa; }
-        .profile-actions { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
-        .profile-actions button { font-size: 10px; padding: 6px; flex: 1 1 22%; cursor: pointer; border: 1px solid #ddd; border-radius: 4px; background: white; }
+        .user-profile { padding: 15px; border-bottom: 1px solid #eee; background: #f8f9fa; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .user-profile .avatar-wrapper { position: relative; cursor: pointer; flex-shrink: 0; width: 50px; height: 50px; }
+        .user-profile .avatar-wrapper .avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); background: #e4e6eb; display: block; }
+        .user-profile .avatar-wrapper .avatar-placeholder { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #0056b3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; border: 2px solid var(--primary); }
+        .user-profile .user-info { flex: 1; min-width: 0; }
+        .user-profile .user-info #my-name { font-size: 16px; margin-bottom: 2px; }
+        .user-profile .user-info #my-email { font-size: 13px; margin-bottom: 0; }
+        .profile-actions { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; width: 100%; }
+        .profile-actions button { font-size: 10px; padding: 6px; flex: 1 1 22%; cursor: pointer; border: 1px solid #ddd; border-radius: 4px; background: white; min-width: 60px; }
         .search-box { padding: 15px; border-bottom: 1px solid #eee; }
         .search-box button { font-size: 14px; }
         .list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
@@ -30,7 +36,7 @@
         #chat-header { padding: 15px 20px; border-bottom: 1px solid #eee; font-weight: 600; display: flex; align-items: center; justify-content: space-between; background: white; }
         .header-left { display: flex; align-items: center; gap: 10px; flex: 1; }
         #chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; background: #f9f9f9; }
-        .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; }
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 80%; position: relative; cursor: context-menu; }
         .msg-wrapper.sent { align-self: flex-end; align-items: flex-end; }
         .msg-wrapper.received { align-self: flex-start; align-items: flex-start; }
         .msg-bubble { padding: 10px 15px; border-radius: 18px; font-size: 14px; word-break: break-word; }
@@ -42,8 +48,6 @@
         .msg-bubble .file-attachment:hover { background: rgba(0,0,0,0.1); }
         .msg-bubble .file-name { font-size: 13px; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
         .msg-bubble .file-size { font-size: 11px; color: #888; }
-        .msg-ops { font-size: 10px; color: #999; margin-top: 4px; display: none; gap: 8px; cursor: pointer; }
-        .msg-wrapper:hover .msg-ops { display: flex; }
         .status-banner { padding: 15px; text-align: center; font-size: 13px; display: none; flex-direction: column; align-items: center; gap: 8px; }
         .banner-red { background: #fff1f0; color: #cf1322; }
         .banner-gray { background: #f5f5f5; color: #595959; }
@@ -53,7 +57,22 @@
         .input-area button { padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer; font-size: 14px; }
         .file-upload-btn { background: none; border: none; font-size: 22px; cursor: pointer; color: #65676b; padding: 4px 8px; }
         .file-upload-btn:hover { color: var(--primary); }
-        
+        .reply-preview { display: none; width: 100%; padding: 8px 12px; background: #f0f2f5; border-radius: 8px; border-left: 4px solid var(--primary); margin-bottom: 4px; align-items: center; gap: 10px; }
+        .reply-preview .reply-content { flex: 1; overflow: hidden; }
+        .reply-preview .reply-content .reply-sender { font-size: 12px; font-weight: 600; color: var(--primary); }
+        .reply-preview .reply-content .reply-text { font-size: 13px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .reply-preview .cancel-reply { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 16px; }
+        .files-preview-container { display: none; width: 100%; padding: 8px; background: #f8f9fa; border-radius: 8px; flex-wrap: wrap; gap: 8px; max-height: 120px; overflow-y: auto; }
+        .file-preview-item { display: flex; align-items: center; gap: 8px; background: white; padding: 4px 8px; border-radius: 6px; border: 1px solid #e4e6eb; font-size: 12px; max-width: 100%; }
+        .file-preview-item .file-icon { font-size: 16px; color: var(--primary); }
+        .file-preview-item .file-info { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
+        .file-preview-item .remove-file { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 14px; padding: 0 4px; }
+        .msg-bubble .replied-msg { background: rgba(0,0,0,0.05); border-radius: 8px; padding: 6px 10px; margin-bottom: 6px; border-left: 3px solid var(--primary); }
+        .sent .msg-bubble .replied-msg { background: rgba(255,255,255,0.15); border-left-color: rgba(255,255,255,0.5); }
+        .msg-bubble .replied-msg .reply-sender { font-size: 11px; font-weight: 600; color: var(--primary); }
+        .sent .msg-bubble .replied-msg .reply-sender { color: rgba(255,255,255,0.8); }
+        .msg-bubble .replied-msg .reply-text { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sent .msg-bubble .replied-msg .reply-text { color: rgba(255,255,255,0.7); }
         .tab-container { display: flex; border-bottom: 1px solid #e4e6eb; background: #f8f9fa; flex-shrink: 0; }
         .tab-btn { flex: 1; padding: 10px 4px; border: none; background: none; cursor: pointer; font-size: 12px; font-weight: 600; color: #65676b; transition: all 0.2s; position: relative; }
         .tab-btn:hover { color: var(--primary); }
@@ -62,35 +81,169 @@
         .tab-btn.active .tab-badge { background: var(--primary); color: white; }
         .tab-content { flex: 1; overflow-y: auto; display: none; }
         .tab-content.active { display: block; }
-        
         .verified-icon { color: var(--verified); margin-left: 4px; font-size: 16px; display: inline; }
         .verified-badge { display: inline-flex; align-items: center; justify-content: center; background-color: var(--verified); color: white; font-size: 12px; border-radius: 20px; padding: 4px 12px; gap: 6px; font-weight: 500; }
         .verified-badge i { font-size: 11px; }
-        
         .search-result-card { display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap; }
         .search-user-info { flex: 1; display: flex; align-items: center; gap: 12px; }
-        .search-user-avatar { width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary), #0056b3); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; flex-shrink: 0; }
+        .search-user-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; background: linear-gradient(135deg, var(--primary), #0056b3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; flex-shrink: 0; }
         .search-user-details h6 { margin: 0; font-weight: 600; font-size: 15px; }
         .search-user-details p { margin: 0; font-size: 12px; color: #6c757d; }
         .search-user-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
         .name-with-verified { display: inline-flex; align-items: center; gap: 4px; }
-        
         .empty-message { text-align: center; color: #999; padding: 30px 15px; font-size: 14px; }
-        
-        .file-preview-container { display: none; width: 100%; padding: 10px; background: #f8f9fa; border-radius: 8px; align-items: center; gap: 10px; }
-        .file-preview-container .file-info { flex: 1; font-size: 13px; overflow: hidden; }
-        .file-preview-container .file-info .name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .file-preview-container .file-info .size { color: #6c757d; font-size: 12px; }
-        .file-preview-container .remove-file { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 18px; }
-        .file-preview-container .file-icon { font-size: 28px; color: var(--primary); }
-        
         #my-name { font-size: 16px; }
         #my-email { font-size: 13px; }
         #header-text { font-size: 15px; }
         #delete-history-btn { font-size: 11px; }
         #home-btn-header { font-size: 12px; }
-        
         .file-uploading { opacity: 0.6; pointer-events: none; }
+        .item-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; margin-right: 10px; flex-shrink: 0; background: #e4e6eb; }
+        .item-avatar-placeholder { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #0056b3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 14px; margin-right: 10px; flex-shrink: 0; }
+        .item-info { flex: 1; min-width: 0; }
+        .item-info .name { font-weight: 500; font-size: 13px; }
+        .item-info .email { font-size: 11px; color: #6c757d; }
+        .avatar-action-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .avatar-action-buttons .btn { flex: 1; min-width: 120px; }
+        
+        /* ===== CONTEXT MENU ===== */
+        .context-menu {
+            display: none;
+            position: fixed;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+            z-index: 9999;
+            padding: 8px 0;
+            overflow: hidden;
+            animation: contextMenuFadeIn 0.15s ease;
+        }
+        .context-menu .menu-item {
+            padding: 10px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.15s;
+            color: #1c1e21;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+        .context-menu .menu-item:hover {
+            background: #f0f2f5;
+        }
+        .context-menu .menu-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .context-menu .menu-item .icon-reply { color: var(--primary); }
+        .context-menu .menu-item .icon-revoke { color: #ffc107; }
+        .context-menu .menu-item .icon-delete { color: var(--danger); }
+        .context-menu .menu-item .icon-delete-for-me { color: #6c757d; }
+        .context-menu .menu-divider {
+            height: 1px;
+            background: #e4e6eb;
+            margin: 4px 8px;
+        }
+        
+        @keyframes contextMenuFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        /* ===== BOTTOM SHEET FOR MOBILE ===== */
+        .bottom-sheet {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+            z-index: 9999;
+            padding: 12px 0 20px 0;
+            animation: bottomSheetSlideUp 0.3s ease;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .bottom-sheet .sheet-handle {
+            width: 40px;
+            height: 4px;
+            background: #ccc;
+            border-radius: 2px;
+            margin: 0 auto 10px;
+        }
+        .bottom-sheet .sheet-title {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            padding: 4px 16px 12px 16px;
+            border-bottom: 1px solid #f0f2f5;
+            font-weight: 500;
+        }
+        .bottom-sheet .menu-item {
+            padding: 12px 20px;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            color: #1c1e21;
+            transition: background 0.15s;
+        }
+        .bottom-sheet .menu-item:active {
+            background: #f0f2f5;
+        }
+        .bottom-sheet .menu-item i {
+            width: 24px;
+            text-align: center;
+            font-size: 18px;
+        }
+        .bottom-sheet .menu-divider {
+            height: 1px;
+            background: #f0f2f5;
+            margin: 4px 16px;
+        }
+        .bottom-sheet .cancel-btn {
+            padding: 14px 20px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: center;
+            color: var(--danger);
+            border-top: 1px solid #f0f2f5;
+            margin-top: 4px;
+        }
+        
+        @keyframes bottomSheetSlideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+        
+        /* Overlay */
+        .context-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 9998;
+            background: transparent;
+        }
         
         @media (max-width: 790px) {
             .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: 320px; transform: translateX(-100%); z-index: 1001; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
@@ -100,6 +253,9 @@
             .item { padding: 10px 12px; min-height: 50px; }
             .tab-btn { font-size: 11px; padding: 8px 2px; }
             .sidebar { width: 320px; min-width: 320px; }
+            .user-profile .avatar-wrapper { width: 40px; height: 40px; }
+            .user-profile .avatar-wrapper .avatar { width: 40px; height: 40px; }
+            .user-profile .avatar-wrapper .avatar-placeholder { width: 40px; height: 40px; font-size: 16px; }
         }
     </style>
 </head>
@@ -109,13 +265,21 @@
         <div class="app-container">
             <div class="sidebar" id="sidebar">
                 <div class="user-profile">
-                    <div id="my-name" class="fw-bold">Đang tải...</div>
-                    <div id="my-email" class="text-muted small"></div>
+                    <div class="avatar-wrapper" onclick="openAvatarUploadModal()">
+                        <div id="my-avatar-container">
+                            <img id="my-avatar-img" src="" style="display:none;" class="avatar" alt="Avatar">
+                            <div id="my-avatar-placeholder" class="avatar-placeholder">U</div>
+                        </div>
+                    </div>
+                    <div class="user-info">
+                        <div id="my-name" class="fw-bold">Đang tải...</div>
+                        <div id="my-email" class="text-muted small"></div>
+                    </div>
                     <div class="profile-actions">
                         <button onclick="showChangeNameModal()">Đổi tên</button>
                         <button onclick="showPrivacyModal()">Quyền riêng tư</button>
-                        <button onclick="showChangePasswordModal()">Đổi mật khẩu</button>
-                        <button onclick="showDeleteAccountModal()" style="color:var(--danger)">Xóa tài khoản</button>
+                        <button onclick="showChangePasswordModal()">Đổi MK</button>
+                        <button onclick="showDeleteAccountModal()" style="color:var(--danger)">Xóa TK</button>
                         <button onclick="showLogoutConfirm()">Đăng xuất</button>
                     </div>
                 </div>
@@ -193,16 +357,17 @@
                 </div>
 
                 <div class="input-area" id="input-container" style="display:none;">
-                    <div class="file-preview-container" id="filePreviewContainer">
-                        <span class="file-icon" id="filePreviewIcon"><i class="fas fa-file"></i></span>
-                        <div class="file-info">
-                            <div class="name" id="filePreviewName">file.pdf</div>
-                            <div class="size" id="filePreviewSize">1.2 MB</div>
+                    <div class="reply-preview" id="replyPreview">
+                        <div class="reply-content">
+                            <div class="reply-sender" id="replySender">Đang trả lời: </div>
+                            <div class="reply-text" id="replyText">Nội dung tin nhắn gốc...</div>
                         </div>
-                        <button class="remove-file" onclick="removeSelectedFile()">✕</button>
+                        <button class="cancel-reply" onclick="cancelReply()" title="Hủy trả lời">✕</button>
                     </div>
                     
-                    <input type="file" id="fileInput" style="display:none;" onchange="handleFileSelect(event)">
+                    <div class="files-preview-container" id="filesPreviewContainer"></div>
+                    
+                    <input type="file" id="fileInput" style="display:none;" multiple onchange="handleFileSelect(event)">
                     <button class="file-upload-btn" onclick="document.getElementById('fileInput').click()" title="Đính kèm file">
                         <i class="fas fa-paperclip"></i>
                     </button>
@@ -211,6 +376,28 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- OVERLAY -->
+    <div class="context-overlay" id="contextOverlay" onclick="closeContextMenu()"></div>
+
+    <!-- CONTEXT MENU (Desktop) -->
+    <div class="context-menu" id="contextMenu">
+        <button class="menu-item" id="menu-reply"><i class="fas fa-reply icon-reply"></i> Trả lời</button>
+        <button class="menu-item" id="menu-revoke"><i class="fas fa-undo-alt icon-revoke"></i> Thu hồi</button>
+        <div class="menu-divider"></div>
+        <button class="menu-item" id="menu-delete-for-me"><i class="fas fa-trash-alt icon-delete-for-me"></i> Xóa phía tôi</button>
+    </div>
+
+    <!-- BOTTOM SHEET (Mobile) -->
+    <div class="bottom-sheet" id="bottomSheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">Tùy chọn tin nhắn</div>
+        <button class="menu-item" id="sheet-reply"><i class="fas fa-reply icon-reply"></i> Trả lời</button>
+        <button class="menu-item" id="sheet-revoke"><i class="fas fa-undo-alt icon-revoke"></i> Thu hồi</button>
+        <div class="menu-divider"></div>
+        <button class="menu-item" id="sheet-delete-for-me"><i class="fas fa-trash-alt icon-delete-for-me"></i> Xóa phía tôi</button>
+        <button class="cancel-btn" onclick="closeContextMenu()">Đóng</button>
     </div>
 
     <!-- MODAL CẢNH BÁO ĐỘ TUỔI -->
@@ -234,6 +421,38 @@
                 <div class="modal-footer justify-content-center gap-2">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Để sau</button>
                     <button type="button" class="btn btn-warning" onclick="closeAgeWarningAndOpenPrivacy()">📝 Cập nhật ngay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ĐỔI ẢNH ĐẠI DIỆN -->
+    <div class="modal fade" id="avatarUploadModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">📷 Đổi ảnh đại diện</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div style="width: 150px; height: 150px; border-radius: 50%; margin: 0 auto 20px; overflow: hidden; border: 3px solid var(--primary);">
+                        <img id="avatarUploadPreview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                        <div id="avatarUploadPlaceholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary), #0056b3); color: white; font-size: 50px; font-weight: bold;">U</div>
+                    </div>
+                    <input type="file" id="avatarFileInput" accept="image/*" style="display:none;" onchange="handleAvatarSelect(event)">
+                    <div class="avatar-action-buttons">
+                        <button class="btn btn-outline-primary" onclick="document.getElementById('avatarFileInput').click()">
+                            <i class="fas fa-upload"></i> Chọn ảnh
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="deleteAvatar()">
+                            <i class="fas fa-trash"></i> Xóa ảnh
+                        </button>
+                    </div>
+                    <div class="text-muted small mt-2">Hỗ trợ JPG, PNG, GIF. Dung lượng tối đa 2MB.</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="saveAvatarBtn" onclick="saveAvatar()">Lưu ảnh</button>
                 </div>
             </div>
         </div>
@@ -271,6 +490,10 @@
                     <h5 class="modal-title fw-bold text-primary">Thông Tin Tài Khoản</h5>
                 </div>
                 <div class="modal-body">
+                    <div style="display: inline-block;">
+                        <img id="modalUserAvatar" src="" style="display:none; width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); margin-bottom: 10px;">
+                        <div id="modalUserAvatarPlaceholder" style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #0056b3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 32px; margin: 0 auto 10px; border: 3px solid var(--primary);">U</div>
+                    </div>
                     <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
                         <h3 id="modalUserTxtName" class="fw-bold mb-1">---</h3>
                     </div>
@@ -368,8 +591,19 @@
         let currentUser = null, activeChatId = null;
         let pendingConfirmCallback = null;
         let isChatActive = false, currentChatUid = null;
-        let selectedFile = null;
-        let selectedFileData = null; // Lưu dữ liệu file dạng Base64
+        let selectedFiles = [];
+        let selectedFilesData = [];
+        let replyToMessage = null;
+        let avatarFileData = null;
+        
+        // Context menu variables
+        let selectedMsgId = null;
+        let selectedMsgSender = null;
+        let selectedMsgText = '';
+        let selectedMsgFile = null;
+        let selectedMsgSenderName = '';
+        let isMobile = window.innerWidth <= 790;
+        let longPressTimer = null;
         
         let globalFriendStatusListener = null, globalMessagesListener = null;
         let currentUserListenerRef = null, currentStatusListenerRef = null, currentMessagesListenerRef = null, currentClearListenerRef = null;
@@ -382,6 +616,87 @@
         let activeModalInstance = null;
         let ageWarningModalObj = null;
         let ageWarningShown = false;
+
+        // ========== CONTEXT MENU FUNCTIONS ==========
+        function showContextMenu(e, msgId, sender, text, file, senderName) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            selectedMsgId = msgId;
+            selectedMsgSender = sender;
+            selectedMsgText = text || '';
+            selectedMsgFile = file || null;
+            selectedMsgSenderName = senderName || 'Người dùng';
+            
+            const isOwn = sender === currentUser.uid;
+            const isRevoked = false; // Kiểm tra tin nhắn đã bị thu hồi chưa
+            
+            // Kiểm tra nếu tin nhắn đã bị thu hồi thì không hiển thị menu
+            // (sẽ được kiểm tra trong event listener)
+            
+            if (isMobile) {
+                // Mobile: Bottom Sheet
+                const sheet = document.getElementById('bottomSheet');
+                const replyBtn = document.getElementById('sheet-reply');
+                const revokeBtn = document.getElementById('sheet-revoke');
+                const deleteBtn = document.getElementById('sheet-delete-for-me');
+                
+                // Hiển thị/ẩn các nút dựa trên quyền
+                replyBtn.style.display = isOwn ? 'none' : 'flex';
+                revokeBtn.style.display = isOwn ? 'flex' : 'none';
+                deleteBtn.textContent = isOwn ? 'Xóa' : 'Xóa phía tôi';
+                
+                // Gán sự kiện
+                replyBtn.onclick = () => { closeContextMenu(); window.replyToMessage(selectedMsgId, selectedMsgSender, selectedMsgText, selectedMsgFile, selectedMsgSenderName); };
+                revokeBtn.onclick = () => { closeContextMenu(); window.revokeMsg(selectedMsgId); };
+                deleteBtn.onclick = () => { closeContextMenu(); window.deleteMsg(selectedMsgId); };
+                
+                document.getElementById('contextOverlay').style.display = 'block';
+                sheet.style.display = 'block';
+                // Đảm bảo hiển thị từ dưới lên
+                sheet.style.transform = 'translateY(0)';
+            } else {
+                // Desktop: Context Menu
+                const menu = document.getElementById('contextMenu');
+                const replyBtn = document.getElementById('menu-reply');
+                const revokeBtn = document.getElementById('menu-revoke');
+                const deleteBtn = document.getElementById('menu-delete-for-me');
+                
+                // Hiển thị/ẩn các nút
+                replyBtn.style.display = isOwn ? 'none' : 'flex';
+                revokeBtn.style.display = isOwn ? 'flex' : 'none';
+                deleteBtn.textContent = isOwn ? 'Xóa' : 'Xóa phía tôi';
+                
+                // Gán sự kiện
+                replyBtn.onclick = () => { closeContextMenu(); window.replyToMessage(selectedMsgId, selectedMsgSender, selectedMsgText, selectedMsgFile, selectedMsgSenderName); };
+                revokeBtn.onclick = () => { closeContextMenu(); window.revokeMsg(selectedMsgId); };
+                deleteBtn.onclick = () => { closeContextMenu(); window.deleteMsg(selectedMsgId); };
+                
+                // Tính vị trí menu
+                let x = e.clientX;
+                let y = e.clientY;
+                
+                // Đảm bảo menu không bị tràn ra ngoài màn hình
+                const menuWidth = 220;
+                const menuHeight = 180;
+                if (x + menuWidth > window.innerWidth) x = window.innerWidth - menuWidth - 10;
+                if (y + menuHeight > window.innerHeight) y = window.innerHeight - menuHeight - 10;
+                if (x < 10) x = 10;
+                if (y < 10) y = 10;
+                
+                menu.style.left = x + 'px';
+                menu.style.top = y + 'px';
+                document.getElementById('contextOverlay').style.display = 'block';
+                menu.style.display = 'block';
+            }
+        }
+
+        window.closeContextMenu = () => {
+            document.getElementById('contextMenu').style.display = 'none';
+            document.getElementById('bottomSheet').style.display = 'none';
+            document.getElementById('contextOverlay').style.display = 'none';
+            selectedMsgId = null;
+        };
 
         // ========== HÀM KIỂM TRA ĐỘ TUỔI ==========
         function checkAge(birthday) {
@@ -449,9 +764,139 @@
             }
         }
 
-        // ========== FILE HANDLING (Base64 - lưu vào Realtime DB) ==========
-        
-        // Chuyển file sang Base64
+        // ========== AVATAR FUNCTIONS ==========
+        function updateAvatarUI(avatarData) {
+            const img = document.getElementById('my-avatar-img');
+            const placeholder = document.getElementById('my-avatar-placeholder');
+            
+            if (avatarData && avatarData.startsWith('data:image')) {
+                img.src = avatarData;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                const name = document.getElementById('my-name').innerText.replace(/<[^>]*>/g, '') || 'U';
+                placeholder.textContent = name.charAt(0).toUpperCase();
+                placeholder.style.display = 'flex';
+            }
+            
+            const modalImg = document.getElementById('modalUserAvatar');
+            const modalPlaceholder = document.getElementById('modalUserAvatarPlaceholder');
+            if (avatarData && avatarData.startsWith('data:image')) {
+                modalImg.src = avatarData;
+                modalImg.style.display = 'block';
+                modalPlaceholder.style.display = 'none';
+            } else {
+                modalImg.style.display = 'none';
+                const name = document.getElementById('my-name').innerText.replace(/<[^>]*>/g, '') || 'U';
+                modalPlaceholder.textContent = name.charAt(0).toUpperCase();
+                modalPlaceholder.style.display = 'flex';
+            }
+        }
+
+        function getAvatarDataFromUser(userData) {
+            if (userData && userData.avatar && userData.avatar.startsWith('data:image')) {
+                return userData.avatar;
+            }
+            return null;
+        }
+
+        // ========== AVATAR UPLOAD MODAL ==========
+        window.openAvatarUploadModal = () => {
+            avatarFileData = null;
+            document.getElementById('avatarFileInput').value = '';
+            document.getElementById('saveAvatarBtn').style.display = 'inline-block';
+            
+            const img = document.getElementById('avatarUploadPreview');
+            const placeholder = document.getElementById('avatarUploadPlaceholder');
+            const currentAvatar = document.getElementById('my-avatar-img').src;
+            const currentName = document.getElementById('my-name').innerText.replace(/<[^>]*>/g, '');
+            
+            if (currentAvatar && currentAvatar.startsWith('data:image') && currentAvatar !== window.location.href) {
+                img.src = currentAvatar;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                placeholder.textContent = currentName.charAt(0).toUpperCase() || 'U';
+                placeholder.style.display = 'flex';
+            }
+            
+            const modalEl = document.getElementById('avatarUploadModal');
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        };
+
+        window.handleAvatarSelect = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.size > 2 * 1024 * 1024) {
+                showAlert("Lỗi", "Ảnh quá lớn. Vui lòng chọn ảnh nhỏ hơn 2MB.");
+                event.target.value = '';
+                return;
+            }
+            
+            if (!file.type.startsWith('image/')) {
+                showAlert("Lỗi", "Vui lòng chọn file ảnh.");
+                event.target.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                avatarFileData = e.target.result;
+                const img = document.getElementById('avatarUploadPreview');
+                const placeholder = document.getElementById('avatarUploadPlaceholder');
+                img.src = avatarFileData;
+                img.style.display = 'block';
+                placeholder.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.saveAvatar = async () => {
+            if (!avatarFileData) {
+                showAlert("Lỗi", "Vui lòng chọn ảnh trước khi lưu.");
+                return;
+            }
+            
+            try {
+                await update(ref(db, `users/${currentUser.uid}`), { avatar: avatarFileData });
+                updateAvatarUI(avatarFileData);
+                const modalEl = document.getElementById('avatarUploadModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                showAlert("Thành công", "Đã cập nhật ảnh đại diện thành công!");
+            } catch (error) {
+                console.error('Lỗi lưu avatar:', error);
+                showAlert("Lỗi", "Không thể lưu ảnh đại diện. Vui lòng thử lại.");
+            }
+        };
+
+        window.deleteAvatar = async () => {
+            showConfirm("Bạn có chắc chắn muốn xóa ảnh đại diện?", async () => {
+                try {
+                    await update(ref(db, `users/${currentUser.uid}`), { avatar: null });
+                    updateAvatarUI(null);
+                    const img = document.getElementById('avatarUploadPreview');
+                    const placeholder = document.getElementById('avatarUploadPlaceholder');
+                    const currentName = document.getElementById('my-name').innerText.replace(/<[^>]*>/g, '');
+                    img.style.display = 'none';
+                    placeholder.textContent = currentName.charAt(0).toUpperCase() || 'U';
+                    placeholder.style.display = 'flex';
+                    const modalEl = document.getElementById('avatarUploadModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    showAlert("Thành công", "Đã xóa ảnh đại diện thành công!");
+                } catch (error) {
+                    console.error('Lỗi xóa avatar:', error);
+                    showAlert("Lỗi", "Không thể xóa ảnh đại diện. Vui lòng thử lại.");
+                }
+            });
+        };
+
+        // ========== FILE HANDLING ==========
         function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -459,89 +904,6 @@
                 reader.onerror = reject;
                 reader.readAsDataURL(file);
             });
-        }
-
-        window.handleFileSelect = async (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            // Giới hạn file 2MB (Realtime DB không nên lưu file quá lớn)
-            if (file.size > 2 * 1024 * 1024) {
-                showAlert("Lỗi", "File quá lớn. Vui lòng chọn file nhỏ hơn 2MB để lưu vào database.");
-                event.target.value = '';
-                return;
-            }
-            
-            try {
-                // Đọc file thành Base64
-                const base64Data = await fileToBase64(file);
-                selectedFile = file;
-                selectedFileData = base64Data;
-                
-                const container = document.getElementById('filePreviewContainer');
-                const icon = document.getElementById('filePreviewIcon');
-                const name = document.getElementById('filePreviewName');
-                const size = document.getElementById('filePreviewSize');
-                
-                container.style.display = 'flex';
-                
-                if (file.type.startsWith('image/')) {
-                    icon.innerHTML = '<i class="fas fa-image"></i>';
-                } else if (file.type.startsWith('video/')) {
-                    icon.innerHTML = '<i class="fas fa-video"></i>';
-                } else if (file.type === 'application/pdf') {
-                    icon.innerHTML = '<i class="fas fa-file-pdf"></i>';
-                } else if (file.type.startsWith('audio/')) {
-                    icon.innerHTML = '<i class="fas fa-music"></i>';
-                } else {
-                    icon.innerHTML = '<i class="fas fa-file"></i>';
-                }
-                
-                name.textContent = file.name;
-                size.textContent = (file.size / 1024).toFixed(1) + ' KB';
-                
-                document.getElementById('fileInput').value = '';
-            } catch (error) {
-                console.error('Lỗi đọc file:', error);
-                showAlert("Lỗi", "Không thể đọc file. Vui lòng thử lại.");
-                event.target.value = '';
-            }
-        };
-
-        window.removeSelectedFile = () => {
-            selectedFile = null;
-            selectedFileData = null;
-            document.getElementById('filePreviewContainer').style.display = 'none';
-            document.getElementById('fileInput').value = '';
-        };
-
-        // Hàm tạo file attachment để hiển thị trong tin nhắn
-        function renderFileMessage(fileData) {
-            const isImage = fileData.type && fileData.type.startsWith('image/');
-            const isVideo = fileData.type && fileData.type.startsWith('video/');
-            const size = formatFileSize(fileData.size);
-            
-            // Tạo data URL từ Base64
-            const dataUrl = fileData.data;
-            
-            if (isImage) {
-                return `<img src="${dataUrl}" alt="${fileData.name}" loading="lazy" style="max-width:250px; max-height:250px; border-radius:8px; display:block; margin:4px 0;">
-                        <div style="font-size:12px; color:#666; margin-top:2px;">📎 ${fileData.name}</div>`;
-            } else if (isVideo) {
-                return `<video controls src="${dataUrl}" style="max-width:250px; max-height:250px; border-radius:8px; display:block; margin:4px 0;"></video>
-                        <div style="font-size:12px; color:#666; margin-top:2px;">📎 ${fileData.name}</div>`;
-            } else {
-                // Tạo link tải file từ dữ liệu Base64
-                const downloadLink = dataUrl;
-                return `<a href="${downloadLink}" download="${fileData.name}" class="file-attachment" style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:rgba(0,0,0,0.05); border-radius:8px; text-decoration:none; color:inherit; cursor:pointer;">
-                    <i class="fas ${getFileIconClass(fileData.type)}" style="font-size:28px; color:var(--primary);"></i>
-                    <div style="flex:1; min-width:0;">
-                        <div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${fileData.name}</div>
-                        <div style="font-size:11px; color:#888;">${size}</div>
-                    </div>
-                    <i class="fas fa-download" style="color:#888;"></i>
-                </a>`;
-            }
         }
 
         function getFileIconClass(mimeType) {
@@ -562,13 +924,154 @@
             return (bytes / 1024 / 1024).toFixed(1) + ' MB';
         }
 
+        function renderSelectedFiles() {
+            const container = document.getElementById('filesPreviewContainer');
+            if (selectedFiles.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'flex';
+            container.innerHTML = '';
+            
+            selectedFiles.forEach((file, index) => {
+                const div = document.createElement('div');
+                div.className = 'file-preview-item';
+                const icon = getFileIconClass(file.type);
+                div.innerHTML = `
+                    <span class="file-icon"><i class="fas ${icon}"></i></span>
+                    <span class="file-info" title="${file.name}">${file.name}</span>
+                    <span style="font-size:10px; color:#888;">${formatFileSize(file.size)}</span>
+                    <button class="remove-file" onclick="removeFileFromList(${index})" title="Xóa file">✕</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        window.removeFileFromList = (index) => {
+            selectedFiles.splice(index, 1);
+            selectedFilesData.splice(index, 1);
+            renderSelectedFiles();
+        };
+
+        window.clearAllFiles = () => {
+            selectedFiles = [];
+            selectedFilesData = [];
+            renderSelectedFiles();
+            document.getElementById('fileInput').value = '';
+        };
+
+        window.handleFileSelect = async (event) => {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+            
+            let totalSize = 0;
+            for (let i = 0; i < files.length; i++) {
+                totalSize += files[i].size;
+            }
+            
+            if (totalSize > 10 * 1024 * 1024) {
+                showAlert("Lỗi", "Tổng dung lượng các file quá lớn (tối đa 10MB).");
+                event.target.value = '';
+                return;
+            }
+            
+            if (selectedFiles.length + files.length > 10) {
+                showAlert("Lỗi", "Chỉ được gửi tối đa 10 file cùng lúc.");
+                event.target.value = '';
+                return;
+            }
+            
+            try {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (file.size > 2 * 1024 * 1024) {
+                        showAlert("Lỗi", `File "${file.name}" quá lớn (tối đa 2MB).`);
+                        event.target.value = '';
+                        return;
+                    }
+                    
+                    const base64Data = await fileToBase64(file);
+                    selectedFiles.push(file);
+                    selectedFilesData.push(base64Data);
+                }
+                
+                renderSelectedFiles();
+                document.getElementById('fileInput').value = '';
+                
+            } catch (error) {
+                console.error('Lỗi đọc file:', error);
+                showAlert("Lỗi", "Không thể đọc file. Vui lòng thử lại.");
+                event.target.value = '';
+            }
+        };
+
+        // ========== RENDER FUNCTIONS ==========
+        function renderFileMessage(fileData) {
+            const isImage = fileData.type && fileData.type.startsWith('image/');
+            const isVideo = fileData.type && fileData.type.startsWith('video/');
+            const size = formatFileSize(fileData.size);
+            const dataUrl = fileData.data;
+            
+            if (isImage) {
+                return `<img src="${dataUrl}" alt="${fileData.name}" loading="lazy" style="max-width:250px; max-height:250px; border-radius:8px; display:block; margin:4px 0;">
+                        <div style="font-size:12px; color:#666; margin-top:2px;">📎 ${fileData.name}</div>`;
+            } else if (isVideo) {
+                return `<video controls src="${dataUrl}" style="max-width:250px; max-height:250px; border-radius:8px; display:block; margin:4px 0;"></video>
+                        <div style="font-size:12px; color:#666; margin-top:2px;">📎 ${fileData.name}</div>`;
+            } else {
+                return `<a href="${dataUrl}" download="${fileData.name}" class="file-attachment" style="display:flex; align-items:center; gap:10px; padding:8px 12px; background:rgba(0,0,0,0.05); border-radius:8px; text-decoration:none; color:inherit; cursor:pointer;">
+                    <i class="fas ${getFileIconClass(fileData.type)}" style="font-size:28px; color:var(--primary);"></i>
+                    <div style="flex:1; min-width:0;">
+                        <div style="font-size:13px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${fileData.name}</div>
+                        <div style="font-size:11px; color:#888;">${size}</div>
+                    </div>
+                    <i class="fas fa-download" style="color:#888;"></i>
+                </a>`;
+            }
+        }
+
+        // ========== REPLY FUNCTIONS ==========
+        window.replyToMessage = (msgId, sender, text, file, senderName) => {
+            replyToMessage = {
+                id: msgId,
+                sender: sender,
+                text: text || '',
+                file: file || null,
+                name: senderName || 'Người dùng'
+            };
+            
+            const preview = document.getElementById('replyPreview');
+            document.getElementById('replySender').textContent = `Đang trả lời ${replyToMessage.name}:`;
+            document.getElementById('replyText').textContent = text || (file ? `[${file.name}]` : 'Tin nhắn không có nội dung');
+            preview.style.display = 'flex';
+            
+            document.getElementById('message-input').focus();
+        };
+
+        window.cancelReply = () => {
+            replyToMessage = null;
+            document.getElementById('replyPreview').style.display = 'none';
+        };
+
+        function renderRepliedMessage(replyData, senderName) {
+            if (!replyData) return '';
+            const content = replyData.text ? replyData.text.substring(0, 50) + (replyData.text.length > 50 ? '...' : '') : 
+                           (replyData.file ? `[${replyData.file.name}]` : 'Tin nhắn không có nội dung');
+            return `
+                <div class="replied-msg">
+                    <div class="reply-sender">${escapeHtml(senderName || 'Người dùng')}</div>
+                    <div class="reply-text">${escapeHtml(content)}</div>
+                </div>
+            `;
+        }
+
         // ========== ĐÓNG MODAL ==========
         function closeAllModals() {
             if (activeModalInstance) {
                 activeModalInstance.hide();
                 activeModalInstance = null;
             }
-            const modals = ['searchModal', 'userInfoModal', 'privacySettingsModal', 'changeNameModal', 'changePasswordModal', 'deleteAccountModal', 'logoutConfirmModal', 'commonModal', 'confirmModal', 'ageWarningModal'];
+            const modals = ['searchModal', 'userInfoModal', 'privacySettingsModal', 'changeNameModal', 'changePasswordModal', 'deleteAccountModal', 'logoutConfirmModal', 'commonModal', 'confirmModal', 'ageWarningModal', 'avatarUploadModal'];
             modals.forEach(modalId => {
                 const modalEl = document.getElementById(modalId);
                 if (modalEl && modalEl.classList.contains('show')) {
@@ -591,7 +1094,8 @@
             document.getElementById('header-text').innerText = "Chọn một cuộc trò chuyện";
             document.getElementById('home-btn-header').style.display = 'none';
             document.getElementById('delete-history-btn').style.display = 'none';
-            removeSelectedFile();
+            clearAllFiles();
+            cancelReply();
         }
         
         function cleanupChatListeners() {
@@ -629,6 +1133,15 @@
                         if(data.isLocked === true || data.isLocked === "true") { signOut(auth); return; }
                         document.getElementById('my-email').innerText = user.email;
                         document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
+                        
+                        const avatar = getAvatarDataFromUser(data);
+                        updateAvatarUI(avatar);
+                        
+                        if (!avatar) {
+                            const placeholder = document.getElementById('my-avatar-placeholder');
+                            const name = data.name || 'Người dùng';
+                            placeholder.textContent = name.charAt(0).toUpperCase();
+                        }
                         
                         if (data.birthday && isUnderAge(data.birthday) && !ageWarningShown) {
                             setTimeout(() => {
@@ -927,7 +1440,15 @@
             const currentStatus = statusSnap.val();
             
             const firstLetter = (targetData.name || "U").charAt(0).toUpperCase();
+            const avatar = getAvatarDataFromUser(targetData);
             const verifiedHtml = targetData.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
+            
+            let avatarHtml = '';
+            if (avatar) {
+                avatarHtml = `<img src="${avatar}" class="search-user-avatar" style="width:50px; height:50px; border-radius:50%; object-fit:cover; flex-shrink:0;">`;
+            } else {
+                avatarHtml = `<div class="search-user-avatar">${firstLetter}</div>`;
+            }
             
             let actionsHtml = '';
             actionsHtml += `<button class="btn btn-info btn-sm" onclick="viewUserDetailsFromSearch('${targetUid}', '${targetData.name.replace(/'/g, "\\'")}')">📋 Thông tin</button>`;
@@ -952,7 +1473,7 @@
             resultContent.innerHTML = `
                 <div class="search-result-card p-3 border rounded">
                     <div class="search-user-info">
-                        <div class="search-user-avatar">${firstLetter}</div>
+                        ${avatarHtml}
                         <div class="search-user-details">
                             <h6 class="mb-0">${escapeHtml(targetData.name || "Người dùng")}${verifiedHtml}</h6>
                             <p class="text-muted mb-0 small">${escapeHtml(targetData.email)}</p>
@@ -989,6 +1510,18 @@
                 return;
             }
             const targetData = snap.val();
+            
+            const avatar = getAvatarDataFromUser(targetData);
+            if (avatar) {
+                document.getElementById('modalUserAvatar').src = avatar;
+                document.getElementById('modalUserAvatar').style.display = 'block';
+                document.getElementById('modalUserAvatarPlaceholder').style.display = 'none';
+            } else {
+                document.getElementById('modalUserAvatar').style.display = 'none';
+                const placeholder = document.getElementById('modalUserAvatarPlaceholder');
+                placeholder.textContent = (targetData.name || 'U').charAt(0).toUpperCase();
+                placeholder.style.display = 'flex';
+            }
             
             let nameHtml = escapeHtml(targetData.name || "Người dùng");
             if (targetData.haveGreenTick === true) {
@@ -1194,8 +1727,21 @@
                         }
                         
                         const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
+                        const avatar = getAvatarDataFromUser(data);
+                        const avatarHtml = avatar ? 
+                            `<img src="${avatar}" class="item-avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover; margin-right:10px; flex-shrink:0;">` :
+                            `<div class="item-avatar-placeholder" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--primary), #0056b3); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:14px; margin-right:10px; flex-shrink:0;">${(data.name || 'U').charAt(0).toUpperCase()}</div>`;
                         
-                        div.innerHTML = `<div><strong>${escapeHtml(data.name)}${verifiedHtml}</strong><br><small>${escapeHtml(data.email)}</small></div><div class="btn-group">${acts}</div>`;
+                        div.innerHTML = `
+                            <div style="display:flex; align-items:center; flex:1; min-width:0;">
+                                ${avatarHtml}
+                                <div class="item-info">
+                                    <div class="name">${escapeHtml(data.name)}${verifiedHtml}</div>
+                                    <div class="email">${escapeHtml(data.email)}</div>
+                                </div>
+                            </div>
+                            <div class="btn-group">${acts}</div>
+                        `;
                         div.onclick = () => { closeSidebar(); openChatFunction(uid, data.name, div); };
                         
                         if (status === 'incoming') {
@@ -1257,8 +1803,21 @@
                                                        <button class="btn-icon bg-danger" title="Xóa cuộc trò chuyện" onclick="event.stopPropagation();updateStatus('${targetUid}','delete_stranger_chat')">🗑</button>`;
                                             
                                             const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
+                                            const avatar = getAvatarDataFromUser(data);
+                                            const avatarHtml = avatar ? 
+                                                `<img src="${avatar}" class="item-avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover; margin-right:10px; flex-shrink:0;">` :
+                                                `<div class="item-avatar-placeholder" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--primary), #0056b3); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:14px; margin-right:10px; flex-shrink:0;">${(data.name || 'U').charAt(0).toUpperCase()}</div>`;
                                             
-                                            div.innerHTML = `<div><strong>${escapeHtml(data.name)}${verifiedHtml} <span class="badge bg-warning text-dark" style="font-size:9px;">Lạ</span></strong><br><small>${escapeHtml(data.email)}</small></div><div class="btn-group">${acts}</div>`;
+                                            div.innerHTML = `
+                                                <div style="display:flex; align-items:center; flex:1; min-width:0;">
+                                                    ${avatarHtml}
+                                                    <div class="item-info">
+                                                        <div class="name">${escapeHtml(data.name)}${verifiedHtml} <span class="badge bg-warning text-dark" style="font-size:8px;">Lạ</span></div>
+                                                        <div class="email">${escapeHtml(data.email)}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="btn-group">${acts}</div>
+                                            `;
                                             div.onclick = () => { closeSidebar(); openChatFunction(targetUid, data.name, div); };
                                             document.getElementById('stranger-list').appendChild(div);
                                             
@@ -1362,28 +1921,84 @@
                         const d = document.createElement('div'); d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
                         
                         let content = '';
+                        let replyContent = '';
+                        
+                        if (msg.replyTo) {
+                            const replyData = msg.replyTo;
+                            const replySenderName = replyData.sender === currentUser.uid ? 'Bạn' : (replyData.senderName || 'Người dùng');
+                            replyContent = renderRepliedMessage(replyData, replySenderName);
+                        }
+                        
                         if (msg.revoked) {
                             content = `<i class="text-muted">Tin nhắn đã thu hồi</i>`;
+                        } else if (msg.files && msg.files.length > 0) {
+                            let filesHtml = '';
+                            msg.files.forEach(file => {
+                                filesHtml += renderFileMessage(file);
+                            });
+                            content = filesHtml;
                         } else if (msg.file) {
                             content = renderFileMessage(msg.file);
                         } else {
                             content = escapeHtml(msg.text);
                         }
                         
-                        let ops = msg.sender === currentUser.uid && !msg.revoked ? `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>` : (!msg.revoked ? `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>` : '');
-                        d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`; box.appendChild(d);
+                        const fullContent = replyContent + content;
+                        
+                        // ===== KHÔNG HIỂN THỊ NÚT BÊN DƯỚI TIN NHẮN NỮA =====
+                        // Các chức năng sẽ hiển thị qua context menu (click phải hoặc giữ)
+                        d.innerHTML = `<div class="msg-bubble">${fullContent}</div>`;
+                        
+                        // ===== THÊM SỰ KIỆN CHO CONTEXT MENU =====
+                        // Desktop: click chuột phải
+                        d.addEventListener('contextmenu', function(e) {
+                            if (msg.revoked) return; // Không hiển thị menu cho tin nhắn đã thu hồi
+                            const senderName = msg.senderName || 'Người dùng';
+                            showContextMenu(e, mid, msg.sender, msg.text || '', msg.file || null, senderName);
+                        });
+                        
+                        // Mobile: long press (giữ)
+                        d.addEventListener('touchstart', function(e) {
+                            if (msg.revoked) return;
+                            longPressTimer = setTimeout(() => {
+                                e.preventDefault();
+                                const senderName = msg.senderName || 'Người dùng';
+                                // Lấy tọa độ touch
+                                const touch = e.touches[0];
+                                const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY, preventDefault: () => {}, stopPropagation: () => {} };
+                                showContextMenu(fakeEvent, mid, msg.sender, msg.text || '', msg.file || null, senderName);
+                            }, 500);
+                        });
+                        d.addEventListener('touchend', function() {
+                            clearTimeout(longPressTimer);
+                        });
+                        d.addEventListener('touchmove', function() {
+                            clearTimeout(longPressTimer);
+                        });
+                        
+                        box.appendChild(d);
                     });
                     box.scrollTop = box.scrollHeight;
                 });
             });
         }
         
-        window.revokeMsg = (mid) => showConfirm("Thu hồi tin nhắn?", () => update(ref(db, `messages/${activeChatId}/${mid}`), { revoked: true }));
-        window.deleteMsg = (mid) => showConfirm("Xóa tin nhắn phía bạn?", () => update(ref(db, `messages/${activeChatId}/${mid}/deletedBy`), { [currentUser.uid]: true }));
+        // ========== CHỨC NĂNG THU HỒI ==========
+        window.revokeMsg = (mid) => {
+            closeContextMenu();
+            showConfirm("Thu hồi tin nhắn?", () => update(ref(db, `messages/${activeChatId}/${mid}`), { revoked: true }));
+        };
         
+        // ========== CHỨC NĂNG XÓA PHÍA TÔI ==========
+        window.deleteMsg = (mid) => {
+            closeContextMenu();
+            showConfirm("Xóa tin nhắn phía bạn?", () => update(ref(db, `messages/${activeChatId}/${mid}/deletedBy`), { [currentUser.uid]: true }));
+        };
+        
+        // ========== GỬI TIN NHẮN ==========
         window.sendMessage = async () => {
             const text = document.getElementById('message-input').value.trim();
-            if (!selectedFile && !text) return;
+            if (selectedFiles.length === 0 && !text) return;
             
             const myPath = `friend_status/${currentUser.uid}/${currentChatUid}`;
             const theirPath = `friend_status/${currentChatUid}/${currentUser.uid}`;
@@ -1396,20 +2011,35 @@
 
             const msgData = {
                 sender: currentUser.uid,
+                senderName: document.getElementById('my-name').innerText.replace(/<[^>]*>/g, ''),
                 text: text || '',
                 timestamp: serverTimestamp(),
                 revoked: false
             };
             
-            // Thêm file dạng Base64 vào tin nhắn nếu có
-            if (selectedFile && selectedFileData) {
-                msgData.file = {
-                    name: selectedFile.name,
-                    size: selectedFile.size,
-                    type: selectedFile.type || 'application/octet-stream',
-                    data: selectedFileData // Lưu trực tiếp Base64 vào database
+            if (selectedFiles.length > 0) {
+                const files = [];
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    files.push({
+                        name: selectedFiles[i].name,
+                        size: selectedFiles[i].size,
+                        type: selectedFiles[i].type || 'application/octet-stream',
+                        data: selectedFilesData[i]
+                    });
+                }
+                msgData.files = files;
+                clearAllFiles();
+            }
+            
+            if (replyToMessage) {
+                msgData.replyTo = {
+                    id: replyToMessage.id,
+                    sender: replyToMessage.sender,
+                    senderName: replyToMessage.name || 'Người dùng',
+                    text: replyToMessage.text || '',
+                    file: replyToMessage.file || null
                 };
-                removeSelectedFile();
+                cancelReply();
             }
             
             await push(ref(db, `messages/${activeChatId}`), msgData);
@@ -1422,6 +2052,16 @@
         window.closeSidebar = () => { document.getElementById('sidebar').classList.remove('open'); }
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
         function setupOutsideClick() { document.getElementById('chatWindow').onclick = (e) => { const sb = document.getElementById('sidebar'); if (sb.classList.contains('open') && !sb.contains(e.target)) window.closeSidebar(); }; }
+        
+        // Lắng nghe click ra ngoài để đóng context menu
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('contextMenu');
+            const sheet = document.getElementById('bottomSheet');
+            const overlay = document.getElementById('contextOverlay');
+            if (!menu.contains(e.target) && !sheet.contains(e.target) && overlay.style.display === 'block') {
+                closeContextMenu();
+            }
+        });
         
         function setMobileViewportHeight() {
             let vh = window.innerHeight * 0.01;
@@ -1459,6 +2099,11 @@
         
         window.addEventListener('orientationchange', function() {
             setTimeout(setMobileViewportHeight, 100);
+        });
+        
+        // Cập nhật isMobile khi resize
+        window.addEventListener('resize', function() {
+            isMobile = window.innerWidth <= 790;
         });
         
         setTimeout(function() {
