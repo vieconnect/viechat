@@ -21,6 +21,9 @@
         .terms-checkbox a:hover { text-decoration: underline; }
         .lock-detail-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
         .lock-detail-item:last-child { border-bottom: none; }
+        
+        /* Ẩn form mặc định */
+        .form-hidden { display: none; }
     </style>
 </head>
 <body>
@@ -30,16 +33,18 @@
             <h1 style="color: var(--primary); font-weight: bold; margin-bottom: 2px;">VieChat</h1>
             <p style="font-size: 14px; color: #65676b; margin-bottom: 20px;">Kết nối xã hội - Vững bước tương lai</p>
             
+            <!-- FORM ĐĂNG NHẬP -->
             <div id="login-form">
                 <input type="email" id="email" placeholder="Email">
                 <input type="password" id="password" placeholder="Mật khẩu" onkeypress="if(event.key==='Enter') handleAuth('login')">
                 <div style="text-align: right; margin-bottom: 15px;">
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" style="text-decoration: none; font-size: 14px;">Quên mật khẩu?</a>
+                    <a href="#" onclick="showForgotPasswordForm()" style="text-decoration: none; font-size: 14px;">Quên mật khẩu?</a>
                 </div>
                 <button onclick="handleAuth('login')" class="btn btn-primary" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold;">Đăng nhập</button>
                 <p style="margin-top: 15px; font-size: 14px;">Chưa có tài khoản? <a href="#" onclick="toggleAuth(true)" style="text-decoration: none; font-weight: 600;">Đăng ký</a></p>
             </div>
 
+            <!-- FORM ĐĂNG KÝ -->
             <div id="signup-form" style="display: none;">
                 <input type="text" id="signup-name" placeholder="Họ và tên">
                 <input type="email" id="signup-email" placeholder="Email">
@@ -72,10 +77,22 @@
                 <button onclick="handleAuth('signup')" class="btn btn-success" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold;">Tạo tài khoản</button>
                 <p style="margin-top: 15px; font-size: 14px;">Đã có tài khoản? <a href="#" onclick="toggleAuth(false)" style="text-decoration: none; font-weight: 600;">Đăng nhập</a></p>
             </div>
+
+            <!-- FORM QUÊN MẬT KHẨU - FORM RIÊNG -->
+            <div id="forgot-password-form" style="display: none;">
+                <p style="font-size: 14px; color: #65676b; margin-bottom: 20px;">Nhập email đăng ký tài khoản của bạn để nhận liên kết đặt lại mật khẩu.</p>
+                <input type="email" id="resetEmailInput" placeholder="Email của bạn" onkeypress="if(event.key==='Enter') handleForgotPassword()">
+                <button onclick="handleForgotPassword()" class="btn btn-warning" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; color: white;">Gửi yêu cầu</button>
+                <p style="margin-top: 15px; font-size: 14px;">
+                    <a href="#" onclick="showLoginForm()" style="text-decoration: none; font-weight: 600;">← Quay lại đăng nhập</a>
+                </p>
+            </div>
+
             <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;"><small>&copy; 2026 VieConnect Technology</small></div>
         </div>
     </div>
 
+    <!-- MODAL THÔNG BÁO CHUNG -->
     <div class="modal fade" id="commonModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -91,12 +108,12 @@
         </div>
     </div>
 
-    <!-- Modal thông báo đăng ký thành công (riêng biệt) -->
+    <!-- MODAL ĐĂNG KÝ THÀNH CÔNG -->
     <div class="modal fade" id="signupSuccessModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title fw-bold">✅ Đăng ký thành công!</h5>
+                    <h5 class="modal-title fw-bold">Đăng ký thành công!</h5>
                     <button type="button" class="btn-close btn-close-white" id="signupSuccessCloseBtn" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center">
@@ -115,6 +132,7 @@
         </div>
     </div>
 
+    <!-- MODAL TÀI KHOẢN BỊ KHÓA -->
     <div class="modal fade" id="accountLockedModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -151,25 +169,6 @@
         </div>
     </div>
 
-    <div class="modal fade" id="forgotPasswordModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-warning">
-                    <h5 class="modal-title fw-bold">Quên mật khẩu</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Nhập email đăng ký tài khoản của bạn để nhận liên kết đặt lại mật khẩu.</p>
-                    <input type="email" class="form-control" id="resetEmailInput" placeholder="Email của bạn">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" id="sendResetBtn">Gửi yêu cầu</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -194,12 +193,34 @@
         let isSigningUp = false;
         let signupSuccessModal = null;
 
+        // CÁC HÀM CHUYỂN ĐỔI FORM
+        window.showForgotPasswordForm = () => {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('forgot-password-form').style.display = 'block';
+            document.getElementById('resetEmailInput').value = '';
+            document.getElementById('resetEmailInput').focus();
+        };
+
+        window.showLoginForm = () => {
+            document.getElementById('forgot-password-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('signup-form').style.display = 'none';
+        };
+
+        window.toggleAuth = (isSignup) => {
+            document.getElementById('forgot-password-form').style.display = 'none';
+            document.getElementById('login-form').style.display = isSignup ? 'none' : 'block';
+            document.getElementById('signup-form').style.display = isSignup ? 'block' : 'none';
+        };
+
         function getFirebaseErrorMessage(errorCode) {
             const errorMessages = {
                 'auth/invalid-credential': 'Email hoặc mật khẩu không đúng.',
                 'auth/invalid-email': 'Email không hợp lệ.',
                 'auth/email-already-in-use': 'Email này đã được sử dụng.',
                 'auth/weak-password': 'Mật khẩu phải có ít nhất 6 ký tự.',
+                'auth/user-not-found': 'Không tìm thấy tài khoản với email này.',
                 'default': 'Đã xảy ra lỗi. Vui lòng thử lại sau.'
             };
             return errorMessages[errorCode] || errorMessages.default;
@@ -223,6 +244,24 @@
             modal.show();
         };
 
+        // XỬ LÝ QUÊN MẬT KHẨU
+        window.handleForgotPassword = async () => {
+            const email = document.getElementById('resetEmailInput').value.trim();
+            if(!email) {
+                showAlert("Lỗi", "Vui lòng nhập email.");
+                return;
+            }
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showAlert("Thành công", "Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư.", () => {
+                    // Sau khi đóng modal, quay về form đăng nhập
+                    showLoginForm();
+                });
+            } catch(e) {
+                showAlert("Lỗi", getFirebaseErrorMessage(e.code));
+            }
+        };
+
         // Hiển thị modal đăng ký thành công và chuyển hướng sau khi đóng
         function showSignupSuccessAndRedirect() {
             const modalEl = document.getElementById('signupSuccessModal');
@@ -231,19 +270,14 @@
                 keyboard: false
             });
             
-            // Xử lý khi đóng modal (cả nút X và nút "Vào chat ngay")
             const redirectToChat = () => {
                 signupSuccessModal.hide();
                 window.location.href = "chat.html";
             };
             
-            // Gắn sự kiện cho nút OK
             document.getElementById('signupSuccessOkBtn').onclick = redirectToChat;
-            
-            // Gắn sự kiện cho nút X
             document.getElementById('signupSuccessCloseBtn').onclick = redirectToChat;
             
-            // Xử lý sự kiện hidden của modal (đảm bảo chuyển hướng nếu đóng bằng cách khác)
             modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
                 modalEl.removeEventListener('hidden.bs.modal', handleHidden);
                 window.location.href = "chat.html";
@@ -252,7 +286,6 @@
             signupSuccessModal.show();
         }
 
-        // Hàm xử lý bóc tách trường lockInfo từ database và hiển thị modal riêng biệt
         window.showAccountLockedModal = (lockInfo) => {
             if (!lockInfo) lockInfo = {};
             document.getElementById('lock-info-id').innerText = lockInfo.id || "---";
@@ -264,34 +297,24 @@
             lockModal.show();
         };
 
-        // LẮNG NGHE ĐĂNG NHẬP: Kiểm tra trạng thái isLocked & bóc tách lockInfo
         onAuthStateChanged(auth, async (user) => {
             if (user && !isSigningUp) {
                 try {
-                    // Đọc kiểm tra node user từ Realtime Database để rà soát lệnh cấm
                     const snap = await get(ref(db, `users/${user.uid}`));
                     if (snap.exists()) {
                         const userData = snap.val();
                         if (userData.isLocked === true || userData.isLocked === "true") {
-                            // Nếu bị khóa, kích hoạt hiển thị Modal chi tiết vi phạm và ép đăng xuất
                             showAccountLockedModal(userData.lockInfo);
                             await signOut(auth);
                             return;
                         }
                     }
-                    // Nếu tài khoản hợp lệ (không bị khóa) hoặc chưa khởi tạo trường, cho phép chuyển sang chat
                     window.location.href = "chat.html";
                 } catch (error) {
-                    // Trường hợp dính Firebase Security Rules chặn get ở index, vẫn cho qua chat.html xử lý tiếp
                     window.location.href = "chat.html";
                 }
             }
         });
-
-        window.toggleAuth = (isSignup) => {
-            document.getElementById('login-form').style.display = isSignup ? 'none' : 'block';
-            document.getElementById('signup-form').style.display = isSignup ? 'block' : 'none';
-        };
 
         function isValidName(name) {
             if (!name || !name.trim()) return false;
@@ -299,16 +322,6 @@
             const lowerName = name.toLowerCase();
             return !forbiddenWords.some(word => lowerName.includes(word));
         }
-
-        document.getElementById('sendResetBtn').onclick = async () => {
-            const email = document.getElementById('resetEmailInput').value.trim();
-            if(!email) return alert("Vui lòng nhập email.");
-            try {
-                await sendPasswordResetEmail(auth, email);
-                bootstrap.Modal.getInstance(document.getElementById('forgotPasswordModal')).hide();
-                showAlert("Thành công", "Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư.");
-            } catch(e) { showAlert("Lỗi", getFirebaseErrorMessage(e.code)); }
-        };
 
         window.handleAuth = async (type) => {
             if (type === 'signup') {
@@ -339,6 +352,7 @@
                         allowStrangerChat: true,
                         allowFriendRequest: true,
                         isLocked: false,
+                        haveGreenTick: false,
                         lockInfo: {
                             id: "---",
                             reason: "---",
@@ -348,8 +362,6 @@
                     });
                     
                     isSigningUp = false;
-                    
-                    // Hiển thị modal đăng ký thành công và tự động chuyển hướng sau khi đóng
                     showSignupSuccessAndRedirect();
                     
                 } catch (e) { 
