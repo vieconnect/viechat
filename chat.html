@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VieChat - Phòng Chat</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --vh: 1vh; --primary: #0084ff; --bg: #f0f2f5; --text: #1c1e21; --light-gray: #e4e6eb; --danger: #f02849; --success: #42b72a; }
+        :root { --vh: 1vh; --primary: #0084ff; --bg: #f0f2f5; --text: #1c1e21; --light-gray: #e4e6eb; --danger: #f02849; --success: #42b72a; --verified: #1da1f2; }
         #main-app, .app-container, .chat-window { height: 100vh; height: calc(var(--vh, 1vh) * 100); }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); height: 100vh; width: 100vw; overflow: hidden; color: var(--text); }
@@ -45,6 +46,90 @@
         .input-area { padding: 15px; border-top: 1px solid #eee; display: flex; align-items: center; gap: 10px; background: white; }
         #message-input { flex: 1; border-radius: 20px; padding: 10px 15px; border: 1px solid #ddd; outline: none; }
         .input-area button { padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer; }
+        
+        /* Verified badge styles */
+        .verified-icon {
+            color: var(--verified);
+            margin-left: 4px;
+            font-size: 16px;
+            display: inline;
+        }
+        .verified-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--verified);
+            color: white;
+            font-size: 12px;
+            border-radius: 20px;
+            padding: 4px 12px;
+            gap: 6px;
+            font-weight: 500;
+        }
+        .verified-badge i {
+            font-size: 11px;
+        }
+        
+        /* Modal tìm kiếm 2 cột */
+        .search-result-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .search-user-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .search-user-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), #0056b3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .search-user-details h6 {
+            margin: 0;
+            font-weight: 600;
+        }
+        .search-user-details p {
+            margin: 0;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        .search-user-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+        .name-with-verified {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        @media (max-width: 576px) {
+            .search-result-card {
+                flex-direction: column;
+                text-align: center;
+            }
+            .search-user-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            .search-user-actions {
+                justify-content: center;
+            }
+        }
+        
         @media (max-width: 790px) {
             .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: 280px; transform: translateX(-100%); z-index: 1001; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
             .sidebar.open { transform: translateX(0); }
@@ -70,8 +155,7 @@
                 </div>
                 
                 <div class="search-box">
-                    <input type="text" id="search-input" placeholder="Tìm bạn qua email...">
-                    <button class="search-btn" onclick="findUser()">🔍</button>
+                    <button class="btn btn-outline-primary w-100" onclick="openSearchModal()">🔍 Tìm kiếm bạn bè</button>
                 </div>
                 
                 <div class="list-container">
@@ -127,6 +211,31 @@
         </div>
     </div>
 
+    <!-- MODAL TÌM KIẾM - Thiết kế 2 cột: trái thông tin, phải nút thao tác -->
+    <div class="modal fade" id="searchModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">🔍 Tìm kiếm bạn bè</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-4">
+                        <input type="email" class="form-control" id="searchEmailInput" placeholder="Nhập email cần tìm...">
+                        <button class="btn btn-primary" type="button" onclick="performSearch()">Tìm kiếm</button>
+                    </div>
+                    <div id="searchResultArea" style="display: none;">
+                        <div id="searchResultContent"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL THÔNG TIN CHI TIẾT -->
     <div class="modal fade" id="userInfoModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-center p-3">
@@ -134,14 +243,19 @@
                     <h5 class="modal-title fw-bold text-primary">Thông Tin Tài Khoản</h5>
                 </div>
                 <div class="modal-body">
-                    <h3 id="modalUserTxtName" class="fw-bold mb-1">---</h3>
-                    <p id="modalUserTxtEmail" class="text-muted mb-3">---</p>
+                    <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                        <h3 id="modalUserTxtName" class="fw-bold mb-1">---</h3>
+                    </div>
+                    <div id="modalUserEmailContainer" class="mb-3">
+                        <p id="modalUserTxtEmail" class="text-muted mb-1">---</p>
+                        <span id="modalUserVerifiedBadge" style="display: none;" class="verified-badge"><i class="fas fa-check-circle"></i> Do VieChat xác minh</span>
+                    </div>
                     <hr>
                     <div class="row text-start justify-content-center px-3">
                         <div class="col-6 mb-2"><strong>Giới tính:</strong> <span id="modalUserTxtGender">---</span></div>
                         <div class="col-6 mb-2"><strong>Ngày sinh:</strong> <span id="modalUserTxtBirthday">---</span></div>
                     </div>
-                    <div id="modalUserPrivacyAlert" class="alert alert-warning small py-1 px-2 mt-2 style-none" style="display:none;">Một số thông tin đã bị ẩn do cài đặt quyền riêng tư</div>
+                    <div id="modalUserPrivacyAlert" class="alert alert-warning small py-1 px-2 mt-2" style="display:none;">Một số thông tin đã bị ẩn do cài đặt quyền riêng tư</div>
                 </div>
                 <div class="modal-footer border-0 justify-content-center gap-2">
                     <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Đóng</button>
@@ -168,7 +282,7 @@
                         <label class="form-label">Ngày sinh</label>
                         <input type="date" class="form-control" id="privInputBirthday">
                     </div>
-                    <h6 class="fw-bold border-bottom pb-1 pt-2 text-secondary">Quyền hiển thị hiển thị công khai</h6>
+                    <h6 class="fw-bold border-bottom pb-1 pt-2 text-secondary">Quyền hiển thị công khai</h6>
                     <div class="form-check form-switch mb-2">
                         <input class="form-check-input" type="checkbox" id="privSwitchShowGender"><label class="form-check-label">Hiển thị giới tính khi người khác tìm kiếm</label>
                     </div>
@@ -205,7 +319,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, updatePassword, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, push, onValue, serverTimestamp, query, orderByChild, equalTo, get, remove, off, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, query, orderByChild, equalTo, get, remove, off, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCXSoUXXSJK6n3iX9Sktqb7NsPL46sJBD0",
@@ -230,6 +344,26 @@
         
         let userInfoModalObj = null, privacySettingsModalObj = null;
         let changeNameModalObj = null, changePasswordModalObj = null, deleteAccountModalObj = null;
+        let searchModalObj = null;
+        let currentSearchTarget = null;
+        
+        // Biến quản lý modal đang mở để đảm bảo tuần tự
+        let activeModalInstance = null;
+
+        function closeAllModals() {
+            if (activeModalInstance) {
+                activeModalInstance.hide();
+                activeModalInstance = null;
+            }
+            const modals = ['searchModal', 'userInfoModal', 'privacySettingsModal', 'changeNameModal', 'changePasswordModal', 'deleteAccountModal', 'logoutConfirmModal', 'commonModal', 'confirmModal'];
+            modals.forEach(modalId => {
+                const modalEl = document.getElementById(modalId);
+                if (modalEl && modalEl.classList.contains('show')) {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+            });
+        }
 
         function resetChatUI() {
             ['banned-banner', 'block-banner', 'deleted-banner', 'friend-request-banner'].forEach(id => {
@@ -260,6 +394,14 @@
             globalFriendStatusListener = null; globalMessagesListener = null;
         }
 
+        // Hàm tạo HTML cho tên kèm verified badge
+        function getDisplayNameWithBadge(name, haveGreenTick) {
+            if (haveGreenTick === true) {
+                return `${escapeHtml(name)} <i class="fas fa-check-circle verified-icon" style="color: #1da1f2; font-size: 14px;" title="Tài khoản đã được xác minh"></i>`;
+            }
+            return escapeHtml(name);
+        }
+
         onAuthStateChanged(auth, (user) => {
             if (!user) { 
                 cleanupChatListeners(); 
@@ -273,44 +415,100 @@
                     if(data) {
                         if(data.isLocked === true || data.isLocked === "true") { signOut(auth); return; }
                         document.getElementById('my-email').innerText = user.email;
-                        document.getElementById('my-name').innerText = data.name || "Người dùng";
+                        document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
                         syncLists(); setupOutsideClick();
                     }
                 });
             }
         });
 
-        window.showAlert = (title, message) => {
+        window.showAlert = (title, message, onClose = null) => {
             document.getElementById('commonModalTitle').innerText = title;
             document.getElementById('commonModalBody').innerHTML = message;
-            new bootstrap.Modal(document.getElementById('commonModal')).show();
+            const modalEl = document.getElementById('commonModal');
+            closeAllModals();
+            setTimeout(() => {
+                const modal = new bootstrap.Modal(modalEl);
+                activeModalInstance = modal;
+                if (onClose) {
+                    modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                        modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                        activeModalInstance = null;
+                        onClose();
+                    }, { once: true });
+                } else {
+                    modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                        modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                        activeModalInstance = null;
+                    }, { once: true });
+                }
+                modal.show();
+            }, 150);
         };
         
         window.showConfirm = (message, onOk) => {
             document.getElementById('confirmModalBody').innerText = message;
             pendingConfirmCallback = onOk;
-            const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
-            document.getElementById('confirmModalOkBtn').onclick = () => { if(pendingConfirmCallback) pendingConfirmCallback(); modal.hide(); };
-            modal.show();
+            const modalEl = document.getElementById('confirmModal');
+            closeAllModals();
+            setTimeout(() => {
+                const modal = new bootstrap.Modal(modalEl);
+                activeModalInstance = modal;
+                document.getElementById('confirmModalOkBtn').onclick = () => { 
+                    if(pendingConfirmCallback) pendingConfirmCallback(); 
+                    modal.hide();
+                    activeModalInstance = null;
+                };
+                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                    if (activeModalInstance === modal) activeModalInstance = null;
+                }, { once: true });
+                modal.show();
+            }, 150);
         };
 
         window.showLogoutConfirm = () => {
-            const modal = new bootstrap.Modal(document.getElementById('logoutConfirmModal'));
-            document.getElementById('logoutConfirmOkBtn').onclick = () => { modal.hide(); signOut(auth); };
-            modal.show();
+            const modalEl = document.getElementById('logoutConfirmModal');
+            closeAllModals();
+            setTimeout(() => {
+                const modal = new bootstrap.Modal(modalEl);
+                activeModalInstance = modal;
+                document.getElementById('logoutConfirmOkBtn').onclick = () => { 
+                    modal.hide(); 
+                    activeModalInstance = null;
+                    signOut(auth); 
+                };
+                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                    if (activeModalInstance === modal) activeModalInstance = null;
+                }, { once: true });
+                modal.show();
+            }, 150);
         };
 
         window.showChangeNameModal = () => {
-            document.getElementById('changeNameInput').value = document.getElementById('my-name').innerText;
-            changeNameModalObj = new bootstrap.Modal(document.getElementById('changeNameModal'));
-            changeNameModalObj.show();
+            document.getElementById('changeNameInput').value = document.getElementById('my-name').innerText.replace(/<[^>]*>/g, '');
+            const modalEl = document.getElementById('changeNameModal');
+            closeAllModals();
+            setTimeout(() => {
+                changeNameModalObj = new bootstrap.Modal(modalEl);
+                activeModalInstance = changeNameModalObj;
+                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                    activeModalInstance = null;
+                }, { once: true });
+                changeNameModalObj.show();
+            }, 150);
         };
 
         document.getElementById('changeNameSubmitBtn').onclick = async () => {
             const newName = document.getElementById('changeNameInput').value.trim();
             if(!newName) { showAlert("Lỗi", "Tên hiển thị không được để trống."); return; }
             await update(ref(db, `users/${currentUser.uid}`), { name: newName });
-            changeNameModalObj.hide();
+            if (changeNameModalObj) {
+                changeNameModalObj.hide();
+                activeModalInstance = null;
+            }
             showAlert("Thành công", "Đã cập nhật tên hiển thị.");
         };
 
@@ -318,8 +516,17 @@
             document.getElementById('oldPasswordInput').value = "";
             document.getElementById('newPasswordInput').value = "";
             document.getElementById('confirmNewPasswordInput').value = "";
-            changePasswordModalObj = new bootstrap.Modal(document.getElementById('changePasswordModal'));
-            changePasswordModalObj.show();
+            const modalEl = document.getElementById('changePasswordModal');
+            closeAllModals();
+            setTimeout(() => {
+                changePasswordModalObj = new bootstrap.Modal(modalEl);
+                activeModalInstance = changePasswordModalObj;
+                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                    activeModalInstance = null;
+                }, { once: true });
+                changePasswordModalObj.show();
+            }, 150);
         };
 
         document.getElementById('changePasswordSubmitBtn').onclick = async () => {
@@ -335,7 +542,10 @@
                 const credential = EmailAuthProvider.credential(currentUser.email, oldPw);
                 await reauthenticateWithCredential(auth.currentUser, credential);
                 await updatePassword(auth.currentUser, newPw);
-                changePasswordModalObj.hide();
+                if (changePasswordModalObj) {
+                    changePasswordModalObj.hide();
+                    activeModalInstance = null;
+                }
                 showAlert("Thành công", "Đã thay đổi mật khẩu thành công.");
             } catch (error) {
                 showAlert("Lỗi", "Mật khẩu cũ không chính xác hoặc có lỗi xảy ra.");
@@ -344,15 +554,27 @@
 
         window.showDeleteAccountModal = () => {
             document.getElementById('deleteConfirmCode').value = "";
-            deleteAccountModalObj = new bootstrap.Modal(document.getElementById('deleteAccountModal'));
-            deleteAccountModalObj.show();
+            const modalEl = document.getElementById('deleteAccountModal');
+            closeAllModals();
+            setTimeout(() => {
+                deleteAccountModalObj = new bootstrap.Modal(modalEl);
+                activeModalInstance = deleteAccountModalObj;
+                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                    activeModalInstance = null;
+                }, { once: true });
+                deleteAccountModalObj.show();
+            }, 150);
         };
 
         document.getElementById('confirmDeleteAccountBtn').onclick = async () => {
             const code = document.getElementById('deleteConfirmCode').value.trim();
             if(code !== "XOATOANBO") { showAlert("Lỗi", "Mã xác nhận không chính xác."); return; }
             
-            if (deleteAccountModalObj) deleteAccountModalObj.hide();
+            if (deleteAccountModalObj) {
+                deleteAccountModalObj.hide();
+                activeModalInstance = null;
+            }
             
             showConfirm("Hành động này không thể hoàn tác. Bạn có thực sự chắc chắn?", async () => {
                 try {
@@ -378,8 +600,17 @@
                 document.getElementById('privSwitchAllowFriend').checked = d.allowFriendRequest !== false;
                 document.getElementById('privSwitchAllowStrangerChat').checked = d.allowStrangerChat !== false;
                 
-                privacySettingsModalObj = new bootstrap.Modal(document.getElementById('privacySettingsModal'));
-                privacySettingsModalObj.show();
+                const modalEl = document.getElementById('privacySettingsModal');
+                closeAllModals();
+                setTimeout(() => {
+                    privacySettingsModalObj = new bootstrap.Modal(modalEl);
+                    activeModalInstance = privacySettingsModalObj;
+                    modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                        modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                        activeModalInstance = null;
+                    }, { once: true });
+                    privacySettingsModalObj.show();
+                }, 150);
             }
         };
 
@@ -394,101 +625,278 @@
                 allowStrangerChat: document.getElementById('privSwitchAllowStrangerChat').checked,
             };
             await update(ref(db, `users/${currentUser.uid}`), upd);
-            privacySettingsModalObj.hide();
+            if (privacySettingsModalObj) {
+                privacySettingsModalObj.hide();
+                activeModalInstance = null;
+            }
             showAlert("Thành công", "Đã cập nhật cấu hình quyền riêng tư.");
         };
 
-        window.findUser = async () => {
-            const email = document.getElementById('search-input').value.trim().toLowerCase();
-            if (!email || email === currentUser.email) return;
+        window.openSearchModal = () => {
+            document.getElementById('searchEmailInput').value = '';
+            document.getElementById('searchResultArea').style.display = 'none';
+            document.getElementById('searchResultContent').innerHTML = '';
+            const modalEl = document.getElementById('searchModal');
+            closeAllModals();
+            setTimeout(() => {
+                searchModalObj = new bootstrap.Modal(modalEl);
+                activeModalInstance = searchModalObj;
+                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                    activeModalInstance = null;
+                }, { once: true });
+                searchModalObj.show();
+            }, 150);
+        };
+
+        function showSearchError(message, type = 'danger') {
+            const resultArea = document.getElementById('searchResultArea');
+            const resultContent = document.getElementById('searchResultContent');
+            resultArea.style.display = 'block';
+            resultContent.innerHTML = `
+                <div class="alert alert-${type} text-center mb-0">
+                    <i class="fas ${type === 'danger' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i> ${message}
+                </div>
+            `;
+        }
+
+        window.performSearch = async () => {
+            const email = document.getElementById('searchEmailInput').value.trim().toLowerCase();
+            
+            if (!email) {
+                showSearchError("Vui lòng nhập email cần tìm.", "warning");
+                return;
+            }
+            
+            if (email === currentUser.email) {
+                showSearchError("Bạn không thể tìm kiếm chính mình.", "warning");
+                return;
+            }
 
             const q = query(ref(db, 'users'), orderByChild('email'), equalTo(email));
             const snap = await get(q);
             
-            if (snap.exists()) {
-                const targetUid = Object.keys(snap.val())[0];
-                const targetData = snap.val()[targetUid];
-
-                if (targetData.allowSearch === false) {
-                    showAlert("Thông báo", "Không tìm thấy người dùng này!");
-                    return;
-                }
-
-                const statusSnap = await get(ref(db, `friend_status/${currentUser.uid}/${targetUid}`));
-                const currentStatus = statusSnap.val();
-
-                document.getElementById('modalUserTxtName').innerText = targetData.name || "Người dùng";
-                document.getElementById('modalUserTxtEmail').innerText = targetData.email || "";
-                
-                let isHiddenInfo = false;
-                if (targetData.showGender !== false) {
-                    document.getElementById('modalUserTxtGender').innerText = targetData.gender || "Chưa cập nhật";
-                } else {
-                    document.getElementById('modalUserTxtGender').innerText = "Bị ẩn"; isHiddenInfo = true;
-                }
-                if (targetData.showBirthday !== false) {
-                    document.getElementById('modalUserTxtBirthday').innerText = targetData.birthday || "Chưa cập nhật";
-                } else {
-                    document.getElementById('modalUserTxtBirthday').innerText = "Bị ẩn"; isHiddenInfo = true;
-                }
-                document.getElementById('modalUserPrivacyAlert').style.display = isHiddenInfo ? 'block' : 'none';
-
-                let actionAreaHtml = "";
-                if (currentStatus === "accepted") {
-                    actionAreaHtml += `<button class="btn btn-primary px-4" onclick="directMessageFromModal('${targetUid}','${targetData.name}')">Nhắn tin ngay</button>`;
-                } else {
-                    if (targetData.allowFriendRequest !== false) {
-                        if (currentStatus === "outgoing") {
-                            actionAreaHtml += `<button class="btn btn-secondary" disabled>Đang chờ chấp nhận</button>`;
-                        } else if (currentStatus === "incoming") {
-                            // Cập nhật để đóng cả sidebar khi bấm chấp nhận trên modal tìm kiếm
-                            actionAreaHtml += `<button class="btn btn-success" onclick="updateStatus('${targetUid}','accepted'); closeModalObj(); closeSidebar();">Chấp nhận kết bạn</button>`;
-                        } else {
-                            actionAreaHtml += `<button class="btn btn-success" onclick="sendFriendRequestFromModal('${targetUid}')">Kết bạn</button>`;
-                        }
-                    }
-                    if (targetData.allowStrangerChat !== false) {
-                        actionAreaHtml += ` <button class="btn btn-outline-primary" onclick="directMessageFromModal('${targetUid}','${targetData.name}')">Nhắn tin ngay</button>`;
-                    }
-                }
-
-                document.getElementById('modalUserActionArea').innerHTML = actionAreaHtml;
-                document.getElementById('search-input').value = "";
-                userInfoModalObj = new bootstrap.Modal(document.getElementById('userInfoModal'));
-                userInfoModalObj.show();
+            const resultArea = document.getElementById('searchResultArea');
+            const resultContent = document.getElementById('searchResultContent');
+            
+            if (!snap.exists()) {
+                showSearchError("Không tìm thấy người dùng này hoặc người này không cho phép tìm kiếm thông tin của họ", "danger");
+                return;
+            }
+            
+            const targetUid = Object.keys(snap.val())[0];
+            const targetData = snap.val()[targetUid];
+            currentSearchTarget = { uid: targetUid, data: targetData };
+            
+            if (targetData.allowSearch === false) {
+                showSearchError("Không tìm thấy người dùng này hoặc người này không cho phép tìm kiếm thông tin của họ", "warning");
+                return;
+            }
+            
+            const statusSnap = await get(ref(db, `friend_status/${currentUser.uid}/${targetUid}`));
+            const currentStatus = statusSnap.val();
+            
+            const firstLetter = (targetData.name || "U").charAt(0).toUpperCase();
+            const verifiedHtml = targetData.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
+            
+            let actionsHtml = '';
+            actionsHtml += `<button class="btn btn-info btn-sm" onclick="viewUserDetailsFromSearch('${targetUid}', '${targetData.name.replace(/'/g, "\\'")}')">📋 Thông tin</button>`;
+            
+            if (currentStatus === "accepted") {
+                actionsHtml += `<button class="btn btn-primary btn-sm" onclick="directMessageFromSearch('${targetUid}', '${targetData.name.replace(/'/g, "\\'")}')">💬 Nhắn tin</button>`;
             } else {
-                showAlert("Thông báo", "Không tìm thấy người dùng này!");
+                if (targetData.allowFriendRequest !== false) {
+                    if (currentStatus === "outgoing") {
+                        actionsHtml += `<button class="btn btn-secondary btn-sm" disabled>⏳ Đã gửi lời mời</button>`;
+                    } else if (currentStatus === "incoming") {
+                        actionsHtml += `<button class="btn btn-success btn-sm" onclick="acceptFriendFromSearch('${targetUid}')">✅ Chấp nhận KB</button>`;
+                    } else {
+                        actionsHtml += `<button class="btn btn-success btn-sm" onclick="sendFriendRequestFromSearch('${targetUid}')">➕ Kết bạn</button>`;
+                    }
+                }
+                if (targetData.allowStrangerChat !== false) {
+                    actionsHtml += `<button class="btn btn-outline-primary btn-sm" onclick="directMessageFromSearch('${targetUid}', '${targetData.name.replace(/'/g, "\\'")}')">💬 Nhắn tin</button>`;
+                }
+            }
+            
+            resultContent.innerHTML = `
+                <div class="search-result-card p-3 border rounded">
+                    <div class="search-user-info">
+                        <div class="search-user-avatar">${firstLetter}</div>
+                        <div class="search-user-details">
+                            <h6 class="mb-0">${escapeHtml(targetData.name || "Người dùng")}${verifiedHtml}</h6>
+                            <p class="text-muted mb-0 small">${escapeHtml(targetData.email)}</p>
+                        </div>
+                    </div>
+                    <div class="search-user-actions">
+                        ${actionsHtml}
+                    </div>
+                </div>
+            `;
+            
+            resultArea.style.display = 'block';
+        };
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+                return c;
+            });
+        }
+        
+        window.viewUserDetailsFromSearch = async (uid, name) => {
+            if (searchModalObj) {
+                searchModalObj.hide();
+                activeModalInstance = null;
+            }
+            
+            const snap = await get(ref(db, `users/${uid}`));
+            if (!snap.exists()) {
+                showAlert("Lỗi", "Không thể tải thông tin người dùng.");
+                return;
+            }
+            const targetData = snap.val();
+            
+            // Hiển thị tên kèm tích xanh bên cạnh (cùng hàng)
+            let nameHtml = escapeHtml(targetData.name || "Người dùng");
+            if (targetData.haveGreenTick === true) {
+                nameHtml += ` <i class="fas fa-check-circle verified-icon" style="color: #1da1f2; font-size: 16px;" title="Tài khoản đã được xác minh"></i>`;
+            }
+            document.getElementById('modalUserTxtName').innerHTML = nameHtml;
+            
+            // Hiển thị email
+            document.getElementById('modalUserTxtEmail').innerText = targetData.email || "";
+            
+            // Hiển thị badge xác minh bên dưới email
+            if (targetData.haveGreenTick === true) {
+                document.getElementById('modalUserVerifiedBadge').style.display = 'inline-flex';
+            } else {
+                document.getElementById('modalUserVerifiedBadge').style.display = 'none';
+            }
+            
+            let isHiddenInfo = false;
+            if (targetData.showGender !== false) {
+                document.getElementById('modalUserTxtGender').innerText = targetData.gender || "Chưa cập nhật";
+            } else {
+                document.getElementById('modalUserTxtGender').innerText = "••••••••"; isHiddenInfo = true;
+            }
+            if (targetData.showBirthday !== false) {
+                document.getElementById('modalUserTxtBirthday').innerText = targetData.birthday || "Chưa cập nhật";
+            } else {
+                document.getElementById('modalUserTxtBirthday').innerText = "••/••/••••"; isHiddenInfo = true;
+            }
+            document.getElementById('modalUserPrivacyAlert').style.display = isHiddenInfo ? 'block' : 'none';
+            
+            const statusSnap = await get(ref(db, `friend_status/${currentUser.uid}/${uid}`));
+            const currentStatus = statusSnap.val();
+            
+            let actionAreaHtml = "";
+            if (currentStatus === "accepted") {
+                actionAreaHtml += `<button class="btn btn-primary px-4" onclick="directMessageFromModal('${uid}','${targetData.name.replace(/'/g, "\\'")}')">Nhắn tin ngay</button>`;
+            } else {
+                if (targetData.allowFriendRequest !== false) {
+                    if (currentStatus === "outgoing") {
+                        actionAreaHtml += `<button class="btn btn-secondary" disabled>Đang chờ chấp nhận</button>`;
+                    } else if (currentStatus === "incoming") {
+                        actionAreaHtml += `<button class="btn btn-success" onclick="updateStatus('${uid}','accepted'); closeModalObj();">Chấp nhận kết bạn</button>`;
+                    } else {
+                        actionAreaHtml += `<button class="btn btn-success" onclick="sendFriendRequestFromModal('${uid}')">Kết bạn</button>`;
+                    }
+                }
+                if (targetData.allowStrangerChat !== false) {
+                    actionAreaHtml += ` <button class="btn btn-outline-primary" onclick="directMessageFromModal('${uid}','${targetData.name.replace(/'/g, "\\'")}')">Nhắn tin ngay</button>`;
+                }
+            }
+            
+            document.getElementById('modalUserActionArea').innerHTML = actionAreaHtml;
+            
+            const modalEl = document.getElementById('userInfoModal');
+            closeAllModals();
+            setTimeout(() => {
+                userInfoModalObj = new bootstrap.Modal(modalEl);
+                activeModalInstance = userInfoModalObj;
+                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                    activeModalInstance = null;
+                }, { once: true });
+                userInfoModalObj.show();
+            }, 150);
+        };
+        
+        window.closeModalObj = () => { 
+            if(userInfoModalObj) {
+                userInfoModalObj.hide();
+                activeModalInstance = null;
+                userInfoModalObj = null;
             }
         };
-
-        window.closeModalObj = () => { if(userInfoModalObj) userInfoModalObj.hide(); };
         
         window.sendFriendRequestFromModal = async (targetUid) => {
             await set(ref(db, `friend_status/${currentUser.uid}/${targetUid}`), "outgoing");
             await set(ref(db, `friend_status/${targetUid}/${currentUser.uid}`), "incoming");
             closeModalObj();
-            closeSidebar(); // Đóng sidebar khi click kết bạn
             showAlert("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!");
+            syncLists();
         };
-
+        
+        window.acceptFriendFromSearch = async (targetUid) => {
+            await update(ref(db), {
+                [`friend_status/${currentUser.uid}/${targetUid}`]: "accepted",
+                [`friend_status/${targetUid}/${currentUser.uid}`]: "accepted"
+            });
+            if (searchModalObj) {
+                searchModalObj.hide();
+                activeModalInstance = null;
+            }
+            showAlert("Thành công", "Đã chấp nhận kết bạn!");
+            syncLists();
+        };
+        
+        window.sendFriendRequestFromSearch = async (targetUid) => {
+            await set(ref(db, `friend_status/${currentUser.uid}/${targetUid}`), "outgoing");
+            await set(ref(db, `friend_status/${targetUid}/${currentUser.uid}`), "incoming");
+            if (searchModalObj) {
+                searchModalObj.hide();
+                activeModalInstance = null;
+            }
+            showAlert("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!");
+            syncLists();
+        };
+        
+        window.directMessageFromSearch = (uid, name) => {
+            if (searchModalObj) {
+                searchModalObj.hide();
+                activeModalInstance = null;
+            }
+            openChatFunction(uid, name, null);
+        };
+        
         window.directMessageFromModal = (uid, name) => { 
             closeModalObj(); 
-            closeSidebar(); // Đóng sidebar khi click nhắn tin ngay
             openChatFunction(uid, name, null); 
         };
 
         window.updateStatus = async (uid, status) => {
-            const myPath = `friend_status/${currentUser.uid}/${uid}`, theirPath = `friend_status/${uid}/${currentUser.uid}`;
+            const myPath = `friend_status/${currentUser.uid}/${uid}`;
+            const theirPath = `friend_status/${uid}/${currentUser.uid}`;
+            
             if (status === 'accepted') {
                 await update(ref(db), { [myPath]: "accepted", [theirPath]: "accepted" });
                 setTimeout(() => openChatFunction(uid, "", null), 400);
+            } 
+            else if (status === 'unblock') { 
+                await remove(ref(db, myPath));
+            } 
+            else if (status === 'unblock_stranger') { 
+                await remove(ref(db, myPath)); 
+                if(activeChatId && activeChatId.includes(uid)) goHome(); 
             } else if (status === 'blocked') { 
                 await set(ref(db, myPath), "blocked"); 
-                if(activeChatId && activeChatId.includes(uid)) goHome(); 
-            } else if (status === 'unblock') { 
-                await set(ref(db, myPath), "accepted"); 
-            } else if (status === 'unblock_stranger') { 
-                await remove(ref(db, myPath)); 
                 if(activeChatId && activeChatId.includes(uid)) goHome(); 
             } else if (status === 'add_friend_stranger') {
                 await set(ref(db, myPath), "outgoing");
@@ -546,15 +954,14 @@
                         else if(status === 'accepted') acts = `<button class="btn-icon bg-secondary text-dark" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','remove')">🗑</button>`;
                         else if(status === 'blocked') acts = `<button class="btn-icon bg-primary" onclick="event.stopPropagation();updateStatus('${uid}','unblock')">Mở</button>`;
                         
-                        div.innerHTML = `<div><strong>${data.name}</strong><br><small>${data.email}</small></div><div class="btn-group">${acts}</div>`;
+                        const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
+                        
+                        div.innerHTML = `<div><strong>${escapeHtml(data.name)}${verifiedHtml}</strong><br><small>${escapeHtml(data.email)}</small></div><div class="btn-group">${acts}</div>`;
                         div.onclick = () => { closeSidebar(); openChatFunction(uid, data.name, div); };
                         
-                        if (['incoming', 'outgoing', 'accepted'].includes(status)) {
-                            const container = document.getElementById(status === 'incoming' ? 'incoming-list' : status === 'outgoing' ? 'outgoing-list' : 'friend-list');
+                        if (['incoming', 'outgoing', 'accepted', 'blocked'].includes(status)) {
+                            const container = document.getElementById(status === 'incoming' ? 'incoming-list' : status === 'outgoing' ? 'outgoing-list' : status === 'blocked' ? 'stranger-list' : 'friend-list');
                             if (container) container.appendChild(div);
-                        } else if (status === 'blocked') {
-                            const containerStr = document.getElementById('stranger-list');
-                            if (containerStr) containerStr.appendChild(div);
                         }
                     });
                 });
@@ -563,9 +970,10 @@
                 
                 globalMessagesListener = onValue(ref(db, `messages`), (msgsSnap) => {
                     const strangerListContainer = document.getElementById('stranger-list');
-                    const blockedItems = strangerListContainer.querySelectorAll('.item');
-                    strangerListContainer.innerHTML = "";
-                    blockedItems.forEach(item => strangerListContainer.appendChild(item));
+                    const strangerItems = strangerListContainer.querySelectorAll('.item');
+                    strangerItems.forEach(item => {
+                        if (item.querySelector('.badge')) item.remove();
+                    });
 
                     if (!msgsSnap.exists()) return;
                     
@@ -576,7 +984,7 @@
                             const targetUid = parts[0] === currentUser.uid ? parts[1] : parts[0];
                             const currentRel = relations[targetUid];
                             
-                            if (!currentRel || currentRel === 'blocked') {
+                            if (!currentRel || currentRel === 'deleted_stranger') {
                                 get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`)).then((clearSnap) => {
                                     const clearTime = clearSnap.val() || 0;
                                     let hasVisibleMsg = false;
@@ -597,15 +1005,14 @@
                                             const div = document.createElement('div'); 
                                             div.id = `item-${targetUid}`; 
                                             div.className = `item ${activeChatId === chatId ? 'active' : ''}`;
-                                            let acts = '';
-                                            if (currentRel === 'blocked') {
-                                                acts = `<button class="btn-icon bg-primary" onclick="event.stopPropagation();updateStatus('${targetUid}','unblock_stranger')">Mở chặn</button>`;
-                                            } else {
-                                                acts = `<button class="btn-icon bg-success" title="Kết bạn" onclick="event.stopPropagation();updateStatus('${targetUid}','add_friend_stranger')">➕</button>
+                                            
+                                            const acts = `<button class="btn-icon bg-success" title="Kết bạn" onclick="event.stopPropagation();updateStatus('${targetUid}','add_friend_stranger')">➕</button>
                                                        <button class="btn-icon bg-secondary text-dark" title="Chặn" onclick="event.stopPropagation();updateStatus('${targetUid}','blocked')">🚫</button>
                                                        <button class="btn-icon bg-danger" title="Xóa cuộc trò chuyện" onclick="event.stopPropagation();updateStatus('${targetUid}','delete_stranger_chat')">🗑</button>`;
-                                            }
-                                            div.innerHTML = `<div><strong>${data.name} <span class="badge bg-warning text-dark" style="font-size:9px;">Lạ</span></strong><br><small>${data.email}</small></div><div class="btn-group">${acts}</div>`;
+                                            
+                                            const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
+                                            
+                                            div.innerHTML = `<div><strong>${escapeHtml(data.name)}${verifiedHtml} <span class="badge bg-warning text-dark" style="font-size:9px;">Lạ</span></strong><br><small>${escapeHtml(data.email)}</small></div><div class="btn-group">${acts}</div>`;
                                             div.onclick = () => { closeSidebar(); openChatFunction(targetUid, data.name, div); };
                                             document.getElementById('stranger-list').appendChild(div);
                                         });
@@ -638,7 +1045,8 @@
                 }
                 
                 const userData = uSnap.val();
-                document.getElementById('header-text').innerText = name || userData.name;
+                const verifiedHtml = userData.haveGreenTick === true ? ' <i class="fas fa-check-circle" style="color: #1da1f2; font-size: 14px;"></i>' : '';
+                document.getElementById('header-text').innerHTML = `${escapeHtml(name || userData.name)}${verifiedHtml}`;
                 
                 if (userData.isLocked === true || userData.isLocked === "true") { 
                     document.getElementById('input-container').style.display = 'none';
@@ -677,16 +1085,16 @@
                         } else if (myS === 'incoming') {
                             document.getElementById('friend-request-banner').style.display = 'block';
                             document.getElementById('friend-banner-actions').style.display = 'flex';
-                            document.getElementById('friend-banner-text').innerText = `${userData.name} muốn kết bạn.`;
+                            document.getElementById('friend-banner-text').innerText = `${userData.name} muốn kết bạn với bạn`;
                             document.getElementById('banner-accept-btn').onclick = () => updateStatus(uid, 'accepted');
                             document.getElementById('banner-reject-btn').onclick = () => updateStatus(uid, 'reject');
                         } else {
                             if(userData.allowStrangerChat !== false) {
                                 document.getElementById('friend-request-banner').style.display = 'block';
-                                document.getElementById('friend-banner-text').innerText = "Hai người chưa là bạn bè. Bạn vẫn có thể nhắn tin do họ mở khóa nhận tin từ người lạ.";
+                                document.getElementById('friend-banner-text').innerText = "Hai người chưa là bạn bè. Hãy kết bạn để có thể trò chuyện nhiều hơn";
                             } else {
                                 document.getElementById('friend-request-banner').style.display = 'block';
-                                document.getElementById('friend-banner-text').innerText = "Tài khoản này chỉ nhận tin nhắn từ bạn bè.";
+                                document.getElementById('friend-banner-text').innerText = "Bạn không thể nhắn tin với người này do cài đặt quyền riêng tư của họ. Hãy kết bạn để trò chuyện";
                             }
                         }
                     }
@@ -702,7 +1110,7 @@
                         const msg = m.val(), mid = m.key;
                         if (msg.timestamp <= clearTime || (msg.deletedBy && msg.deletedBy[currentUser.uid])) return;
                         const d = document.createElement('div'); d.className = `msg-wrapper ${msg.sender === currentUser.uid ? 'sent' : 'received'}`;
-                        let content = msg.revoked ? `<i class="text-muted">Tin nhắn đã thu hồi</i>` : msg.text;
+                        let content = msg.revoked ? `<i class="text-muted">Tin nhắn đã thu hồi</i>` : escapeHtml(msg.text);
                         let ops = msg.sender === currentUser.uid && !msg.revoked ? `<div class="msg-ops"><span onclick="revokeMsg('${mid}')">Thu hồi</span> | <span onclick="deleteMsg('${mid}')">Xóa</span></div>` : (!msg.revoked ? `<div class="msg-ops"><span onclick="deleteMsg('${mid}')">Xóa phía tôi</span></div>` : '');
                         d.innerHTML = `<div class="msg-bubble">${content}</div>${ops}`; box.appendChild(d);
                     });

@@ -91,6 +91,30 @@
         </div>
     </div>
 
+    <!-- Modal thông báo đăng ký thành công (riêng biệt) -->
+    <div class="modal fade" id="signupSuccessModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold">✅ Đăng ký thành công!</h5>
+                    <button type="button" class="btn-close btn-close-white" id="signupSuccessCloseBtn" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div class="mb-3">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#28a745"/>
+                        </svg>
+                    </div>
+                    <p class="fs-5 fw-bold mb-2">Chúc mừng bạn đã tạo tài khoản thành công!</p>
+                    <p class="text-muted">Bạn sẽ được chuyển đến trang chat ngay bây giờ.</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-success px-4" id="signupSuccessOkBtn">Vào chat ngay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="accountLockedModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -167,7 +191,8 @@
         const db = getDatabase(app);
 
         let pendingAfterCloseCallback = null;
-        let isSigningUp = false; 
+        let isSigningUp = false;
+        let signupSuccessModal = null;
 
         function getFirebaseErrorMessage(errorCode) {
             const errorMessages = {
@@ -197,6 +222,35 @@
             });
             modal.show();
         };
+
+        // Hiển thị modal đăng ký thành công và chuyển hướng sau khi đóng
+        function showSignupSuccessAndRedirect() {
+            const modalEl = document.getElementById('signupSuccessModal');
+            signupSuccessModal = new bootstrap.Modal(modalEl, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            
+            // Xử lý khi đóng modal (cả nút X và nút "Vào chat ngay")
+            const redirectToChat = () => {
+                signupSuccessModal.hide();
+                window.location.href = "chat.html";
+            };
+            
+            // Gắn sự kiện cho nút OK
+            document.getElementById('signupSuccessOkBtn').onclick = redirectToChat;
+            
+            // Gắn sự kiện cho nút X
+            document.getElementById('signupSuccessCloseBtn').onclick = redirectToChat;
+            
+            // Xử lý sự kiện hidden của modal (đảm bảo chuyển hướng nếu đóng bằng cách khác)
+            modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                window.location.href = "chat.html";
+            });
+            
+            signupSuccessModal.show();
+        }
 
         // Hàm xử lý bóc tách trường lockInfo từ database và hiển thị modal riêng biệt
         window.showAccountLockedModal = (lockInfo) => {
@@ -284,14 +338,20 @@
                         showBirthday: true,
                         allowStrangerChat: true,
                         allowFriendRequest: true,
-                        isLocked: false
+                        isLocked: false,
+                        lockInfo: {
+                            id: "---",
+                            reason: "---",
+                            start: "---",
+                            end: "---",
+                        }
                     });
                     
-                    isSigningUp = false; 
-                    showAlert("Thông báo", "Đăng ký thành công! Hãy đăng nhập vào tài khoản mới.", () => {
-                        toggleAuth(false);
-                        document.getElementById('email').value = email;
-                    });
+                    isSigningUp = false;
+                    
+                    // Hiển thị modal đăng ký thành công và tự động chuyển hướng sau khi đóng
+                    showSignupSuccessAndRedirect();
+                    
                 } catch (e) { 
                     isSigningUp = false;
                     showAlert("Thông báo", getFirebaseErrorMessage(e.code)); 
