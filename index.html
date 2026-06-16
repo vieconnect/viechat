@@ -113,7 +113,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title fw-bold">Đăng ký thành công!</h5>
+                    <h5 class="modal-title fw-bold">✅ Đăng ký thành công!</h5>
                     <button type="button" class="btn-close btn-close-white" id="signupSuccessCloseBtn" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center">
@@ -173,7 +173,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCXSoUXXSJK6n3iX9Sktqb7NsPL46sJBD0",
@@ -244,6 +244,50 @@
             modal.show();
         };
 
+        // ========== KIỂM TRA ĐỘ TUỔI TỪ SERVER ==========
+        async function checkAgeFromServer(birthday) {
+            try {
+                // Tạo một reference để lấy server timestamp
+                const serverTimeRef = ref(db, '.info/serverTimeOffset');
+                const snapshot = await get(serverTimeRef);
+                const offset = snapshot.val() || 0;
+                
+                // Lấy thời gian hiện tại từ thiết bị + offset để có thời gian server
+                const serverNow = new Date(Date.now() + offset);
+                
+                // Parse ngày sinh từ input
+                const birthDate = new Date(birthday);
+                
+                // Tính tuổi
+                let age = serverNow.getFullYear() - birthDate.getFullYear();
+                const monthDiff = serverNow.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && serverNow.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                
+                return {
+                    age: age,
+                    serverTime: serverNow,
+                    isValid: age >= 12
+                };
+            } catch (error) {
+                console.error('Lỗi kiểm tra tuổi từ server:', error);
+                // Fallback: nếu không lấy được server time, dùng thời gian thiết bị
+                const serverNow = new Date();
+                const birthDate = new Date(birthday);
+                let age = serverNow.getFullYear() - birthDate.getFullYear();
+                const monthDiff = serverNow.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && serverNow.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                return {
+                    age: age,
+                    serverTime: serverNow,
+                    isValid: age >= 12
+                };
+            }
+        }
+
         // XỬ LÝ QUÊN MẬT KHẨU
         window.handleForgotPassword = async () => {
             const email = document.getElementById('resetEmailInput').value.trim();
@@ -254,7 +298,6 @@
             try {
                 await sendPasswordResetEmail(auth, email);
                 showAlert("Thành công", "Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư.", () => {
-                    // Sau khi đóng modal, quay về form đăng nhập
                     showLoginForm();
                 });
             } catch(e) {
@@ -337,6 +380,21 @@
                 if (!document.getElementById('terms-checkbox').checked) return showAlert("Thông báo", "Bạn chưa đồng ý với điều khoản.");
                 if (!isValidName(name)) return showAlert("Thông báo", "Tên chứa từ ngữ không hợp lệ.");
                 if (pass !== document.getElementById('signup-confirm-password').value) return showAlert("Thông báo", "Mật khẩu xác nhận không khớp.");
+                
+                // ========== KIỂM TRA ĐỘ TUỔI TỪ SERVER ==========
+                try {
+                    const ageCheck = await checkAgeFromServer(birthday);
+                    
+                    if (!ageCheck.isValid) {
+                        return showAlert(
+                            "Yêu cầu độ tuổi", 
+                            `Bạn cần phải trên 12 tuổi để có thể sử dụng dịch vụ của VieChat.</small>`
+                        );
+                    }
+                } catch (error) {
+                    // Nếu không thể kiểm tra tuổi từ server, vẫn cho đăng ký nhưng ghi log
+                    console.warn('Không thể kiểm tra tuổi từ server, bỏ qua kiểm tra:', error);
+                }
                 
                 try {
                     isSigningUp = true; 

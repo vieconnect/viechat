@@ -47,7 +47,6 @@
         #message-input { flex: 1; border-radius: 20px; padding: 10px 15px; border: 1px solid #ddd; outline: none; }
         .input-area button { padding: 8px 20px; background: var(--primary); color: white; border: none; border-radius: 20px; cursor: pointer; }
         
-        /* Verified badge styles */
         .verified-icon {
             color: var(--verified);
             margin-left: 4px;
@@ -70,7 +69,6 @@
             font-size: 11px;
         }
         
-        /* Modal tìm kiếm 2 cột */
         .search-result-card {
             display: flex;
             align-items: center;
@@ -211,7 +209,33 @@
         </div>
     </div>
 
-    <!-- MODAL TÌM KIẾM - Thiết kế 2 cột: trái thông tin, phải nút thao tác -->
+    <!-- MODAL CẢNH BÁO ĐỘ TUỔI -->
+    <div class="modal fade" id="ageWarningModal" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning text-dark">
+                    <h5 class="modal-title fw-bold">⚠️ Cảnh báo độ tuổi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ffc107;"></i>
+                    </div>
+                    <p class="fw-bold text-center">Chúng tôi phát hiện bạn chưa đủ 12 tuổi.</p>
+                    <p class="text-center">Do đó, nếu bạn không đổi năm sinh thì chúng tôi sẽ khóa tài khoản của bạn bất cứ lúc nào.</p>
+                    <div class="alert alert-info small mt-3">
+                        <i class="fas fa-info-circle"></i> Vui lòng cập nhật ngày sinh chính xác của bạn trong phần <strong>Cài đặt quyền riêng tư</strong> để tránh bị khóa tài khoản.
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center gap-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Để sau</button>
+                    <button type="button" class="btn btn-warning" onclick="closeAgeWarningAndOpenPrivacy()">📝 Cập nhật ngay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TÌM KIẾM -->
     <div class="modal fade" id="searchModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -347,15 +371,57 @@
         let searchModalObj = null;
         let currentSearchTarget = null;
         
-        // Biến quản lý modal đang mở để đảm bảo tuần tự
         let activeModalInstance = null;
+        let ageWarningModalObj = null;
+        let ageWarningShown = false;
+
+        // ========== HÀM KIỂM TRA ĐỘ TUỔI ==========
+        function checkAge(birthday) {
+            const now = new Date();
+            const birthDate = new Date(birthday);
+            let age = now.getFullYear() - birthDate.getFullYear();
+            const monthDiff = now.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        function isUnderAge(birthday) {
+            return checkAge(birthday) < 12;
+        }
+
+        // ========== HÀM HIỂN THỊ CẢNH BÁO ĐỘ TUỔI ==========
+        function showAgeWarning() {
+            if (ageWarningShown) return;
+            ageWarningShown = true;
+            
+            const modalEl = document.getElementById('ageWarningModal');
+            ageWarningModalObj = new bootstrap.Modal(modalEl, {
+                backdrop: 'static',
+                keyboard: false
+            });
+            ageWarningModalObj.show();
+        }
+
+        // ========== ĐÓNG CẢNH BÁO VÀ MỞ QUYỀN RIÊNG TƯ ==========
+        window.closeAgeWarningAndOpenPrivacy = () => {
+            if (ageWarningModalObj) {
+                ageWarningModalObj.hide();
+                ageWarningModalObj = null;
+            }
+            // Mở modal quyền riêng tư sau khi đóng
+            setTimeout(() => {
+                showPrivacyModal();
+            }, 300);
+        };
 
         function closeAllModals() {
             if (activeModalInstance) {
                 activeModalInstance.hide();
                 activeModalInstance = null;
             }
-            const modals = ['searchModal', 'userInfoModal', 'privacySettingsModal', 'changeNameModal', 'changePasswordModal', 'deleteAccountModal', 'logoutConfirmModal', 'commonModal', 'confirmModal'];
+            const modals = ['searchModal', 'userInfoModal', 'privacySettingsModal', 'changeNameModal', 'changePasswordModal', 'deleteAccountModal', 'logoutConfirmModal', 'commonModal', 'confirmModal', 'ageWarningModal'];
             modals.forEach(modalId => {
                 const modalEl = document.getElementById(modalId);
                 if (modalEl && modalEl.classList.contains('show')) {
@@ -394,7 +460,6 @@
             globalFriendStatusListener = null; globalMessagesListener = null;
         }
 
-        // Hàm tạo HTML cho tên kèm verified badge
         function getDisplayNameWithBadge(name, haveGreenTick) {
             if (haveGreenTick === true) {
                 return `${escapeHtml(name)} <i class="fas fa-check-circle verified-icon" style="color: #1da1f2; font-size: 14px;" title="Tài khoản đã được xác minh"></i>`;
@@ -416,6 +481,15 @@
                         if(data.isLocked === true || data.isLocked === "true") { signOut(auth); return; }
                         document.getElementById('my-email').innerText = user.email;
                         document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
+                        
+                        // ========== KIỂM TRA ĐỘ TUỔI KHI ĐĂNG NHẬP ==========
+                        if (data.birthday && isUnderAge(data.birthday) && !ageWarningShown) {
+                            // Hiển thị cảnh báo sau khi đã load xong giao diện
+                            setTimeout(() => {
+                                showAgeWarning();
+                            }, 1000);
+                        }
+                        
                         syncLists(); setupOutsideClick();
                     }
                 });
@@ -615,9 +689,10 @@
         };
 
         window.savePrivacySettings = async () => {
+            const newBirthday = document.getElementById('privInputBirthday').value;
             const upd = {
                 gender: document.getElementById('privInputGender').value,
-                birthday: document.getElementById('privInputBirthday').value,
+                birthday: newBirthday,
                 showGender: document.getElementById('privSwitchShowGender').checked,
                 showBirthday: document.getElementById('privSwitchShowBirthday').checked,
                 allowSearch: document.getElementById('privSwitchAllowSearch').checked,
@@ -625,6 +700,17 @@
                 allowStrangerChat: document.getElementById('privSwitchAllowStrangerChat').checked,
             };
             await update(ref(db, `users/${currentUser.uid}`), upd);
+            
+            // Kiểm tra lại tuổi sau khi cập nhật
+            if (newBirthday && !isUnderAge(newBirthday)) {
+                // Nếu đã đủ tuổi, đóng modal cảnh báo nếu đang mở
+                if (ageWarningModalObj) {
+                    ageWarningModalObj.hide();
+                    ageWarningModalObj = null;
+                }
+                ageWarningShown = false;
+            }
+            
             if (privacySettingsModalObj) {
                 privacySettingsModalObj.hide();
                 activeModalInstance = null;
@@ -762,17 +848,14 @@
             }
             const targetData = snap.val();
             
-            // Hiển thị tên kèm tích xanh bên cạnh (cùng hàng)
             let nameHtml = escapeHtml(targetData.name || "Người dùng");
             if (targetData.haveGreenTick === true) {
                 nameHtml += ` <i class="fas fa-check-circle verified-icon" style="color: #1da1f2; font-size: 16px;" title="Tài khoản đã được xác minh"></i>`;
             }
             document.getElementById('modalUserTxtName').innerHTML = nameHtml;
             
-            // Hiển thị email
             document.getElementById('modalUserTxtEmail').innerText = targetData.email || "";
             
-            // Hiển thị badge xác minh bên dưới email
             if (targetData.haveGreenTick === true) {
                 document.getElementById('modalUserVerifiedBadge').style.display = 'inline-flex';
             } else {
