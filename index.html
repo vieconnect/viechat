@@ -5,25 +5,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>VieChat - Đăng Nhập</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: #0084ff; --bg: #f0f2f5; --text: #1c1e21; --light-gray: #e4e6eb; --danger: #f02849; --success: #42b72a; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); height: 100vh; width: 100vw; overflow: hidden; color: var(--text); }
         #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
-        .auth-card { width: 100%; max-width: 400px; text-align: center; background: white; padding: 24px 20px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-height: 95vh; overflow-y: auto; }
-        .auth-card input, .auth-card select { width: 100%; padding: 10px; margin: 6px 0 12px 0; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 14px; }
-        .auth-card input:focus, .auth-card select:focus { border-color: var(--primary); }
+        .auth-card { width: 100%; max-width: 400px; text-align: center; background: white; padding: 24px 20px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-height: 95vh; overflow-y: auto; position: relative; }
+        .auth-card input, .auth-card select { width: 100%; padding: 10px 40px 10px 12px; margin: 6px 0 12px 0; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 14px; transition: all 0.3s; }
+        .auth-card input:focus, .auth-card select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 132, 255, 0.15); }
+        .auth-card input:disabled, .auth-card select:disabled { background: #f0f0f0; cursor: not-allowed; opacity: 0.7; }
         .auth-card label { display: block; text-align: left; font-size: 13px; font-weight: 600; color: #555; margin-bottom: -2px; }
         .terms-checkbox { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 10px 0 15px 0; font-size: 13px; text-align: left; }
         .terms-checkbox input { width: 18px; height: 18px; margin: 0; cursor: pointer; flex-shrink: 0; }
+        .terms-checkbox input:disabled { cursor: not-allowed; opacity: 0.7; }
         .terms-checkbox label { cursor: pointer; color: #555; font-weight: normal; }
+        .terms-checkbox label.disabled { cursor: not-allowed; opacity: 0.7; }
         .terms-checkbox a { color: var(--primary); text-decoration: none; }
         .terms-checkbox a:hover { text-decoration: underline; }
         .lock-detail-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
         .lock-detail-item:last-child { border-bottom: none; }
         
-        /* Ẩn form mặc định */
-        .form-hidden { display: none; }
+        /* ===== PASSWORD FIELD WITH EYE ===== */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        .password-wrapper input {
+            padding-right: 42px !important;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 4px 6px;
+            z-index: 2;
+            transition: color 0.2s;
+        }
+        .password-toggle:hover {
+            color: var(--primary);
+        }
+        .password-toggle:active {
+            color: var(--primary);
+        }
+        .password-toggle:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        /* ===== FORM TRANSITIONS ===== */
+        .form-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .form-panel {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            display: none;
+            width: 100%;
+        }
+        .form-panel.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            display: block;
+        }
+        .form-panel.slide-left {
+            transform: translateX(-30px) scale(0.98);
+            opacity: 0;
+        }
+        .form-panel.slide-right {
+            transform: translateX(30px) scale(0.98);
+            opacity: 0;
+        }
+        .form-panel.fade-out {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+        .form-panel.fade-in {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        /* ===== LOADING OVERLAY ===== */
+        .form-loading-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 12px;
+            z-index: 10;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 16px;
+            backdrop-filter: blur(2px);
+        }
+        .form-loading-overlay.show {
+            display: flex;
+        }
+        .form-loading-overlay .loader {
+            width: 44px;
+            height: 44px;
+            border: 4px solid var(--light-gray);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 0.8s linear infinite;
+        }
+        .form-loading-overlay .loader-text {
+            font-size: 16px;
+            color: #333;
+            font-weight: 600;
+        }
+        .form-loading-overlay .loader-sub {
+            font-size: 13px;
+            color: #888;
+            margin-top: -8px;
+        }
+        
+        /* ===== LOCKED OVERLAY ===== */
+        .form-locked-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 12px;
+            z-index: 11;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 12px;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .form-locked-overlay.show {
+            display: flex;
+        }
+        .form-locked-overlay .lock-icon {
+            font-size: 48px;
+            color: var(--danger);
+        }
+        .form-locked-overlay .lock-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--danger);
+        }
+        .form-locked-overlay .lock-sub {
+            font-size: 14px;
+            color: #555;
+            text-align: center;
+        }
+        .form-locked-overlay .lock-timer {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            background: #e8f4ff;
+            padding: 4px 20px;
+            border-radius: 20px;
+            margin-top: 4px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 480px) {
+            .auth-card { padding: 16px 14px; }
+            .form-container { min-height: 300px; }
+        }
     </style>
 </head>
 <body>
@@ -41,63 +203,103 @@ s0.parentNode.insertBefore(s1,s0);
 </script>
 <!--End of Tawk.to Script-->
     <div id="auth-screen">
-        <div class="auth-card">
+        <div class="auth-card" id="authCard">
             <h1 style="color: var(--primary); font-weight: bold; margin-bottom: 2px;">VieChat</h1>
             <p style="font-size: 14px; color: #65676b; margin-bottom: 20px;">Kết nối xã hội - Vững bước tương lai</p>
             
-            <!-- FORM ĐĂNG NHẬP -->
-            <div id="login-form">
-                <input type="email" id="email" placeholder="Email">
-                <input type="password" id="password" placeholder="Mật khẩu" onkeypress="if(event.key==='Enter') handleAuth('login')">
-                <div style="text-align: right; margin-bottom: 15px;">
-                    <a href="#" onclick="showForgotPasswordForm()" style="text-decoration: none; font-size: 14px;">Quên mật khẩu?</a>
-                </div>
-                <button onclick="handleAuth('login')" class="btn btn-primary" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold;">Đăng nhập</button>
-                <p style="margin-top: 15px; font-size: 14px;">Chưa có tài khoản? <a href="#" onclick="toggleAuth(true)" style="text-decoration: none; font-weight: 600;">Đăng ký</a></p>
-            </div>
-
-            <!-- FORM ĐĂNG KÝ -->
-            <div id="signup-form" style="display: none;">
-                <input type="text" id="signup-name" placeholder="Họ và tên">
-                <input type="email" id="signup-email" placeholder="Email">
-                
-                <div style="display: flex; gap: 10px;">
-                    <div style="flex: 1;">
-                        <label for="signup-gender">Giới tính</label>
-                        <select id="signup-gender">
-                            <option value="Nam">Nam</option>
-                            <option value="Nữ">Nữ</option>
-                            <option value="Khác">Khác</option>
-                        </select>
+            <div class="form-container" id="formContainer">
+                <!-- FORM ĐĂNG NHẬP -->
+                <div id="login-form" class="form-panel active">
+                    <div class="password-wrapper">
+                        <input type="email" id="email" placeholder="Email" autocomplete="email">
                     </div>
-                    <div style="flex: 1;">
-                        <label for="signup-birthday">Ngày sinh</label>
-                        <input type="date" id="signup-birthday" value="2010-01-01">
+                    <div class="password-wrapper">
+                        <input type="password" id="password" placeholder="Mật khẩu" autocomplete="current-password" onkeypress="if(event.key==='Enter') handleAuth('login')">
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password', this)" tabindex="-1">
+                            <i class="fas fa-eye"></i>
+                        </button>
                     </div>
+                    <div style="text-align: right; margin-bottom: 15px;">
+                        <a href="#" onclick="switchForm('forgot')" style="text-decoration: none; font-size: 14px;">Quên mật khẩu?</a>
+                    </div>
+                    <button onclick="handleAuth('login')" class="btn btn-primary" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; border: none;">
+                        Đăng nhập
+                    </button>
+                    <p style="margin-top: 15px; font-size: 14px;">Chưa có tài khoản? <a href="#" onclick="switchForm('signup')" style="text-decoration: none; font-weight: 600;">Đăng ký</a></p>
                 </div>
 
-                <input type="password" id="signup-password" placeholder="Mật khẩu (6+ ký tự)">
-                <input type="password" id="signup-confirm-password" placeholder="Xác nhận mật khẩu">
-                
-                <div class="terms-checkbox">
-                    <input type="checkbox" id="terms-checkbox">
-                    <label for="terms-checkbox">
-                        Bằng việc đăng ký tài khoản, bạn đã đồng ý với <a href="./dieu-khoan-su-dung.html" target="_blank">Điều khoản sử dụng</a> của VieChat
-                    </label>
-                </div>
-                
-                <button onclick="handleAuth('signup')" class="btn btn-success" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold;">Tạo tài khoản</button>
-                <p style="margin-top: 15px; font-size: 14px;">Đã có tài khoản? <a href="#" onclick="toggleAuth(false)" style="text-decoration: none; font-weight: 600;">Đăng nhập</a></p>
-            </div>
+                <!-- FORM ĐĂNG KÝ -->
+                <div id="signup-form" class="form-panel">
+                    <input type="text" id="signup-name" placeholder="Họ và tên" autocomplete="name">
+                    <input type="email" id="signup-email" placeholder="Email" autocomplete="email">
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label for="signup-gender">Giới tính</label>
+                            <select id="signup-gender">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="signup-birthday">Ngày sinh</label>
+                            <input type="date" id="signup-birthday" value="2010-01-01">
+                        </div>
+                    </div>
 
-            <!-- FORM QUÊN MẬT KHẨU - FORM RIÊNG -->
-            <div id="forgot-password-form" style="display: none;">
-                <p style="font-size: 14px; color: #65676b; margin-bottom: 20px;">Nhập email đăng ký tài khoản của bạn để nhận liên kết đặt lại mật khẩu.</p>
-                <input type="email" id="resetEmailInput" placeholder="Email của bạn" onkeypress="if(event.key==='Enter') handleForgotPassword()">
-                <button onclick="handleForgotPassword()" class="btn btn-warning" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; color: white;">Gửi yêu cầu</button>
-                <p style="margin-top: 15px; font-size: 14px;">
-                    <a href="#" onclick="showLoginForm()" style="text-decoration: none; font-weight: 600;">← Quay lại đăng nhập</a>
-                </p>
+                    <div class="password-wrapper">
+                        <input type="password" id="signup-password" placeholder="Mật khẩu (6+ ký tự)" autocomplete="new-password">
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('signup-password', this)" tabindex="-1">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-wrapper">
+                        <input type="password" id="signup-confirm-password" placeholder="Xác nhận mật khẩu" autocomplete="new-password">
+                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('signup-confirm-password', this)" tabindex="-1">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="terms-checkbox">
+                        <input type="checkbox" id="terms-checkbox">
+                        <label for="terms-checkbox">
+                            Bằng việc đăng ký tài khoản, bạn đã đồng ý với <a href="./dieu-khoan-su-dung.html" target="_blank">Điều khoản sử dụng</a> của VieChat
+                        </label>
+                    </div>
+                    
+                    <button onclick="handleAuth('signup')" class="btn btn-success" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; border: none;">
+                        Tạo tài khoản
+                    </button>
+                    <p style="margin-top: 15px; font-size: 14px;">Đã có tài khoản? <a href="#" onclick="switchForm('login')" style="text-decoration: none; font-weight: 600;">Đăng nhập</a></p>
+                </div>
+
+                <!-- FORM QUÊN MẬT KHẨU -->
+                <div id="forgot-password-form" class="form-panel">
+                    <p style="font-size: 14px; color: #65676b; margin-bottom: 20px;">Nhập email đăng ký tài khoản của bạn để nhận liên kết đặt lại mật khẩu.</p>
+                    <input type="email" id="resetEmailInput" placeholder="Email của bạn" autocomplete="email" onkeypress="if(event.key==='Enter') handleForgotPassword()">
+                    <button onclick="handleForgotPassword()" class="btn btn-warning" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; color: white; border: none;">
+                        Gửi yêu cầu
+                    </button>
+                    <p style="margin-top: 15px; font-size: 14px;">
+                        <a href="#" onclick="switchForm('login')" style="text-decoration: none; font-weight: 600;">← Quay lại đăng nhập</a>
+                    </p>
+                </div>
+
+                <!-- Loading Overlay -->
+                <div class="form-loading-overlay" id="formLoadingOverlay">
+                    <div class="loader"></div>
+                    <div class="loader-text" id="loadingText">Đang xử lý...</div>
+                    <div class="loader-sub" id="loadingSub">Vui lòng đợi</div>
+                </div>
+
+                <!-- Locked Overlay -->
+                <div class="form-locked-overlay" id="formLockedOverlay">
+                    <div class="lock-icon"><i class="fas fa-lock"></i></div>
+                    <div class="lock-title">Tài khoản bị khóa tạm thời</div>
+                    <div class="lock-sub">Bạn đã nhập sai mật khẩu quá nhiều lần.<br>Vui lòng thử lại sau.</div>
+                    <div class="lock-timer" id="lockTimer">30s</div>
+                </div>
             </div>
 
             <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;"><small>&copy; 2026 VieConnect Technology</small></div>
@@ -144,7 +346,7 @@ s0.parentNode.insertBefore(s1,s0);
         </div>
     </div>
 
-    <!-- MODAL TÀI KHOẢN BỊ KHÓA -->
+    <!-- MODAL TÀI KHOẢN BỊ KHÓA VĨNH VIỄN -->
     <div class="modal fade" id="accountLockedModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -204,28 +406,297 @@ s0.parentNode.insertBefore(s1,s0);
         let pendingAfterCloseCallback = null;
         let isSigningUp = false;
         let signupSuccessModal = null;
+        let currentForm = 'login';
+        let isTransitioning = false;
+        
+        // ===== LOCK LOGIC =====
+        let loginAttempts = 0;
+        const MAX_ATTEMPTS = 5;
+        const LOCK_DURATION = 30; // giây
+        let lockTimerInterval = null;
+        let remainingTime = 0;
+        let isLocked = false;
 
-        // CÁC HÀM CHUYỂN ĐỔI FORM
-        window.showForgotPasswordForm = () => {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('signup-form').style.display = 'none';
-            document.getElementById('forgot-password-form').style.display = 'block';
-            document.getElementById('resetEmailInput').value = '';
-            document.getElementById('resetEmailInput').focus();
+        // ===== LOCALSTORAGE LOCK KEYS =====
+        const LOCK_STORAGE_KEY = 'viechat_lock_data';
+
+        // ===== LƯU VÀO LOCALSTORAGE =====
+        function saveLockData(locked, unlockTime, attempts) {
+            const data = {
+                locked: locked,
+                unlockTime: unlockTime,
+                attempts: attempts
+            };
+            try {
+                localStorage.setItem(LOCK_STORAGE_KEY, JSON.stringify(data));
+            } catch (e) {
+                console.warn('Không thể lưu vào localStorage:', e);
+            }
+        }
+
+        // ===== ĐỌC TỪ LOCALSTORAGE =====
+        function getLockData() {
+            try {
+                const data = localStorage.getItem(LOCK_STORAGE_KEY);
+                if (data) {
+                    return JSON.parse(data);
+                }
+            } catch (e) {
+                console.warn('Không thể đọc từ localStorage:', e);
+            }
+            return null;
+        }
+
+        // ===== XÓA LOCALSTORAGE =====
+        function clearLockData() {
+            try {
+                localStorage.removeItem(LOCK_STORAGE_KEY);
+            } catch (e) {
+                console.warn('Không thể xóa localStorage:', e);
+            }
+        }
+
+        // ===== KIỂM TRA LOCK TỪ LOCALSTORAGE KHI TẢI TRANG =====
+        function checkLockFromStorage() {
+            const lockData = getLockData();
+            if (!lockData) return false;
+            
+            if (lockData.locked && lockData.unlockTime) {
+                const now = Date.now();
+                const remaining = Math.floor((lockData.unlockTime - now) / 1000);
+                
+                if (remaining > 0) {
+                    // Vẫn còn khóa
+                    isLocked = true;
+                    remainingTime = remaining;
+                    loginAttempts = lockData.attempts || 0;
+                    showLockedOverlay();
+                    startLockTimer();
+                    disableAllForms(true);
+                    return true;
+                } else {
+                    // Đã hết thời gian khóa, xóa dữ liệu
+                    clearLockData();
+                    isLocked = false;
+                    loginAttempts = 0;
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        // ===== HIỂN THỊ OVERLAY KHÓA =====
+        function showLockedOverlay() {
+            const overlay = document.getElementById('formLockedOverlay');
+            overlay.classList.add('show');
+            updateLockTimer();
+        }
+
+        // ===== ẨN OVERLAY KHÓA =====
+        function hideLockedOverlay() {
+            const overlay = document.getElementById('formLockedOverlay');
+            overlay.classList.remove('show');
+        }
+
+        // ===== START LOCK TIMER =====
+        function startLockTimer() {
+            if (lockTimerInterval) {
+                clearInterval(lockTimerInterval);
+            }
+            lockTimerInterval = setInterval(() => {
+                remainingTime--;
+                updateLockTimer();
+                // Lưu lại thời gian còn lại vào localStorage
+                const unlockTime = Date.now() + (remainingTime * 1000);
+                saveLockData(true, unlockTime, loginAttempts);
+                
+                if (remainingTime <= 0) {
+                    clearInterval(lockTimerInterval);
+                    lockTimerInterval = null;
+                    unlockForm();
+                }
+            }, 1000);
+        }
+
+        // ===== TOGGLE PASSWORD VISIBILITY =====
+        window.togglePasswordVisibility = (inputId, button) => {
+            if (isLocked) return;
+            const input = document.getElementById(inputId);
+            if (!input || input.disabled) return;
+            
+            const icon = button.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
         };
 
-        window.showLoginForm = () => {
-            document.getElementById('forgot-password-form').style.display = 'none';
-            document.getElementById('login-form').style.display = 'block';
-            document.getElementById('signup-form').style.display = 'none';
+        // ===== DISABLE/ENABLE FORM =====
+        function disableAllForms(disabled) {
+            const forms = ['login-form', 'signup-form', 'forgot-password-form'];
+            forms.forEach(formId => {
+                const form = document.getElementById(formId);
+                if (!form) return;
+                const inputs = form.querySelectorAll('input, select, button, .password-toggle, a:not([href*="javascript"]), .terms-checkbox input, .terms-checkbox label');
+                inputs.forEach(el => {
+                    if (el.tagName === 'A') {
+                        el.style.pointerEvents = disabled ? 'none' : 'auto';
+                        el.style.opacity = disabled ? '0.5' : '1';
+                    } else if (el.tagName === 'LABEL') {
+                        if (disabled) {
+                            el.classList.add('disabled');
+                        } else {
+                            el.classList.remove('disabled');
+                        }
+                    } else {
+                        el.disabled = disabled;
+                    }
+                });
+            });
+        }
+
+        // ===== SHOW/HIDE LOADING =====
+        function showLoading(message = 'Đang xử lý...', sub = 'Vui lòng đợi') {
+            const overlay = document.getElementById('formLoadingOverlay');
+            document.getElementById('loadingText').textContent = message;
+            document.getElementById('loadingSub').textContent = sub;
+            overlay.classList.add('show');
+            disableAllForms(true);
+        }
+
+        function hideLoading() {
+            const overlay = document.getElementById('formLoadingOverlay');
+            overlay.classList.remove('show');
+            if (!isLocked) {
+                disableAllForms(false);
+            }
+        }
+
+        // ===== LOCK FUNCTIONS =====
+        function lockForm() {
+            isLocked = true;
+            const unlockTime = Date.now() + (LOCK_DURATION * 1000);
+            saveLockData(true, unlockTime, loginAttempts);
+            showLockedOverlay();
+            disableAllForms(true);
+            
+            document.getElementById('formLoadingOverlay').classList.remove('show');
+            
+            remainingTime = LOCK_DURATION;
+            updateLockTimer();
+            startLockTimer();
+        }
+
+        function updateLockTimer() {
+            const timerEl = document.getElementById('lockTimer');
+            if (timerEl) {
+                timerEl.textContent = `${remainingTime}s`;
+            }
+        }
+
+        function unlockForm() {
+            isLocked = false;
+            loginAttempts = 0;
+            clearLockData();
+            hideLockedOverlay();
+            
+            if (lockTimerInterval) {
+                clearInterval(lockTimerInterval);
+                lockTimerInterval = null;
+            }
+            
+            if (!document.getElementById('formLoadingOverlay').classList.contains('show')) {
+                disableAllForms(false);
+            }
+            
+            const passwordInput = document.getElementById('password');
+            if (passwordInput) {
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
+        function resetLoginAttempts() {
+            loginAttempts = 0;
+            // Lưu lại attempts vào localStorage
+            const lockData = getLockData();
+            if (lockData) {
+                saveLockData(lockData.locked, lockData.unlockTime, 0);
+            }
+        }
+
+        // ===== SWITCH FORM =====
+        window.switchForm = (target) => {
+            if (isTransitioning || target === currentForm) return;
+            if (isLocked) {
+                showAlert("Thông báo", "Tài khoản đang bị khóa tạm thời. Vui lòng đợi " + remainingTime + "s.");
+                return;
+            }
+            
+            const overlay = document.getElementById('formLoadingOverlay');
+            if (overlay.classList.contains('show')) return;
+            
+            resetLoginAttempts();
+            isTransitioning = true;
+            
+            const forms = {
+                login: document.getElementById('login-form'),
+                signup: document.getElementById('signup-form'),
+                forgot: document.getElementById('forgot-password-form')
+            };
+            
+            const currentPanel = forms[currentForm];
+            const targetPanel = forms[target];
+            
+            if (!currentPanel || !targetPanel) {
+                isTransitioning = false;
+                return;
+            }
+            
+            const direction = target === 'forgot' ? 'left' : 
+                             (target === 'signup' && currentForm === 'login') ? 'left' :
+                             (target === 'login' && currentForm === 'signup') ? 'right' :
+                             (target === 'login' && currentForm === 'forgot') ? 'right' : 'left';
+            
+            if (direction === 'left') {
+                currentPanel.classList.remove('active', 'fade-in');
+                currentPanel.classList.add('slide-left');
+            } else {
+                currentPanel.classList.remove('active', 'fade-in');
+                currentPanel.classList.add('slide-right');
+            }
+            
+            setTimeout(() => {
+                currentPanel.classList.remove('slide-left', 'slide-right');
+                currentPanel.style.display = 'none';
+                
+                targetPanel.classList.remove('fade-out', 'slide-left', 'slide-right');
+                targetPanel.style.display = 'block';
+                
+                if (direction === 'left') {
+                    targetPanel.classList.add('slide-right');
+                } else {
+                    targetPanel.classList.add('slide-left');
+                }
+                
+                void targetPanel.offsetWidth;
+                
+                targetPanel.classList.remove('slide-left', 'slide-right');
+                targetPanel.classList.add('active', 'fade-in');
+                
+                currentForm = target;
+                isTransitioning = false;
+                
+                const firstInput = targetPanel.querySelector('input:not([type="hidden"])');
+                if (firstInput) setTimeout(() => firstInput.focus(), 100);
+                
+            }, 350);
         };
 
-        window.toggleAuth = (isSignup) => {
-            document.getElementById('forgot-password-form').style.display = 'none';
-            document.getElementById('login-form').style.display = isSignup ? 'none' : 'block';
-            document.getElementById('signup-form').style.display = isSignup ? 'block' : 'none';
-        };
-
+        // ===== FIREBASE ERROR MESSAGES =====
         function getFirebaseErrorMessage(errorCode) {
             const errorMessages = {
                 'auth/invalid-credential': 'Email hoặc mật khẩu không đúng.',
@@ -233,11 +704,14 @@ s0.parentNode.insertBefore(s1,s0);
                 'auth/email-already-in-use': 'Email này đã được sử dụng.',
                 'auth/weak-password': 'Mật khẩu phải có ít nhất 6 ký tự.',
                 'auth/user-not-found': 'Không tìm thấy tài khoản với email này.',
+                'auth/too-many-requests': 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
+                'auth/network-request-failed': 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.',
                 'default': 'Đã xảy ra lỗi. Vui lòng thử lại sau.'
             };
             return errorMessages[errorCode] || errorMessages.default;
         }
 
+        // ===== SHOW ALERT =====
         window.showAlert = (title, message, onClose = null) => {
             document.getElementById('commonModalTitle').innerText = title;
             document.getElementById('commonModalBody').innerHTML = message;
@@ -256,21 +730,16 @@ s0.parentNode.insertBefore(s1,s0);
             modal.show();
         };
 
-        // ========== KIỂM TRA ĐỘ TUỔI TỪ SERVER ==========
+        // ===== CHECK AGE =====
         async function checkAgeFromServer(birthday) {
             try {
-                // Tạo một reference để lấy server timestamp
                 const serverTimeRef = ref(db, '.info/serverTimeOffset');
                 const snapshot = await get(serverTimeRef);
                 const offset = snapshot.val() || 0;
                 
-                // Lấy thời gian hiện tại từ thiết bị + offset để có thời gian server
                 const serverNow = new Date(Date.now() + offset);
-                
-                // Parse ngày sinh từ input
                 const birthDate = new Date(birthday);
                 
-                // Tính tuổi
                 let age = serverNow.getFullYear() - birthDate.getFullYear();
                 const monthDiff = serverNow.getMonth() - birthDate.getMonth();
                 if (monthDiff < 0 || (monthDiff === 0 && serverNow.getDate() < birthDate.getDate())) {
@@ -284,7 +753,6 @@ s0.parentNode.insertBefore(s1,s0);
                 };
             } catch (error) {
                 console.error('Lỗi kiểm tra tuổi từ server:', error);
-                // Fallback: nếu không lấy được server time, dùng thời gian thiết bị
                 const serverNow = new Date();
                 const birthDate = new Date(birthday);
                 let age = serverNow.getFullYear() - birthDate.getFullYear();
@@ -300,24 +768,34 @@ s0.parentNode.insertBefore(s1,s0);
             }
         }
 
-        // XỬ LÝ QUÊN MẬT KHẨU
+        // ===== HANDLE FORGOT PASSWORD =====
         window.handleForgotPassword = async () => {
+            if (isLocked) {
+                showAlert("Thông báo", "Tài khoản đang bị khóa tạm thời. Vui lòng đợi " + remainingTime + "s.");
+                return;
+            }
+            
             const email = document.getElementById('resetEmailInput').value.trim();
             if(!email) {
                 showAlert("Lỗi", "Vui lòng nhập email.");
                 return;
             }
+            
+            showLoading('Đang gửi yêu cầu...', 'Vui lòng kiểm tra email');
+            
             try {
                 await sendPasswordResetEmail(auth, email);
+                hideLoading();
                 showAlert("Thành công", "Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư.", () => {
-                    showLoginForm();
+                    switchForm('login');
                 });
             } catch(e) {
+                hideLoading();
                 showAlert("Lỗi", getFirebaseErrorMessage(e.code));
             }
         };
 
-        // Hiển thị modal đăng ký thành công và chuyển hướng sau khi đóng
+        // ===== SHOW SIGNUP SUCCESS =====
         function showSignupSuccessAndRedirect() {
             const modalEl = document.getElementById('signupSuccessModal');
             signupSuccessModal = new bootstrap.Modal(modalEl, {
@@ -341,6 +819,7 @@ s0.parentNode.insertBefore(s1,s0);
             signupSuccessModal.show();
         }
 
+        // ===== SHOW ACCOUNT LOCKED =====
         window.showAccountLockedModal = (lockInfo) => {
             if (!lockInfo) lockInfo = {};
             document.getElementById('lock-info-id').innerText = lockInfo.id || "---";
@@ -352,6 +831,7 @@ s0.parentNode.insertBefore(s1,s0);
             lockModal.show();
         };
 
+        // ===== AUTH STATE =====
         onAuthStateChanged(auth, async (user) => {
             if (user && !isSigningUp) {
                 try {
@@ -371,6 +851,7 @@ s0.parentNode.insertBefore(s1,s0);
             }
         });
 
+        // ===== VALIDATE NAME =====
         function isValidName(name) {
             if (!name || !name.trim()) return false;
             const forbiddenWords = ['cặc', 'lồn', 'địt', 'fuck', 'shit'];
@@ -378,7 +859,13 @@ s0.parentNode.insertBefore(s1,s0);
             return !forbiddenWords.some(word => lowerName.includes(word));
         }
 
+        // ===== HANDLE AUTH =====
         window.handleAuth = async (type) => {
+            if (isLocked) {
+                showAlert("Thông báo", "Tài khoản đang bị khóa tạm thời. Vui lòng đợi " + remainingTime + "s.");
+                return;
+            }
+            
             if (type === 'signup') {
                 const email = document.getElementById('signup-email').value.trim();
                 const pass = document.getElementById('signup-password').value;
@@ -386,27 +873,41 @@ s0.parentNode.insertBefore(s1,s0);
                 const gender = document.getElementById('signup-gender').value;
                 const birthday = document.getElementById('signup-birthday').value;
 
-                if (!name) return showAlert("Thông báo", "Vui lòng nhập họ và tên.");
-                if (!email) return showAlert("Thông báo", "Vui lòng nhập email.");
-                if (!birthday) return showAlert("Thông báo", "Vui lòng chọn ngày sinh.");
-                if (!document.getElementById('terms-checkbox').checked) return showAlert("Thông báo", "Bạn chưa đồng ý với điều khoản.");
-                if (!isValidName(name)) return showAlert("Thông báo", "Tên chứa từ ngữ không hợp lệ.");
-                if (pass !== document.getElementById('signup-confirm-password').value) return showAlert("Thông báo", "Mật khẩu xác nhận không khớp.");
+                if (!name) {
+                    return showAlert("Thông báo", "Vui lòng nhập họ và tên.");
+                }
+                if (!email) {
+                    return showAlert("Thông báo", "Vui lòng nhập email.");
+                }
+                if (!birthday) {
+                    return showAlert("Thông báo", "Vui lòng chọn ngày sinh.");
+                }
+                if (!document.getElementById('terms-checkbox').checked) {
+                    return showAlert("Thông báo", "Bạn chưa đồng ý với điều khoản.");
+                }
+                if (!isValidName(name)) {
+                    return showAlert("Thông báo", "Tên chứa từ ngữ không hợp lệ.");
+                }
+                if (pass !== document.getElementById('signup-confirm-password').value) {
+                    return showAlert("Thông báo", "Mật khẩu xác nhận không khớp.");
+                }
+                if (pass.length < 6) {
+                    return showAlert("Thông báo", "Mật khẩu phải có ít nhất 6 ký tự.");
+                }
                 
-                // ========== KIỂM TRA ĐỘ TUỔI TỪ SERVER ==========
                 try {
                     const ageCheck = await checkAgeFromServer(birthday);
-                    
                     if (!ageCheck.isValid) {
                         return showAlert(
                             "Yêu cầu độ tuổi", 
-                            `Bạn cần phải trên 12 tuổi để có thể sử dụng dịch vụ của VieChat.</small>`
+                            `Bạn cần phải trên 12 tuổi để có thể sử dụng dịch vụ của VieChat.`
                         );
                     }
                 } catch (error) {
-                    // Nếu không thể kiểm tra tuổi từ server, vẫn cho đăng ký nhưng ghi log
                     console.warn('Không thể kiểm tra tuổi từ server, bỏ qua kiểm tra:', error);
                 }
+                
+                showLoading('Đang tạo tài khoản...', 'Vui lòng đợi');
                 
                 try {
                     isSigningUp = true; 
@@ -432,21 +933,94 @@ s0.parentNode.insertBefore(s1,s0);
                     });
                     
                     isSigningUp = false;
+                    hideLoading();
                     showSignupSuccessAndRedirect();
                     
                 } catch (e) { 
                     isSigningUp = false;
+                    hideLoading();
                     showAlert("Thông báo", getFirebaseErrorMessage(e.code)); 
                 }
             } else {
+                // ĐĂNG NHẬP
                 const email = document.getElementById('email').value.trim();
                 const pass = document.getElementById('password').value;
-                if (!email || !pass) return showAlert("Thông báo", "Vui lòng nhập đầy đủ tài khoản và mật khẩu.");
+                if (!email || !pass) {
+                    return showAlert("Thông báo", "Vui lòng nhập đầy đủ tài khoản và mật khẩu.");
+                }
+                
+                showLoading('Đang đăng nhập...', 'Vui lòng đợi');
+                
                 try {
                     await signInWithEmailAndPassword(auth, email, pass);
-                } catch (e) { showAlert("Thông báo", getFirebaseErrorMessage(e.code)); }
+                    resetLoginAttempts();
+                } catch (e) { 
+                    hideLoading();
+                    loginAttempts++;
+                    
+                    // Lưu số lần thử vào localStorage
+                    const lockData = getLockData();
+                    if (lockData) {
+                        saveLockData(lockData.locked || false, lockData.unlockTime || null, loginAttempts);
+                    }
+                    
+                    if (loginAttempts >= MAX_ATTEMPTS) {
+                        lockForm();
+                        showAlert("Thông báo", `Bạn đã nhập sai mật khẩu ${MAX_ATTEMPTS} lần. Tài khoản sẽ bị khóa trong ${LOCK_DURATION} giây.`);
+                    } else {
+                        const remaining = MAX_ATTEMPTS - loginAttempts;
+                        showAlert("Thông báo", getFirebaseErrorMessage(e.code) + `<br><small class="text-muted">Còn ${remaining} lần thử trước khi tài khoản bị khóa.</small>`);
+                    }
+                }
             }
         };
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+            const signupForm = document.getElementById('signup-form');
+            const forgotForm = document.getElementById('forgot-password-form');
+            
+            loginForm.style.display = 'block';
+            loginForm.classList.add('active', 'fade-in');
+            signupForm.style.display = 'none';
+            forgotForm.style.display = 'none';
+            currentForm = 'login';
+            
+            // ===== KIỂM TRA LOCK TỪ LOCALSTORAGE =====
+            const wasLocked = checkLockFromStorage();
+            
+            if (wasLocked) {
+                // Hiển thị thông báo khóa
+                showAlert("Thông báo", `Tài khoản đang bị khóa tạm thời. Vui lòng đợi ${remainingTime}s.`);
+            } else {
+                // Nếu không bị khóa, focus vào email
+                setTimeout(() => {
+                    document.getElementById('email').focus();
+                }, 300);
+            }
+        });
+
+        // ===== CLEANUP =====
+        window.addEventListener('beforeunload', function() {
+            if (lockTimerInterval) {
+                clearInterval(lockTimerInterval);
+                lockTimerInterval = null;
+            }
+            // Lưu trạng thái khóa nếu đang bị khóa
+            if (isLocked) {
+                const unlockTime = Date.now() + (remainingTime * 1000);
+                saveLockData(true, unlockTime, loginAttempts);
+            }
+        });
+
+        // ===== KHI ĐÓNG TRANG, LƯU TRẠNG THÁI =====
+        window.addEventListener('pagehide', function() {
+            if (isLocked) {
+                const unlockTime = Date.now() + (remainingTime * 1000);
+                saveLockData(true, unlockTime, loginAttempts);
+            }
+        });
     </script>
 </body>
 </html>
