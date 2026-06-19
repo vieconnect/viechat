@@ -11,6 +11,36 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); height: 100vh; width: 100vw; overflow: hidden; color: var(--text); }
         
+        /* ===== RESET BOOTSTRAP CHECKBOX ===== */
+        .terms-checkbox input[type="checkbox"] {
+            width: auto !important;
+            height: auto !important;
+            margin: 0 4px 0 0 !important;
+            padding: 0 !important;
+            flex-shrink: 0;
+            cursor: pointer;
+            accent-color: #0084ff;
+            -webkit-appearance: checkbox !important;
+            -moz-appearance: checkbox !important;
+            appearance: checkbox !important;
+            border: 1px solid #767676 !important;
+            border-radius: 2px !important;
+            background: white !important;
+            display: inline-block !important;
+            min-width: 13px !important;
+            min-height: 13px !important;
+            width: 13px !important;
+            height: 13px !important;
+        }
+        .terms-checkbox input[type="checkbox"]:checked {
+            background: #0084ff !important;
+            border-color: #0084ff !important;
+        }
+        .terms-checkbox input[type="checkbox"]:disabled {
+            cursor: not-allowed !important;
+            opacity: 0.7 !important;
+        }
+        
         #auth-screen {
             display: flex;
             width: 100%;
@@ -285,6 +315,29 @@
             transform: none;
             box-shadow: none;
         }
+        .auth-right .btn-primary-custom {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .auth-right .btn-primary-custom:hover {
+            background: #0066cc;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 132, 255, 0.3);
+        }
+        .auth-right .btn-primary-custom:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
         
         .social-divider {
             display: flex;
@@ -382,23 +435,10 @@
         .terms-checkbox {
             display: flex;
             align-items: center;
-            justify-content: center;
             gap: 8px;
             margin: 6px 0 16px 0;
             font-size: 13px;
             text-align: left;
-        }
-        .terms-checkbox input {
-            width: 18px !important;
-            height: 18px !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            flex-shrink: 0;
-            cursor: pointer;
-        }
-        .terms-checkbox input:disabled {
-            cursor: not-allowed;
-            opacity: 0.7;
         }
         .terms-checkbox label {
             cursor: pointer;
@@ -673,6 +713,27 @@
             background: #d0d0d0;
         }
         
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .step-indicator .step-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ddd;
+            transition: all 0.3s;
+        }
+        .step-indicator .step-dot.active {
+            background: var(--primary);
+            transform: scale(1.2);
+        }
+        .step-indicator .step-dot.done {
+            background: var(--success);
+        }
+        
         @media (max-width: 992px) {
             .auth-left { padding: 40px; }
             .auth-right { width: 380px; min-width: 380px; padding: 32px 36px; }
@@ -883,6 +944,49 @@
                     </div>
                 </div>
 
+                <!-- FORM HOÀN THIỆN THÔNG TIN (Bước cuối cùng cho social login) -->
+                <div id="complete-profile-form" class="form-panel">
+                    <div class="step-indicator">
+                        <span class="step-dot done"></span>
+                        <span class="step-dot active"></span>
+                    </div>
+                    <div class="form-title">Hoàn thiện thông tin</div>
+                    <div class="form-sub">Vui lòng cung cấp thông tin để hoàn tất đăng ký</div>
+                    
+                    <input type="text" id="complete-name" placeholder="Họ và tên" autocomplete="name">
+                    <input type="email" id="complete-email" placeholder="Email" readonly style="background:#f0f0f0; color:#666;">
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <div style="flex: 1;">
+                            <label for="complete-gender">Giới tính</label>
+                            <select id="complete-gender">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <label for="complete-birthday">Ngày sinh</label>
+                            <input type="date" id="complete-birthday">
+                        </div>
+                    </div>
+                    
+                    <div class="terms-checkbox">
+                        <input type="checkbox" id="complete-terms-checkbox">
+                        <label for="complete-terms-checkbox">
+                            Bằng việc đăng ký tài khoản, bạn đã đồng ý với <a href="./dieu-khoan-su-dung.html" target="_blank">Điều khoản sử dụng</a> của VieChat
+                        </label>
+                    </div>
+                    
+                    <button onclick="handleCompleteProfile()" class="btn-primary-custom" id="completeProfileBtn">
+                        Hoàn tất đăng ký
+                    </button>
+                    
+                    <div class="switch-link" style="margin-top: 12px;">
+                        <a href="#" onclick="cancelCompleteProfile()" style="font-weight: 500; color: var(--danger);">← Hủy bỏ</a>
+                    </div>
+                </div>
+
                 <!-- Loading Overlay -->
                 <div class="form-loading-overlay" id="formLoadingOverlay">
                     <div class="loader"></div>
@@ -930,7 +1034,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -951,6 +1055,8 @@
         let currentForm = 'login';
         let isTransitioning = false;
         let lockModalVisible = false;
+        let pendingSocialUser = null;
+        let isProcessingAuth = false;
 
         // ===== TOAST =====
         function showToast(title, message, type = 'info', duration = 4000) {
@@ -1026,11 +1132,12 @@
 
         // ===== DISABLE FORMS =====
         function disableAllForms(disabled) {
-            const formIds = ['login-form', 'signup-form', 'forgot-password-form'];
+            const formIds = ['login-form', 'signup-form', 'forgot-password-form', 'complete-profile-form'];
             const btnIds = {
                 'login-form': 'loginBtn',
                 'signup-form': 'signupBtn',
-                'forgot-password-form': 'forgotBtn'
+                'forgot-password-form': 'forgotBtn',
+                'complete-profile-form': 'completeProfileBtn'
             };
             
             formIds.forEach(formId => {
@@ -1079,7 +1186,8 @@
             const forms = {
                 login: document.getElementById('login-form'),
                 signup: document.getElementById('signup-form'),
-                forgot: document.getElementById('forgot-password-form')
+                forgot: document.getElementById('forgot-password-form'),
+                complete: document.getElementById('complete-profile-form')
             };
             
             const currentPanel = forms[currentForm];
@@ -1108,6 +1216,17 @@
                     }
                 }, 300);
             }
+        };
+
+        // ===== CANCEL COMPLETE PROFILE =====
+        window.cancelCompleteProfile = async () => {
+            if (pendingSocialUser) {
+                try {
+                    await signOut(auth);
+                } catch (e) {}
+                pendingSocialUser = null;
+            }
+            switchForm('login');
         };
 
         // ===== FIREBASE ERROR =====
@@ -1139,6 +1258,26 @@
             return { age, isValid: age >= 12 };
         }
 
+        // ===== EXTRACT NAME FROM EMAIL =====
+        function extractNameFromEmail(email) {
+            if (!email) return '';
+            const parts = email.split('@');
+            if (parts.length < 2) return '';
+            let name = parts[0];
+            name = name.replace(/[._]/g, ' ');
+            return name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+        }
+
+        // ===== CHECK IF USER EXISTS IN DB =====
+        async function checkUserExists(uid) {
+            try {
+                const snap = await get(ref(db, `users/${uid}`));
+                return snap.exists();
+            } catch (error) {
+                return false;
+            }
+        }
+
         // ===== SOCIAL LOGIN =====
         window.socialLogin = async (providerType) => {
             let provider;
@@ -1156,12 +1295,123 @@
             showLoading(`Đang đăng nhập với ${providerType === 'google' ? 'Google' : 'Facebook'}...`, 'Vui lòng đợi');
             
             try {
-                await signInWithPopup(auth, provider);
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                
+                isProcessingAuth = true;
+                
+                const userExists = await checkUserExists(user.uid);
+                
+                if (userExists) {
+                    const snap = await get(ref(db, `users/${user.uid}`));
+                    const userData = snap.val();
+                    if (userData.isLocked === true || userData.isLocked === "true") {
+                        hideLoading();
+                        showLockModal(userData.lockInfo);
+                        await signOut(auth);
+                        document.getElementById('googleLoginBtn').disabled = false;
+                        document.getElementById('facebookLoginBtn').disabled = false;
+                        isProcessingAuth = false;
+                        return;
+                    }
+                    isProcessingAuth = false;
+                    hideLoading();
+                    window.location.href = "chat.html";
+                } else {
+                    pendingSocialUser = user;
+                    isProcessingAuth = false;
+                    hideLoading();
+                    
+                    document.getElementById('complete-email').value = user.email || '';
+                    document.getElementById('complete-name').value = extractNameFromEmail(user.email) || '';
+                    document.getElementById('complete-birthday').value = '2005-01-01';
+                    document.getElementById('complete-terms-checkbox').checked = false;
+                    
+                    switchForm('complete');
+                    
+                    document.getElementById('googleLoginBtn').disabled = false;
+                    document.getElementById('facebookLoginBtn').disabled = false;
+                }
             } catch (error) {
+                isProcessingAuth = false;
                 hideLoading();
                 document.getElementById('googleLoginBtn').disabled = false;
                 document.getElementById('facebookLoginBtn').disabled = false;
                 showToast('Lỗi', getFirebaseErrorMessage(error.code), 'error');
+            }
+        };
+
+        // ===== HANDLE COMPLETE PROFILE =====
+        window.handleCompleteProfile = async () => {
+            const name = document.getElementById('complete-name').value.trim();
+            const gender = document.getElementById('complete-gender').value;
+            const birthday = document.getElementById('complete-birthday').value;
+            const termsChecked = document.getElementById('complete-terms-checkbox').checked;
+            
+            if (!pendingSocialUser) {
+                showToast('Lỗi', 'Không tìm thấy thông tin đăng nhập. Vui lòng thử lại.', 'error');
+                return;
+            }
+            
+            if (!name) {
+                showToast('Thông báo', 'Vui lòng nhập họ và tên.', 'warning');
+                return;
+            }
+            if (!birthday) {
+                showToast('Thông báo', 'Vui lòng chọn ngày sinh.', 'warning');
+                return;
+            }
+            if (!termsChecked) {
+                showToast('Thông báo', 'Bạn chưa đồng ý với điều khoản.', 'warning');
+                return;
+            }
+            
+            const ageCheck = checkAgeFromServer(birthday);
+            if (!ageCheck.isValid) {
+                showToast('Yêu cầu độ tuổi', 'Bạn cần phải trên 12 tuổi để sử dụng dịch vụ.', 'error');
+                return;
+            }
+            
+            showLoading('Đang hoàn tất đăng ký...', 'Vui lòng đợi');
+            
+            try {
+                let providerId = 'unknown';
+                if (pendingSocialUser.providerData && pendingSocialUser.providerData.length > 0) {
+                    providerId = pendingSocialUser.providerData[0].providerId || 'unknown';
+                }
+                
+                await set(ref(db, `users/${pendingSocialUser.uid}`), {
+                    email: pendingSocialUser.email.toLowerCase(),
+                    name: name,
+                    gender: gender,
+                    birthday: birthday,
+                    showGender: true,
+                    showBirthday: true,
+                    allowStrangerChat: true,
+                    allowFriendRequest: true,
+                    isLocked: false,
+                    haveGreenTick: false,
+                    providers: ['password', providerId],
+                    lockInfo: {
+                        id: "---",
+                        reason: "---",
+                        start: "---",
+                        end: "---",
+                    }
+                });
+                
+                hideLoading();
+                showToast('Thành công', 'Đăng ký tài khoản thành công!', 'success', 1500);
+                pendingSocialUser = null;
+                
+                setTimeout(() => {
+                    window.location.href = "chat.html";
+                }, 1500);
+                
+            } catch (error) {
+                hideLoading();
+                showToast('Lỗi', 'Không thể lưu thông tin. Vui lòng thử lại.', 'error');
+                console.error('Complete profile error:', error);
             }
         };
 
@@ -1302,19 +1552,41 @@
         document.getElementById('resetEmailInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') handleForgotPassword();
         });
+        document.getElementById('complete-name').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleCompleteProfile();
+        });
+        document.getElementById('complete-birthday').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleCompleteProfile();
+        });
 
         // ===== AUTH STATE =====
         onAuthStateChanged(auth, async (user) => {
+            if (isProcessingAuth) {
+                return;
+            }
+            
+            if (currentForm === 'complete' && pendingSocialUser && user && user.uid === pendingSocialUser.uid) {
+                return;
+            }
+            
             if (user && !isSigningUp) {
                 try {
                     const snap = await get(ref(db, `users/${user.uid}`));
-                    if (snap.exists()) {
-                        const userData = snap.val();
-                        if (userData.isLocked === true || userData.isLocked === "true") {
-                            showLockModal(userData.lockInfo);
-                            await signOut(auth);
-                            return;
-                        }
+                    if (!snap.exists()) {
+                        pendingSocialUser = user;
+                        document.getElementById('complete-email').value = user.email || '';
+                        document.getElementById('complete-name').value = extractNameFromEmail(user.email) || '';
+                        document.getElementById('complete-birthday').value = '2005-01-01';
+                        document.getElementById('complete-terms-checkbox').checked = false;
+                        switchForm('complete');
+                        return;
+                    }
+                    
+                    const userData = snap.val();
+                    if (userData.isLocked === true || userData.isLocked === "true") {
+                        showLockModal(userData.lockInfo);
+                        await signOut(auth);
+                        return;
                     }
                     window.location.href = "chat.html";
                 } catch (error) {
@@ -1328,11 +1600,13 @@
             const loginForm = document.getElementById('login-form');
             const signupForm = document.getElementById('signup-form');
             const forgotForm = document.getElementById('forgot-password-form');
+            const completeForm = document.getElementById('complete-profile-form');
             
             loginForm.style.display = 'block';
             loginForm.classList.add('active');
             signupForm.style.display = 'none';
             forgotForm.style.display = 'none';
+            completeForm.style.display = 'none';
             currentForm = 'login';
             
             setTimeout(() => {
