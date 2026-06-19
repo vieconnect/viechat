@@ -954,7 +954,7 @@
                     <div class="form-sub">Vui lòng cung cấp thông tin để hoàn tất đăng ký</div>
                     
                     <input type="text" id="complete-name" placeholder="Họ và tên" autocomplete="name">
-                    <input type="email" id="complete-email" placeholder="Email" readonly style="background:#f0f0f0; color:#666;">
+                    <input type="email" id="complete-email" placeholder="Email" style="background:#f8f9fa;">
                     
                     <div style="display: flex; gap: 10px;">
                         <div style="flex: 1;">
@@ -1057,6 +1057,7 @@
         let lockModalVisible = false;
         let pendingSocialUser = null;
         let isProcessingAuth = false;
+        let currentSocialProvider = null; // Lưu provider hiện tại
 
         // ===== TOAST =====
         function showToast(title, message, type = 'info', duration = 4000) {
@@ -1225,6 +1226,7 @@
                     await signOut(auth);
                 } catch (e) {}
                 pendingSocialUser = null;
+                currentSocialProvider = null;
             }
             switchForm('login');
         };
@@ -1299,6 +1301,7 @@
                 const user = result.user;
                 
                 isProcessingAuth = true;
+                currentSocialProvider = providerType;
                 
                 const userExists = await checkUserExists(user.uid);
                 
@@ -1312,6 +1315,7 @@
                         document.getElementById('googleLoginBtn').disabled = false;
                         document.getElementById('facebookLoginBtn').disabled = false;
                         isProcessingAuth = false;
+                        currentSocialProvider = null;
                         return;
                     }
                     isProcessingAuth = false;
@@ -1322,7 +1326,19 @@
                     isProcessingAuth = false;
                     hideLoading();
                     
-                    document.getElementById('complete-email').value = user.email || '';
+                    // Nếu là Facebook, để trống email để người dùng tự nhập
+                    // Nếu là Google, tự động điền email
+                    const emailInput = document.getElementById('complete-email');
+                    if (providerType === 'google') {
+                        emailInput.value = user.email || '';
+                        emailInput.style.background = '#f0f0f0';
+                        emailInput.style.color = '#666';
+                    } else {
+                        emailInput.value = '';
+                        emailInput.style.background = '#f8f9fa';
+                        emailInput.style.color = '#1c1e21';
+                    }
+                    
                     document.getElementById('complete-name').value = extractNameFromEmail(user.email) || '';
                     document.getElementById('complete-birthday').value = '2005-01-01';
                     document.getElementById('complete-terms-checkbox').checked = false;
@@ -1334,6 +1350,7 @@
                 }
             } catch (error) {
                 isProcessingAuth = false;
+                currentSocialProvider = null;
                 hideLoading();
                 document.getElementById('googleLoginBtn').disabled = false;
                 document.getElementById('facebookLoginBtn').disabled = false;
@@ -1346,6 +1363,7 @@
             const name = document.getElementById('complete-name').value.trim();
             const gender = document.getElementById('complete-gender').value;
             const birthday = document.getElementById('complete-birthday').value;
+            const email = document.getElementById('complete-email').value.trim();
             const termsChecked = document.getElementById('complete-terms-checkbox').checked;
             
             if (!pendingSocialUser) {
@@ -1355,6 +1373,15 @@
             
             if (!name) {
                 showToast('Thông báo', 'Vui lòng nhập họ và tên.', 'warning');
+                return;
+            }
+            if (!email) {
+                showToast('Thông báo', 'Vui lòng nhập email.', 'warning');
+                return;
+            }
+            // Validate email
+            if (!email.includes('@') || !email.includes('.')) {
+                showToast('Thông báo', 'Vui lòng nhập email hợp lệ.', 'warning');
                 return;
             }
             if (!birthday) {
@@ -1380,8 +1407,20 @@
                     providerId = pendingSocialUser.providerData[0].providerId || 'unknown';
                 }
                 
+                // Nếu là Facebook và email khác với email trong provider, cập nhật email trong Firebase Auth
+                if (currentSocialProvider === 'facebook' && email !== pendingSocialUser.email) {
+                    try {
+                        // Đối với Facebook, không thể cập nhật email trực tiếp trong Auth
+                        // Chúng ta vẫn lưu email vào database và sử dụng email đó
+                        // Còn trong Auth vẫn giữ email cũ (hoặc null)
+                        console.log('Facebook user, email will be stored in database only');
+                    } catch (error) {
+                        console.error('Error updating email:', error);
+                    }
+                }
+                
                 await set(ref(db, `users/${pendingSocialUser.uid}`), {
-                    email: pendingSocialUser.email.toLowerCase(),
+                    email: email.toLowerCase(),
                     name: name,
                     gender: gender,
                     birthday: birthday,
@@ -1403,6 +1442,7 @@
                 hideLoading();
                 showToast('Thành công', 'Đăng ký tài khoản thành công!', 'success', 1500);
                 pendingSocialUser = null;
+                currentSocialProvider = null;
                 
                 setTimeout(() => {
                     window.location.href = "chat.html";
@@ -1558,6 +1598,9 @@
         document.getElementById('complete-birthday').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') handleCompleteProfile();
         });
+        document.getElementById('complete-email').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleCompleteProfile();
+        });
 
         // ===== AUTH STATE =====
         onAuthStateChanged(auth, async (user) => {
@@ -1574,7 +1617,17 @@
                     const snap = await get(ref(db, `users/${user.uid}`));
                     if (!snap.exists()) {
                         pendingSocialUser = user;
-                        document.getElementById('complete-email').value = user.email || '';
+                        // Kiểm tra xem user có email không (Google có email, Facebook có thể không)
+                        const emailInput = document.getElementById('complete-email');
+                        if (user.email) {
+                            emailInput.value = user.email || '';
+                            emailInput.style.background = '#f0f0f0';
+                            emailInput.style.color = '#666';
+                        } else {
+                            emailInput.value = '';
+                            emailInput.style.background = '#f8f9fa';
+                            emailInput.style.color = '#1c1e21';
+                        }
                         document.getElementById('complete-name').value = extractNameFromEmail(user.email) || '';
                         document.getElementById('complete-birthday').value = '2005-01-01';
                         document.getElementById('complete-terms-checkbox').checked = false;
