@@ -10,90 +10,414 @@
         :root { --primary: #0084ff; --bg: #f0f2f5; --text: #1c1e21; --light-gray: #e4e6eb; --danger: #f02849; --success: #42b72a; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); height: 100vh; width: 100vw; overflow: hidden; color: var(--text); }
-        #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
-        .auth-card { width: 100%; max-width: 400px; text-align: center; background: white; padding: 24px 20px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); max-height: 95vh; overflow-y: auto; position: relative; }
-        .auth-card input, .auth-card select { width: 100%; padding: 10px 40px 10px 12px; margin: 6px 0 12px 0; border: 1px solid #ddd; border-radius: 8px; outline: none; font-size: 14px; transition: all 0.3s; }
-        .auth-card input:focus, .auth-card select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 132, 255, 0.15); }
-        .auth-card input:disabled, .auth-card select:disabled { background: #f0f0f0; cursor: not-allowed; opacity: 0.7; }
-        .auth-card label { display: block; text-align: left; font-size: 13px; font-weight: 600; color: #555; margin-bottom: -2px; }
-        .terms-checkbox { display: flex; align-items: center; justify-content: center; gap: 8px; margin: 10px 0 15px 0; font-size: 13px; text-align: left; }
-        .terms-checkbox input { width: 18px; height: 18px; margin: 0; cursor: pointer; flex-shrink: 0; }
-        .terms-checkbox input:disabled { cursor: not-allowed; opacity: 0.7; }
-        .terms-checkbox label { cursor: pointer; color: #555; font-weight: normal; }
-        .terms-checkbox label.disabled { cursor: not-allowed; opacity: 0.7; }
-        .terms-checkbox a { color: var(--primary); text-decoration: none; }
-        .terms-checkbox a:hover { text-decoration: underline; }
-        .lock-detail-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 14px; }
-        .lock-detail-item:last-child { border-bottom: none; }
         
-        /* ===== PASSWORD FIELD WITH EYE ===== */
-        .password-wrapper {
+        #auth-screen {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            background: white;
+        }
+        
+        .auth-left {
+            flex: 1;
+            background: linear-gradient(135deg, #0084ff, #0056b3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 60px 80px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        .auth-left::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 80%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            transform: rotate(-15deg);
+        }
+        .auth-left::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -20%;
+            width: 60%;
+            height: 150%;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+            transform: rotate(10deg);
+        }
+        .auth-left .brand {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .auth-left .brand i {
+            font-size: 36px;
+        }
+        .auth-left .slogan {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+            z-index: 1;
+        }
+        .auth-left .features {
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .auth-left .features .item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 15px;
+            opacity: 0.95;
+        }
+        .auth-left .features .item i {
+            font-size: 20px;
+            width: 36px;
+            height: 36px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .auth-left .update-banner {
+            z-index: 1;
+            margin-top: 40px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 14px 20px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .auth-left .update-banner a {
+            color: #ffd700;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .auth-left .update-banner a:hover {
+            text-decoration: underline;
+        }
+        
+        .auth-right {
+            width: 440px;
+            min-width: 440px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 40px 48px;
+            background: white;
+            position: relative;
+        }
+        .auth-right .form-container {
+            width: 100%;
+            position: relative;
+        }
+        .auth-right .form-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1c1e21;
+            margin-bottom: 6px;
+        }
+        .auth-right .form-sub {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 24px;
+        }
+        .auth-right input, .auth-right select {
+            width: 100%;
+            padding: 12px 14px;
+            margin: 6px 0 14px 0;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.3s;
+            background: #f8f9fa;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        .auth-right input:focus, .auth-right select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 132, 255, 0.12);
+            background: white;
+        }
+        .auth-right input:disabled, .auth-right select:disabled {
+            background: #f0f0f0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .auth-right label {
+            display: block;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: -2px;
+        }
+        .auth-right .password-wrapper {
             position: relative;
             width: 100%;
+            display: flex;
+            align-items: center;
         }
-        .password-wrapper input {
+        .auth-right .password-wrapper input {
             padding-right: 42px !important;
+            width: 100%;
         }
-        .password-toggle {
+        .auth-right .password-toggle {
             position: absolute;
-            right: 12px;
+            right: 14px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: #888;
+            color: #999;
             cursor: pointer;
             font-size: 18px;
-            padding: 4px 6px;
-            z-index: 2;
+            padding: 8px 6px;
+            z-index: 10;
             transition: color 0.2s;
+            touch-action: manipulation;
+            pointer-events: auto;
         }
-        .password-toggle:hover {
+        .auth-right .password-toggle:hover {
             color: var(--primary);
         }
-        .password-toggle:active {
-            color: var(--primary);
-        }
-        .password-toggle:disabled {
+        .auth-right .password-toggle:disabled {
             cursor: not-allowed;
             opacity: 0.5;
         }
-        
-        /* ===== FORM TRANSITIONS ===== */
-        .form-container {
-            position: relative;
-            overflow: hidden;
+        .auth-right .forgot-link {
+            text-align: right;
+            margin-bottom: 18px;
         }
-        .form-panel {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0;
-            transform: translateY(20px) scale(0.98);
-            display: none;
+        .auth-right .forgot-link a {
+            font-size: 14px;
+            color: #888;
+            text-decoration: none;
+            transition: color 0.2s;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        .auth-right .forgot-link a:hover {
+            color: var(--primary);
+        }
+        .auth-right .btn-login {
             width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .auth-right .btn-login:hover {
+            background: #0066cc;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 132, 255, 0.3);
+        }
+        .auth-right .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .auth-right .btn-signup {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            background: var(--success);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .auth-right .btn-signup:hover {
+            background: #38a52a;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(66, 183, 42, 0.3);
+        }
+        .auth-right .btn-signup:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .auth-right .btn-warning-custom {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            background: #f39c12;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .auth-right .btn-warning-custom:hover {
+            background: #d68910;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+        .auth-right .btn-warning-custom:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .social-divider {
+            display: flex;
+            align-items: center;
+            margin: 18px 0 16px 0;
+        }
+        .social-divider::before,
+        .social-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e0e0e0;
+        }
+        .social-divider span {
+            padding: 0 14px;
+            font-size: 13px;
+            color: #999;
+        }
+        .social-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .social-buttons button {
+            flex: 1;
+            padding: 11px;
+            border-radius: 10px;
+            border: 1.5px solid #e0e0e0;
+            background: white;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            touch-action: manipulation;
+        }
+        .social-buttons button:hover {
+            background: #f8f9fa;
+            border-color: #ccc;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .social-buttons button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .social-buttons .btn-google {
+            color: #ea4335;
+        }
+        .social-buttons .btn-google i {
+            font-size: 20px;
+        }
+        .social-buttons .btn-facebook {
+            color: #1877f2;
+        }
+        .social-buttons .btn-facebook i {
+            font-size: 20px;
+        }
+        
+        .auth-right .switch-link {
+            text-align: center;
+            margin-top: 18px;
+            font-size: 14px;
+            color: #888;
+        }
+        .auth-right .switch-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            touch-action: manipulation;
+            display: inline-block;
+            padding: 4px 0;
+        }
+        .auth-right .switch-link a:hover {
+            text-decoration: underline;
+        }
+        
+        .form-panel {
+            display: none;
+            animation: panelFadeIn 0.4s ease;
         }
         .form-panel.active {
-            opacity: 1;
-            transform: translateY(0) scale(1);
             display: block;
         }
-        .form-panel.slide-left {
-            transform: translateX(-30px) scale(0.98);
-            opacity: 0;
-        }
-        .form-panel.slide-right {
-            transform: translateX(30px) scale(0.98);
-            opacity: 0;
-        }
-        .form-panel.fade-out {
-            opacity: 0;
-            transform: scale(0.95);
-        }
-        .form-panel.fade-in {
-            opacity: 1;
-            transform: scale(1);
+        @keyframes panelFadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        /* ===== LOADING OVERLAY ===== */
+        .terms-checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 6px 0 16px 0;
+            font-size: 13px;
+            text-align: left;
+        }
+        .terms-checkbox input {
+            width: 18px !important;
+            height: 18px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .terms-checkbox input:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .terms-checkbox label {
+            cursor: pointer;
+            color: #555;
+            font-weight: normal;
+            margin: 0 !important;
+        }
+        .terms-checkbox label.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .terms-checkbox a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        .terms-checkbox a:hover {
+            text-decoration: underline;
+        }
+        
         .form-loading-overlay {
             display: none;
             position: absolute;
@@ -102,7 +426,7 @@
             right: 0;
             bottom: 0;
             background: rgba(255, 255, 255, 0.85);
-            border-radius: 12px;
+            border-radius: 16px;
             z-index: 10;
             align-items: center;
             justify-content: center;
@@ -131,105 +455,359 @@
             color: #888;
             margin-top: -8px;
         }
-        
-        /* ===== LOCKED OVERLAY ===== */
-        .form-locked-overlay {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.92);
-            border-radius: 12px;
-            z-index: 11;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 12px;
-            padding: 20px;
-            backdrop-filter: blur(4px);
-        }
-        .form-locked-overlay.show {
-            display: flex;
-        }
-        .form-locked-overlay .lock-icon {
-            font-size: 48px;
-            color: var(--danger);
-        }
-        .form-locked-overlay .lock-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--danger);
-        }
-        .form-locked-overlay .lock-sub {
-            font-size: 14px;
-            color: #555;
-            text-align: center;
-        }
-        .form-locked-overlay .lock-timer {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-            background: #e8f4ff;
-            padding: 4px 20px;
-            border-radius: 20px;
-            margin-top: 4px;
-        }
-        
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
         
-        /* ===== RESPONSIVE ===== */
+        .toast-container-custom {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 420px;
+            width: 100%;
+            align-items: center;
+        }
+        .toast-custom {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            animation: toastSlideIn 0.4s ease;
+            border-left: 4px solid var(--primary);
+            transform: translateX(0);
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 420px;
+        }
+        .toast-custom.toast-success { border-left-color: var(--success); }
+        .toast-custom.toast-error { border-left-color: var(--danger); }
+        .toast-custom.toast-warning { border-left-color: #f39c12; }
+        .toast-custom.toast-info { border-left-color: var(--primary); }
+        .toast-custom .toast-icon {
+            font-size: 22px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .toast-custom.toast-success .toast-icon { color: var(--success); }
+        .toast-custom.toast-error .toast-icon { color: var(--danger); }
+        .toast-custom.toast-warning .toast-icon { color: #f39c12; }
+        .toast-custom.toast-info .toast-icon { color: var(--primary); }
+        .toast-custom .toast-body { flex: 1; }
+        .toast-custom .toast-body .toast-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #1c1e21;
+        }
+        .toast-custom .toast-body .toast-message {
+            font-size: 13px;
+            color: #555;
+            margin-top: 2px;
+        }
+        .toast-custom .toast-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #999;
+            cursor: pointer;
+            padding: 0 4px;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+        .toast-custom .toast-close:hover {
+            color: #333;
+        }
+        .toast-custom.toast-hide {
+            transform: translateX(120%);
+            opacity: 0;
+        }
+        @keyframes toastSlideIn {
+            from { 
+                transform: translateY(-30px);
+                opacity: 0; 
+            }
+            to { 
+                transform: translateY(0); 
+                opacity: 1; 
+            }
+        }
+        .toast-custom.toast-hide {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
+        
+        .lock-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 99998;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(8px);
+        }
+        .lock-modal-overlay.show {
+            display: flex;
+        }
+        .lock-modal {
+            background: white;
+            max-width: 420px;
+            width: 100%;
+            border-radius: 20px;
+            padding: 40px 32px;
+            text-align: center;
+            animation: lockModalZoomIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .lock-modal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--danger), #ff6b6b);
+        }
+        @keyframes lockModalZoomIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .lock-modal .lock-icon {
+            font-size: 56px;
+            color: var(--danger);
+            margin-bottom: 16px;
+        }
+        .lock-modal .lock-icon i {
+            animation: lockPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes lockPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .lock-modal .lock-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1c1e21;
+            margin-bottom: 6px;
+        }
+        .lock-modal .lock-sub {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 4px;
+            line-height: 1.6;
+        }
+        .lock-modal .lock-details {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin: 16px 0 20px 0;
+            text-align: left;
+        }
+        .lock-modal .lock-details .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px dashed #eee;
+            font-size: 13px;
+        }
+        .lock-modal .lock-details .detail-item:last-child {
+            border-bottom: none;
+        }
+        .lock-modal .lock-details .detail-item .label {
+            color: #888;
+        }
+        .lock-modal .lock-details .detail-item .value {
+            font-weight: 600;
+            color: #1c1e21;
+        }
+        .lock-modal .lock-details .detail-item .value.danger {
+            color: var(--danger);
+        }
+        .lock-modal .lock-details .detail-item .value.primary {
+            color: var(--primary);
+        }
+        .lock-modal .lock-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            background: var(--danger);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .lock-modal .lock-btn:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        .lock-modal .lock-btn-secondary {
+            width: 100%;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            border: none;
+            background: #e0e0e0;
+            color: #555;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+        .lock-modal .lock-btn-secondary:hover {
+            background: #d0d0d0;
+        }
+        
+        @media (max-width: 992px) {
+            .auth-left { padding: 40px; }
+            .auth-right { width: 380px; min-width: 380px; padding: 32px 36px; }
+        }
+        @media (max-width: 768px) {
+            #auth-screen { flex-direction: column; overflow-y: auto; }
+            .auth-left { 
+                flex: none; 
+                padding: 30px 24px;
+                min-height: 200px;
+                align-items: center;
+                text-align: center;
+            }
+            .auth-left .brand { font-size: 32px; }
+            .auth-left .features { display: none; }
+            .auth-left .update-banner { margin-top: 16px; font-size: 12px; }
+            .auth-right { 
+                width: 100%; 
+                min-width: unset; 
+                padding: 24px 20px; 
+                flex: 1;
+                border-radius: 20px 20px 0 0;
+                margin-top: -20px;
+                background: white;
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.08);
+            }
+            .auth-right .form-title { font-size: 24px; }
+            .auth-right input, .auth-right select {
+                font-size: 16px !important;
+                padding: 12px 42px 12px 14px;
+            }
+            .auth-right .password-wrapper input {
+                font-size: 16px !important;
+            }
+            .auth-right .password-toggle {
+                padding: 10px 8px;
+                z-index: 10;
+            }
+            .toast-container-custom { top: 10px; max-width: calc(100% - 20px); }
+            .lock-modal { padding: 30px 20px; }
+            .social-buttons { flex-direction: column; }
+            .switch-link a, .forgot-link a {
+                padding: 6px 0;
+                display: inline-block;
+            }
+        }
         @media (max-width: 480px) {
-            .auth-card { padding: 16px 14px; }
-            .form-container { min-height: 300px; }
+            .auth-left { padding: 20px 16px; min-height: 160px; }
+            .auth-left .brand { font-size: 26px; }
+            .auth-left .slogan { font-size: 14px; margin-bottom: 12px; }
+            .auth-right { padding: 20px 16px; }
+            .auth-right input, .auth-right select { padding: 10px 36px 10px 12px; font-size: 16px !important; }
         }
     </style>
 </head>
 <body>
-<!--Start of Tawk.to Script-->
-<script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/6a312cc4c770bc1d46b1ebf3/1jr81do2l';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
-</script>
-<!--End of Tawk.to Script-->
     <div id="auth-screen">
-        <div class="auth-card" id="authCard">
-            <h1 style="color: var(--primary); font-weight: bold; margin-bottom: 2px;">VieChat</h1>
-            <p style="font-size: 14px; color: #65676b; margin-bottom: 20px;">Kết nối xã hội - Vững bước tương lai</p>
-            
+        <!-- LEFT PANEL -->
+        <div class="auth-left">
+            <div class="brand">
+                <i class="fas fa-comment-dots"></i>
+                VieChat
+            </div>
+            <div class="slogan">Kết nối xã hội - Vững bước tương lai</div>
+            <div class="features">
+                <div class="item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Bảo mật mã hóa đầu cuối</span>
+                </div>
+                <div class="item">
+                    <i class="fas fa-bolt"></i>
+                    <span>Kết nối nhanh chóng, ổn định</span>
+                </div>
+                <div class="item">
+                    <i class="fas fa-users"></i>
+                    <span>Cộng đồng người dùng đông đảo</span>
+                </div>
+                <div class="item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Hỗ trợ đa nền tảng</span>
+                </div>
+            </div>
+            <div class="update-banner">
+                <i class="fas fa-info-circle"></i>
+                Chúng tôi đã cập nhật <a href="./dieu-khoan-su-dung.html" target="_blank">Điều khoản sử dụng</a>, vui lòng xem tại đây.
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="auth-right">
             <div class="form-container" id="formContainer">
                 <!-- FORM ĐĂNG NHẬP -->
                 <div id="login-form" class="form-panel active">
+                    <div class="form-title">Đăng nhập</div>
+                    <div class="form-sub">Chào mừng bạn quay trở lại</div>
+                    
+                    <input type="email" id="email" placeholder="Tên, email hoặc số điện thoại" autocomplete="email">
+                    
                     <div class="password-wrapper">
-                        <input type="email" id="email" placeholder="Email" autocomplete="email">
-                    </div>
-                    <div class="password-wrapper">
-                        <input type="password" id="password" placeholder="Mật khẩu" autocomplete="current-password" onkeypress="if(event.key==='Enter') handleAuth('login')">
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password', this)" tabindex="-1">
+                        <input type="password" id="password" placeholder="Mật khẩu" autocomplete="current-password">
+                        <button type="button" class="password-toggle" onclick="togglePassword('password', this)">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
-                    <div style="text-align: right; margin-bottom: 15px;">
-                        <a href="#" onclick="switchForm('forgot')" style="text-decoration: none; font-size: 14px;">Quên mật khẩu?</a>
+                    
+                    <div class="forgot-link">
+                        <a href="#" onclick="switchForm('forgot')">Quên mật khẩu?</a>
                     </div>
-                    <button onclick="handleAuth('login')" class="btn btn-primary" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; border: none;">
+                    
+                    <button onclick="handleLogin()" class="btn-login" id="loginBtn">
                         Đăng nhập
                     </button>
-                    <p style="margin-top: 15px; font-size: 14px;">Chưa có tài khoản? <a href="#" onclick="switchForm('signup')" style="text-decoration: none; font-weight: 600;">Đăng ký</a></p>
+                    
+                    <div class="social-divider">
+                        <span>Hoặc đăng nhập với</span>
+                    </div>
+                    <div class="social-buttons">
+                        <button class="btn-google" onclick="socialLogin('google')" id="googleLoginBtn">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                        <button class="btn-facebook" onclick="socialLogin('facebook')" id="facebookLoginBtn">
+                            <i class="fab fa-facebook-f"></i> Facebook
+                        </button>
+                    </div>
+                    
+                    <div class="switch-link">
+                        Chưa có tài khoản? <a href="#" onclick="switchForm('signup')">Đăng ký</a>
+                    </div>
                 </div>
 
                 <!-- FORM ĐĂNG KÝ -->
                 <div id="signup-form" class="form-panel">
+                    <div class="form-title">Đăng ký tài khoản</div>
+                    <div class="form-sub">Tạo tài khoản mới ngay hôm nay</div>
+                    
                     <input type="text" id="signup-name" placeholder="Họ và tên" autocomplete="name">
                     <input type="email" id="signup-email" placeholder="Email" autocomplete="email">
                     
@@ -250,13 +828,13 @@ s0.parentNode.insertBefore(s1,s0);
 
                     <div class="password-wrapper">
                         <input type="password" id="signup-password" placeholder="Mật khẩu (6+ ký tự)" autocomplete="new-password">
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('signup-password', this)" tabindex="-1">
+                        <button type="button" class="password-toggle" onclick="togglePassword('signup-password', this)">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
                     <div class="password-wrapper">
                         <input type="password" id="signup-confirm-password" placeholder="Xác nhận mật khẩu" autocomplete="new-password">
-                        <button type="button" class="password-toggle" onclick="togglePasswordVisibility('signup-confirm-password', this)" tabindex="-1">
+                        <button type="button" class="password-toggle" onclick="togglePassword('signup-confirm-password', this)">
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
@@ -268,22 +846,41 @@ s0.parentNode.insertBefore(s1,s0);
                         </label>
                     </div>
                     
-                    <button onclick="handleAuth('signup')" class="btn btn-success" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; border: none;">
-                        Tạo tài khoản
+                    <button onclick="handleSignup()" class="btn-signup" id="signupBtn">
+                        Đăng ký tài khoản
                     </button>
-                    <p style="margin-top: 15px; font-size: 14px;">Đã có tài khoản? <a href="#" onclick="switchForm('login')" style="text-decoration: none; font-weight: 600;">Đăng nhập</a></p>
+                    
+                    <div class="social-divider">
+                        <span>Hoặc đăng ký với</span>
+                    </div>
+                    <div class="social-buttons">
+                        <button class="btn-google" onclick="socialLogin('google')">
+                            <i class="fab fa-google"></i> Google
+                        </button>
+                        <button class="btn-facebook" onclick="socialLogin('facebook')">
+                            <i class="fab fa-facebook-f"></i> Facebook
+                        </button>
+                    </div>
+                    
+                    <div class="switch-link">
+                        Đã có tài khoản? <a href="#" onclick="switchForm('login')">Đăng nhập</a>
+                    </div>
                 </div>
 
                 <!-- FORM QUÊN MẬT KHẨU -->
                 <div id="forgot-password-form" class="form-panel">
-                    <p style="font-size: 14px; color: #65676b; margin-bottom: 20px;">Nhập email đăng ký tài khoản của bạn để nhận liên kết đặt lại mật khẩu.</p>
-                    <input type="email" id="resetEmailInput" placeholder="Email của bạn" autocomplete="email" onkeypress="if(event.key==='Enter') handleForgotPassword()">
-                    <button onclick="handleForgotPassword()" class="btn btn-warning" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; color: white; border: none;">
+                    <div class="form-title">Quên mật khẩu</div>
+                    <div class="form-sub">Nhập email để nhận liên kết đặt lại mật khẩu</div>
+                    
+                    <input type="email" id="resetEmailInput" placeholder="Email của bạn" autocomplete="email">
+                    
+                    <button onclick="handleForgotPassword()" class="btn-warning-custom" id="forgotBtn">
                         Gửi yêu cầu
                     </button>
-                    <p style="margin-top: 15px; font-size: 14px;">
-                        <a href="#" onclick="switchForm('login')" style="text-decoration: none; font-weight: 600;">← Quay lại đăng nhập</a>
-                    </p>
+                    
+                    <div class="switch-link">
+                        <a href="#" onclick="switchForm('login')" style="font-weight: 500;">← Quay lại đăng nhập</a>
+                    </div>
                 </div>
 
                 <!-- Loading Overlay -->
@@ -292,102 +889,49 @@ s0.parentNode.insertBefore(s1,s0);
                     <div class="loader-text" id="loadingText">Đang xử lý...</div>
                     <div class="loader-sub" id="loadingSub">Vui lòng đợi</div>
                 </div>
-
-                <!-- Locked Overlay -->
-                <div class="form-locked-overlay" id="formLockedOverlay">
-                    <div class="lock-icon"><i class="fas fa-lock"></i></div>
-                    <div class="lock-title">Tài khoản bị khóa tạm thời</div>
-                    <div class="lock-sub">Bạn đã nhập sai mật khẩu quá nhiều lần.<br>Vui lòng thử lại sau.</div>
-                    <div class="lock-timer" id="lockTimer">30s</div>
-                </div>
-            </div>
-
-            <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #eee;"><small>&copy; 2026 VieConnect Technology</small></div>
-        </div>
-    </div>
-
-    <!-- MODAL THÔNG BÁO CHUNG -->
-    <div class="modal fade" id="commonModal" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="commonModalTitle">Thông báo</h5>
-                    <button type="button" class="btn-close" id="commonModalCloseBtn" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="commonModalBody"></div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="commonModalDismissBtn">OK</button>
-                </div>
             </div>
         </div>
     </div>
 
-    <!-- MODAL ĐĂNG KÝ THÀNH CÔNG -->
-    <div class="modal fade" id="signupSuccessModal" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title fw-bold">✅ Đăng ký thành công!</h5>
-                    <button type="button" class="btn-close btn-close-white" id="signupSuccessCloseBtn" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <div class="mb-3">
-                        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="#28a745"/>
-                        </svg>
-                    </div>
-                    <p class="fs-5 fw-bold mb-2">Chúc mừng bạn đã tạo tài khoản thành công!</p>
-                    <p class="text-muted">Bạn sẽ được chuyển đến trang chat ngay bây giờ.</p>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <button type="button" class="btn btn-success px-4" id="signupSuccessOkBtn">Vào chat ngay</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container-custom" id="toastContainer"></div>
 
-    <!-- MODAL TÀI KHOẢN BỊ KHÓA VĨNH VIỄN -->
-    <div class="modal fade" id="accountLockedModal" tabindex="-1" data-bs-backdrop="static">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title fw-bold">ĐĂNG NHẬP BỊ HẠN CHẾ</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <!-- LOCK MODAL -->
+    <div class="lock-modal-overlay" id="lockModalOverlay">
+        <div class="lock-modal">
+            <div class="lock-icon"><i class="fas fa-lock"></i></div>
+            <div class="lock-title">Tài khoản bị khóa</div>
+            <div class="lock-sub">Tài khoản của bạn đã bị khóa vĩnh viễn do vi phạm điều khoản sử dụng.</div>
+            <div class="lock-details">
+                <div class="detail-item">
+                    <span class="label">ID tài khoản</span>
+                    <span class="value" id="lockInfoId">---</span>
                 </div>
-                <div class="modal-body">
-                    <p class="text-secondary small mb-3">Hệ thống phát hiện tài khoản của bạn đang nằm trong trạng thái hạn chế truy cập do phát hiện 1 số vi phạm</p>
-                    <div class="card bg-light p-3 border-0 rounded-3">
-                        <div class="lock-detail-item">
-                            <span class="text-muted">ID:</span>
-                            <span class="fw-bold text-dark" id="lock-info-id">---</span>
-                        </div>
-                        <div class="lock-detail-item">
-                            <span class="text-muted">Lý do:</span>
-                            <span class="fw-bold text-danger text-end" style="max-width: 70%;" id="lock-info-reason">---</span>
-                        </div>
-                        <div class="lock-detail-item">
-                            <span class="text-muted">Bắt đầu:</span>
-                            <span class="fw-bold text-dark" id="lock-info-start">---</span>
-                        </div>
-                        <div class="lock-detail-item">
-                            <span class="text-muted">Thời gian kết thúc:</span>
-                            <span class="fw-bold text-primary" id="lock-info-end">---</span>
-                        </div>
-                    </div>
-                    <p class="small text-muted mt-3 text-center">Nếu cho rằng đây là một sự nhầm lẫn, vui lòng điền vào mẫu đơn kháng cáo sau: <a href="https://forms.gle/BkAcSN3WhEUM3fZ6A" target="_blank">Mẫu đơn kháng cáo</a></p>
+                <div class="detail-item">
+                    <span class="label">Lý do</span>
+                    <span class="value danger" id="lockInfoReason">---</span>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Đóng</button>
+                <div class="detail-item">
+                    <span class="label">Bắt đầu</span>
+                    <span class="value" id="lockInfoStart">---</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Kết thúc</span>
+                    <span class="value primary" id="lockInfoEnd">---</span>
                 </div>
             </div>
+            <button class="lock-btn" onclick="closeLockModal()">Đã hiểu</button>
+            <button class="lock-btn-secondary" onclick="openAppeal()">
+                <i class="fas fa-gavel"></i> Gửi đơn kháng cáo
+            </button>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, set, get, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCXSoUXXSJK6n3iX9Sktqb7NsPL46sJBD0",
@@ -403,124 +947,70 @@ s0.parentNode.insertBefore(s1,s0);
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let pendingAfterCloseCallback = null;
         let isSigningUp = false;
-        let signupSuccessModal = null;
         let currentForm = 'login';
         let isTransitioning = false;
-        
-        // ===== LOCK LOGIC =====
-        let loginAttempts = 0;
-        const MAX_ATTEMPTS = 5;
-        const LOCK_DURATION = 30; // giây
-        let lockTimerInterval = null;
-        let remainingTime = 0;
-        let isLocked = false;
+        let lockModalVisible = false;
 
-        // ===== LOCALSTORAGE LOCK KEYS =====
-        const LOCK_STORAGE_KEY = 'viechat_lock_data';
-
-        // ===== LƯU VÀO LOCALSTORAGE =====
-        function saveLockData(locked, unlockTime, attempts) {
-            const data = {
-                locked: locked,
-                unlockTime: unlockTime,
-                attempts: attempts
-            };
-            try {
-                localStorage.setItem(LOCK_STORAGE_KEY, JSON.stringify(data));
-            } catch (e) {
-                console.warn('Không thể lưu vào localStorage:', e);
-            }
-        }
-
-        // ===== ĐỌC TỪ LOCALSTORAGE =====
-        function getLockData() {
-            try {
-                const data = localStorage.getItem(LOCK_STORAGE_KEY);
-                if (data) {
-                    return JSON.parse(data);
-                }
-            } catch (e) {
-                console.warn('Không thể đọc từ localStorage:', e);
-            }
-            return null;
-        }
-
-        // ===== XÓA LOCALSTORAGE =====
-        function clearLockData() {
-            try {
-                localStorage.removeItem(LOCK_STORAGE_KEY);
-            } catch (e) {
-                console.warn('Không thể xóa localStorage:', e);
-            }
-        }
-
-        // ===== KIỂM TRA LOCK TỪ LOCALSTORAGE KHI TẢI TRANG =====
-        function checkLockFromStorage() {
-            const lockData = getLockData();
-            if (!lockData) return false;
+        // ===== TOAST =====
+        function showToast(title, message, type = 'info', duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast-custom toast-${type}`;
             
-            if (lockData.locked && lockData.unlockTime) {
-                const now = Date.now();
-                const remaining = Math.floor((lockData.unlockTime - now) / 1000);
-                
-                if (remaining > 0) {
-                    // Vẫn còn khóa
-                    isLocked = true;
-                    remainingTime = remaining;
-                    loginAttempts = lockData.attempts || 0;
-                    showLockedOverlay();
-                    startLockTimer();
-                    disableAllForms(true);
-                    return true;
-                } else {
-                    // Đã hết thời gian khóa, xóa dữ liệu
-                    clearLockData();
-                    isLocked = false;
-                    loginAttempts = 0;
-                    return false;
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fas ${icons[type] || icons.info}"></i></div>
+                <div class="toast-body">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.closest('.toast-custom').remove()">&times;</button>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.classList.add('toast-hide');
+                    setTimeout(() => {
+                        if (toast.parentNode) toast.remove();
+                    }, 300);
                 }
-            }
-            return false;
+            }, duration);
         }
 
-        // ===== HIỂN THỊ OVERLAY KHÓA =====
-        function showLockedOverlay() {
-            const overlay = document.getElementById('formLockedOverlay');
-            overlay.classList.add('show');
-            updateLockTimer();
-        }
+        // ===== LOCK MODAL =====
+        window.showLockModal = (lockInfo) => {
+            if (!lockInfo) lockInfo = {};
+            document.getElementById('lockInfoId').textContent = lockInfo.id || "---";
+            document.getElementById('lockInfoReason').textContent = lockInfo.reason || "Vi phạm điều khoản sử dụng";
+            document.getElementById('lockInfoStart').textContent = lockInfo.start || "---";
+            document.getElementById('lockInfoEnd').textContent = lockInfo.end || "Vĩnh viễn";
+            
+            document.getElementById('lockModalOverlay').classList.add('show');
+            lockModalVisible = true;
+            document.body.style.overflow = 'hidden';
+        };
 
-        // ===== ẨN OVERLAY KHÓA =====
-        function hideLockedOverlay() {
-            const overlay = document.getElementById('formLockedOverlay');
-            overlay.classList.remove('show');
-        }
+        window.closeLockModal = () => {
+            document.getElementById('lockModalOverlay').classList.remove('show');
+            lockModalVisible = false;
+            document.body.style.overflow = '';
+        };
 
-        // ===== START LOCK TIMER =====
-        function startLockTimer() {
-            if (lockTimerInterval) {
-                clearInterval(lockTimerInterval);
-            }
-            lockTimerInterval = setInterval(() => {
-                remainingTime--;
-                updateLockTimer();
-                // Lưu lại thời gian còn lại vào localStorage
-                const unlockTime = Date.now() + (remainingTime * 1000);
-                saveLockData(true, unlockTime, loginAttempts);
-                
-                if (remainingTime <= 0) {
-                    clearInterval(lockTimerInterval);
-                    lockTimerInterval = null;
-                    unlockForm();
-                }
-            }, 1000);
-        }
+        window.openAppeal = () => {
+            window.open('https://forms.gle/BkAcSN3WhEUM3fZ6A', '_blank');
+        };
 
-        // ===== TOGGLE PASSWORD VISIBILITY =====
-        window.togglePasswordVisibility = (inputId, button) => {
-            if (isLocked) return;
+        // ===== TOGGLE PASSWORD =====
+        window.togglePassword = (inputId, button) => {
             const input = document.getElementById(inputId);
             if (!input || input.disabled) return;
             
@@ -534,112 +1024,56 @@ s0.parentNode.insertBefore(s1,s0);
             }
         };
 
-        // ===== DISABLE/ENABLE FORM =====
+        // ===== DISABLE FORMS =====
         function disableAllForms(disabled) {
-            const forms = ['login-form', 'signup-form', 'forgot-password-form'];
-            forms.forEach(formId => {
+            const formIds = ['login-form', 'signup-form', 'forgot-password-form'];
+            const btnIds = {
+                'login-form': 'loginBtn',
+                'signup-form': 'signupBtn',
+                'forgot-password-form': 'forgotBtn'
+            };
+            
+            formIds.forEach(formId => {
                 const form = document.getElementById(formId);
                 if (!form) return;
-                const inputs = form.querySelectorAll('input, select, button, .password-toggle, a:not([href*="javascript"]), .terms-checkbox input, .terms-checkbox label');
+                const inputs = form.querySelectorAll('input, select, .password-toggle, .terms-checkbox input');
                 inputs.forEach(el => {
-                    if (el.tagName === 'A') {
-                        el.style.pointerEvents = disabled ? 'none' : 'auto';
-                        el.style.opacity = disabled ? '0.5' : '1';
-                    } else if (el.tagName === 'LABEL') {
-                        if (disabled) {
-                            el.classList.add('disabled');
-                        } else {
-                            el.classList.remove('disabled');
-                        }
-                    } else {
-                        el.disabled = disabled;
-                    }
+                    el.disabled = disabled;
                 });
+                const btn = document.getElementById(btnIds[formId]);
+                if (btn) btn.disabled = disabled;
+            });
+            
+            document.querySelectorAll('.social-buttons button').forEach(btn => {
+                btn.disabled = disabled;
+            });
+            
+            document.querySelectorAll('.switch-link a, .forgot-link a').forEach(el => {
+                el.style.pointerEvents = disabled ? 'none' : 'auto';
+                el.style.opacity = disabled ? '0.5' : '1';
             });
         }
 
         // ===== SHOW/HIDE LOADING =====
         function showLoading(message = 'Đang xử lý...', sub = 'Vui lòng đợi') {
-            const overlay = document.getElementById('formLoadingOverlay');
             document.getElementById('loadingText').textContent = message;
             document.getElementById('loadingSub').textContent = sub;
-            overlay.classList.add('show');
+            document.getElementById('formLoadingOverlay').classList.add('show');
             disableAllForms(true);
         }
 
         function hideLoading() {
-            const overlay = document.getElementById('formLoadingOverlay');
-            overlay.classList.remove('show');
-            if (!isLocked) {
-                disableAllForms(false);
-            }
-        }
-
-        // ===== LOCK FUNCTIONS =====
-        function lockForm() {
-            isLocked = true;
-            const unlockTime = Date.now() + (LOCK_DURATION * 1000);
-            saveLockData(true, unlockTime, loginAttempts);
-            showLockedOverlay();
-            disableAllForms(true);
-            
             document.getElementById('formLoadingOverlay').classList.remove('show');
-            
-            remainingTime = LOCK_DURATION;
-            updateLockTimer();
-            startLockTimer();
-        }
-
-        function updateLockTimer() {
-            const timerEl = document.getElementById('lockTimer');
-            if (timerEl) {
-                timerEl.textContent = `${remainingTime}s`;
-            }
-        }
-
-        function unlockForm() {
-            isLocked = false;
-            loginAttempts = 0;
-            clearLockData();
-            hideLockedOverlay();
-            
-            if (lockTimerInterval) {
-                clearInterval(lockTimerInterval);
-                lockTimerInterval = null;
-            }
-            
-            if (!document.getElementById('formLoadingOverlay').classList.contains('show')) {
-                disableAllForms(false);
-            }
-            
-            const passwordInput = document.getElementById('password');
-            if (passwordInput) {
-                passwordInput.value = '';
-                passwordInput.focus();
-            }
-        }
-
-        function resetLoginAttempts() {
-            loginAttempts = 0;
-            // Lưu lại attempts vào localStorage
-            const lockData = getLockData();
-            if (lockData) {
-                saveLockData(lockData.locked, lockData.unlockTime, 0);
-            }
+            disableAllForms(false);
         }
 
         // ===== SWITCH FORM =====
         window.switchForm = (target) => {
             if (isTransitioning || target === currentForm) return;
-            if (isLocked) {
-                showAlert("Thông báo", "Tài khoản đang bị khóa tạm thời. Vui lòng đợi " + remainingTime + "s.");
-                return;
-            }
             
             const overlay = document.getElementById('formLoadingOverlay');
             if (overlay.classList.contains('show')) return;
             
-            resetLoginAttempts();
             isTransitioning = true;
             
             const forms = {
@@ -656,49 +1090,29 @@ s0.parentNode.insertBefore(s1,s0);
                 return;
             }
             
-            const direction = target === 'forgot' ? 'left' : 
-                             (target === 'signup' && currentForm === 'login') ? 'left' :
-                             (target === 'login' && currentForm === 'signup') ? 'right' :
-                             (target === 'login' && currentForm === 'forgot') ? 'right' : 'left';
+            currentPanel.classList.remove('active');
+            currentPanel.style.display = 'none';
             
-            if (direction === 'left') {
-                currentPanel.classList.remove('active', 'fade-in');
-                currentPanel.classList.add('slide-left');
-            } else {
-                currentPanel.classList.remove('active', 'fade-in');
-                currentPanel.classList.add('slide-right');
+            targetPanel.style.display = 'block';
+            void targetPanel.offsetWidth;
+            targetPanel.classList.add('active');
+            currentForm = target;
+            isTransitioning = false;
+            
+            const firstInput = targetPanel.querySelector('input:not([type="hidden"]):not([type="checkbox"])');
+            if (firstInput) {
+                setTimeout(() => {
+                    firstInput.focus();
+                    if (window.innerWidth <= 768) {
+                        firstInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 300);
             }
-            
-            setTimeout(() => {
-                currentPanel.classList.remove('slide-left', 'slide-right');
-                currentPanel.style.display = 'none';
-                
-                targetPanel.classList.remove('fade-out', 'slide-left', 'slide-right');
-                targetPanel.style.display = 'block';
-                
-                if (direction === 'left') {
-                    targetPanel.classList.add('slide-right');
-                } else {
-                    targetPanel.classList.add('slide-left');
-                }
-                
-                void targetPanel.offsetWidth;
-                
-                targetPanel.classList.remove('slide-left', 'slide-right');
-                targetPanel.classList.add('active', 'fade-in');
-                
-                currentForm = target;
-                isTransitioning = false;
-                
-                const firstInput = targetPanel.querySelector('input:not([type="hidden"])');
-                if (firstInput) setTimeout(() => firstInput.focus(), 100);
-                
-            }, 350);
         };
 
-        // ===== FIREBASE ERROR MESSAGES =====
+        // ===== FIREBASE ERROR =====
         function getFirebaseErrorMessage(errorCode) {
-            const errorMessages = {
+            const messages = {
                 'auth/invalid-credential': 'Email hoặc mật khẩu không đúng.',
                 'auth/invalid-email': 'Email không hợp lệ.',
                 'auth/email-already-in-use': 'Email này đã được sử dụng.',
@@ -706,78 +1120,156 @@ s0.parentNode.insertBefore(s1,s0);
                 'auth/user-not-found': 'Không tìm thấy tài khoản với email này.',
                 'auth/too-many-requests': 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
                 'auth/network-request-failed': 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.',
+                'auth/popup-closed-by-user': 'Bạn đã đóng cửa sổ đăng nhập.',
+                'auth/account-exists-with-different-credential': 'Tài khoản đã tồn tại với phương thức đăng nhập khác.',
                 'default': 'Đã xảy ra lỗi. Vui lòng thử lại sau.'
             };
-            return errorMessages[errorCode] || errorMessages.default;
+            return messages[errorCode] || messages.default;
         }
-
-        // ===== SHOW ALERT =====
-        window.showAlert = (title, message, onClose = null) => {
-            document.getElementById('commonModalTitle').innerText = title;
-            document.getElementById('commonModalBody').innerHTML = message;
-            const modalEl = document.getElementById('commonModal');
-            const modal = new bootstrap.Modal(modalEl);
-            pendingAfterCloseCallback = onClose;
-            
-            const closeBtnHandler = () => { modal.hide(); };
-            document.getElementById('commonModalDismissBtn').onclick = closeBtnHandler;
-            document.getElementById('commonModalCloseBtn').onclick = closeBtnHandler;
-
-            modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
-                if (pendingAfterCloseCallback) { pendingAfterCloseCallback(); pendingAfterCloseCallback = null; }
-                modalEl.removeEventListener('hidden.bs.modal', handleHidden);
-            });
-            modal.show();
-        };
 
         // ===== CHECK AGE =====
-        async function checkAgeFromServer(birthday) {
-            try {
-                const serverTimeRef = ref(db, '.info/serverTimeOffset');
-                const snapshot = await get(serverTimeRef);
-                const offset = snapshot.val() || 0;
-                
-                const serverNow = new Date(Date.now() + offset);
-                const birthDate = new Date(birthday);
-                
-                let age = serverNow.getFullYear() - birthDate.getFullYear();
-                const monthDiff = serverNow.getMonth() - birthDate.getMonth();
-                if (monthDiff < 0 || (monthDiff === 0 && serverNow.getDate() < birthDate.getDate())) {
-                    age--;
-                }
-                
-                return {
-                    age: age,
-                    serverTime: serverNow,
-                    isValid: age >= 12
-                };
-            } catch (error) {
-                console.error('Lỗi kiểm tra tuổi từ server:', error);
-                const serverNow = new Date();
-                const birthDate = new Date(birthday);
-                let age = serverNow.getFullYear() - birthDate.getFullYear();
-                const monthDiff = serverNow.getMonth() - birthDate.getMonth();
-                if (monthDiff < 0 || (monthDiff === 0 && serverNow.getDate() < birthDate.getDate())) {
-                    age--;
-                }
-                return {
-                    age: age,
-                    serverTime: serverNow,
-                    isValid: age >= 12
-                };
+        function checkAgeFromServer(birthday) {
+            const now = new Date();
+            const birthDate = new Date(birthday);
+            let age = now.getFullYear() - birthDate.getFullYear();
+            const monthDiff = now.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birthDate.getDate())) {
+                age--;
             }
+            return { age, isValid: age >= 12 };
         }
 
-        // ===== HANDLE FORGOT PASSWORD =====
-        window.handleForgotPassword = async () => {
-            if (isLocked) {
-                showAlert("Thông báo", "Tài khoản đang bị khóa tạm thời. Vui lòng đợi " + remainingTime + "s.");
+        // ===== SOCIAL LOGIN =====
+        window.socialLogin = async (providerType) => {
+            let provider;
+            if (providerType === 'google') {
+                provider = new GoogleAuthProvider();
+            } else if (providerType === 'facebook') {
+                provider = new FacebookAuthProvider();
+            } else {
                 return;
             }
             
+            document.getElementById('googleLoginBtn').disabled = true;
+            document.getElementById('facebookLoginBtn').disabled = true;
+            
+            showLoading(`Đang đăng nhập với ${providerType === 'google' ? 'Google' : 'Facebook'}...`, 'Vui lòng đợi');
+            
+            try {
+                await signInWithPopup(auth, provider);
+            } catch (error) {
+                hideLoading();
+                document.getElementById('googleLoginBtn').disabled = false;
+                document.getElementById('facebookLoginBtn').disabled = false;
+                showToast('Lỗi', getFirebaseErrorMessage(error.code), 'error');
+            }
+        };
+
+        // ===== HANDLE LOGIN =====
+        window.handleLogin = async () => {
+            const email = document.getElementById('email').value.trim();
+            const pass = document.getElementById('password').value;
+            
+            if (!email || !pass) {
+                showToast('Thông báo', 'Vui lòng nhập đầy đủ tài khoản và mật khẩu.', 'warning');
+                return;
+            }
+            
+            showLoading('Đang đăng nhập...', 'Vui lòng đợi');
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+            } catch (e) {
+                hideLoading();
+                showToast('Lỗi', getFirebaseErrorMessage(e.code), 'error');
+            }
+        };
+
+        // ===== HANDLE SIGNUP =====
+        window.handleSignup = async () => {
+            const email = document.getElementById('signup-email').value.trim();
+            const pass = document.getElementById('signup-password').value;
+            const name = document.getElementById('signup-name').value.trim();
+            const gender = document.getElementById('signup-gender').value;
+            const birthday = document.getElementById('signup-birthday').value;
+            const confirmPass = document.getElementById('signup-confirm-password').value;
+
+            if (!name) {
+                showToast('Thông báo', 'Vui lòng nhập họ và tên.', 'warning');
+                return;
+            }
+            if (!email) {
+                showToast('Thông báo', 'Vui lòng nhập email.', 'warning');
+                return;
+            }
+            if (!birthday) {
+                showToast('Thông báo', 'Vui lòng chọn ngày sinh.', 'warning');
+                return;
+            }
+            if (!document.getElementById('terms-checkbox').checked) {
+                showToast('Thông báo', 'Bạn chưa đồng ý với điều khoản.', 'warning');
+                return;
+            }
+            if (pass !== confirmPass) {
+                showToast('Thông báo', 'Mật khẩu xác nhận không khớp.', 'error');
+                return;
+            }
+            if (pass.length < 6) {
+                showToast('Thông báo', 'Mật khẩu phải có ít nhất 6 ký tự.', 'warning');
+                return;
+            }
+            
+            const ageCheck = checkAgeFromServer(birthday);
+            if (!ageCheck.isValid) {
+                showToast('Yêu cầu độ tuổi', 'Bạn cần phải trên 12 tuổi để sử dụng dịch vụ.', 'error');
+                return;
+            }
+            
+            showLoading('Đang tạo tài khoản...', 'Vui lòng đợi');
+            
+            try {
+                isSigningUp = true;
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                
+                await set(ref(db, `users/${res.user.uid}`), {
+                    email: email.toLowerCase(),
+                    name: name,
+                    gender: gender,
+                    birthday: birthday,
+                    showGender: true,
+                    showBirthday: true,
+                    allowStrangerChat: true,
+                    allowFriendRequest: true,
+                    isLocked: false,
+                    haveGreenTick: false,
+                    providers: ['password'],
+                    lockInfo: {
+                        id: "---",
+                        reason: "---",
+                        start: "---",
+                        end: "---",
+                    }
+                });
+                
+                isSigningUp = false;
+                hideLoading();
+                showToast('Thành công', 'Đăng ký tài khoản thành công!', 'success', 2000);
+                setTimeout(() => {
+                    window.location.href = "chat.html";
+                }, 1500);
+                
+            } catch (e) {
+                isSigningUp = false;
+                hideLoading();
+                showToast('Lỗi', getFirebaseErrorMessage(e.code), 'error');
+            }
+        };
+
+        // ===== HANDLE FORGOT PASSWORD =====
+        window.handleForgotPassword = async () => {
             const email = document.getElementById('resetEmailInput').value.trim();
-            if(!email) {
-                showAlert("Lỗi", "Vui lòng nhập email.");
+            if (!email) {
+                showToast('Lỗi', 'Vui lòng nhập email.', 'error');
                 return;
             }
             
@@ -786,50 +1278,30 @@ s0.parentNode.insertBefore(s1,s0);
             try {
                 await sendPasswordResetEmail(auth, email);
                 hideLoading();
-                showAlert("Thành công", "Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư.", () => {
-                    switchForm('login');
-                });
-            } catch(e) {
+                showToast('Thành công', 'Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư.', 'success');
+                setTimeout(() => switchForm('login'), 1500);
+            } catch (e) {
                 hideLoading();
-                showAlert("Lỗi", getFirebaseErrorMessage(e.code));
+                showToast('Lỗi', getFirebaseErrorMessage(e.code), 'error');
             }
         };
 
-        // ===== SHOW SIGNUP SUCCESS =====
-        function showSignupSuccessAndRedirect() {
-            const modalEl = document.getElementById('signupSuccessModal');
-            signupSuccessModal = new bootstrap.Modal(modalEl, {
-                backdrop: 'static',
-                keyboard: false
-            });
-            
-            const redirectToChat = () => {
-                signupSuccessModal.hide();
-                window.location.href = "chat.html";
-            };
-            
-            document.getElementById('signupSuccessOkBtn').onclick = redirectToChat;
-            document.getElementById('signupSuccessCloseBtn').onclick = redirectToChat;
-            
-            modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
-                modalEl.removeEventListener('hidden.bs.modal', handleHidden);
-                window.location.href = "chat.html";
-            });
-            
-            signupSuccessModal.show();
-        }
-
-        // ===== SHOW ACCOUNT LOCKED =====
-        window.showAccountLockedModal = (lockInfo) => {
-            if (!lockInfo) lockInfo = {};
-            document.getElementById('lock-info-id').innerText = lockInfo.id || "---";
-            document.getElementById('lock-info-reason').innerText = lockInfo.reason || "---";
-            document.getElementById('lock-info-start').innerText = lockInfo.start || "---";
-            document.getElementById('lock-info-end').innerText = lockInfo.end || "---";
-            
-            const lockModal = new bootstrap.Modal(document.getElementById('accountLockedModal'));
-            lockModal.show();
-        };
+        // ===== KEYPRESS =====
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleLogin();
+        });
+        document.getElementById('email').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleLogin();
+        });
+        document.getElementById('signup-password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleSignup();
+        });
+        document.getElementById('signup-email').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleSignup();
+        });
+        document.getElementById('resetEmailInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleForgotPassword();
+        });
 
         // ===== AUTH STATE =====
         onAuthStateChanged(auth, async (user) => {
@@ -839,7 +1311,7 @@ s0.parentNode.insertBefore(s1,s0);
                     if (snap.exists()) {
                         const userData = snap.val();
                         if (userData.isLocked === true || userData.isLocked === "true") {
-                            showAccountLockedModal(userData.lockInfo);
+                            showLockModal(userData.lockInfo);
                             await signOut(auth);
                             return;
                         }
@@ -851,174 +1323,34 @@ s0.parentNode.insertBefore(s1,s0);
             }
         });
 
-        // ===== VALIDATE NAME =====
-        function isValidName(name) {
-            if (!name || !name.trim()) return false;
-            const forbiddenWords = ['cặc', 'lồn', 'địt', 'fuck', 'shit'];
-            const lowerName = name.toLowerCase();
-            return !forbiddenWords.some(word => lowerName.includes(word));
-        }
-
-        // ===== HANDLE AUTH =====
-        window.handleAuth = async (type) => {
-            if (isLocked) {
-                showAlert("Thông báo", "Tài khoản đang bị khóa tạm thời. Vui lòng đợi " + remainingTime + "s.");
-                return;
-            }
-            
-            if (type === 'signup') {
-                const email = document.getElementById('signup-email').value.trim();
-                const pass = document.getElementById('signup-password').value;
-                const name = document.getElementById('signup-name').value.trim();
-                const gender = document.getElementById('signup-gender').value;
-                const birthday = document.getElementById('signup-birthday').value;
-
-                if (!name) {
-                    return showAlert("Thông báo", "Vui lòng nhập họ và tên.");
-                }
-                if (!email) {
-                    return showAlert("Thông báo", "Vui lòng nhập email.");
-                }
-                if (!birthday) {
-                    return showAlert("Thông báo", "Vui lòng chọn ngày sinh.");
-                }
-                if (!document.getElementById('terms-checkbox').checked) {
-                    return showAlert("Thông báo", "Bạn chưa đồng ý với điều khoản.");
-                }
-                if (!isValidName(name)) {
-                    return showAlert("Thông báo", "Tên chứa từ ngữ không hợp lệ.");
-                }
-                if (pass !== document.getElementById('signup-confirm-password').value) {
-                    return showAlert("Thông báo", "Mật khẩu xác nhận không khớp.");
-                }
-                if (pass.length < 6) {
-                    return showAlert("Thông báo", "Mật khẩu phải có ít nhất 6 ký tự.");
-                }
-                
-                try {
-                    const ageCheck = await checkAgeFromServer(birthday);
-                    if (!ageCheck.isValid) {
-                        return showAlert(
-                            "Yêu cầu độ tuổi", 
-                            `Bạn cần phải trên 12 tuổi để có thể sử dụng dịch vụ của VieChat.`
-                        );
-                    }
-                } catch (error) {
-                    console.warn('Không thể kiểm tra tuổi từ server, bỏ qua kiểm tra:', error);
-                }
-                
-                showLoading('Đang tạo tài khoản...', 'Vui lòng đợi');
-                
-                try {
-                    isSigningUp = true; 
-                    const res = await createUserWithEmailAndPassword(auth, email, pass);
-                    
-                    await set(ref(db, `users/${res.user.uid}`), { 
-                        email: email.toLowerCase(), 
-                        name: name,
-                        gender: gender,
-                        birthday: birthday,
-                        showGender: true,
-                        showBirthday: true,
-                        allowStrangerChat: true,
-                        allowFriendRequest: true,
-                        isLocked: false,
-                        haveGreenTick: false,
-                        lockInfo: {
-                            id: "---",
-                            reason: "---",
-                            start: "---",
-                            end: "---",
-                        }
-                    });
-                    
-                    isSigningUp = false;
-                    hideLoading();
-                    showSignupSuccessAndRedirect();
-                    
-                } catch (e) { 
-                    isSigningUp = false;
-                    hideLoading();
-                    showAlert("Thông báo", getFirebaseErrorMessage(e.code)); 
-                }
-            } else {
-                // ĐĂNG NHẬP
-                const email = document.getElementById('email').value.trim();
-                const pass = document.getElementById('password').value;
-                if (!email || !pass) {
-                    return showAlert("Thông báo", "Vui lòng nhập đầy đủ tài khoản và mật khẩu.");
-                }
-                
-                showLoading('Đang đăng nhập...', 'Vui lòng đợi');
-                
-                try {
-                    await signInWithEmailAndPassword(auth, email, pass);
-                    resetLoginAttempts();
-                } catch (e) { 
-                    hideLoading();
-                    loginAttempts++;
-                    
-                    // Lưu số lần thử vào localStorage
-                    const lockData = getLockData();
-                    if (lockData) {
-                        saveLockData(lockData.locked || false, lockData.unlockTime || null, loginAttempts);
-                    }
-                    
-                    if (loginAttempts >= MAX_ATTEMPTS) {
-                        lockForm();
-                        showAlert("Thông báo", `Bạn đã nhập sai mật khẩu ${MAX_ATTEMPTS} lần. Tài khoản sẽ bị khóa trong ${LOCK_DURATION} giây.`);
-                    } else {
-                        const remaining = MAX_ATTEMPTS - loginAttempts;
-                        showAlert("Thông báo", getFirebaseErrorMessage(e.code) + `<br><small class="text-muted">Còn ${remaining} lần thử trước khi tài khoản bị khóa.</small>`);
-                    }
-                }
-            }
-        };
-
         // ===== INIT =====
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
             const loginForm = document.getElementById('login-form');
             const signupForm = document.getElementById('signup-form');
             const forgotForm = document.getElementById('forgot-password-form');
             
             loginForm.style.display = 'block';
-            loginForm.classList.add('active', 'fade-in');
+            loginForm.classList.add('active');
             signupForm.style.display = 'none';
             forgotForm.style.display = 'none';
             currentForm = 'login';
             
-            // ===== KIỂM TRA LOCK TỪ LOCALSTORAGE =====
-            const wasLocked = checkLockFromStorage();
-            
-            if (wasLocked) {
-                // Hiển thị thông báo khóa
-                showAlert("Thông báo", `Tài khoản đang bị khóa tạm thời. Vui lòng đợi ${remainingTime}s.`);
-            } else {
-                // Nếu không bị khóa, focus vào email
-                setTimeout(() => {
-                    document.getElementById('email').focus();
-                }, 300);
+            setTimeout(() => {
+                document.getElementById('email').focus();
+            }, 300);
+        });
+
+        // ===== CLOSE LOCK MODAL ON ESC =====
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && lockModalVisible) {
+                closeLockModal();
             }
         });
 
-        // ===== CLEANUP =====
-        window.addEventListener('beforeunload', function() {
-            if (lockTimerInterval) {
-                clearInterval(lockTimerInterval);
-                lockTimerInterval = null;
-            }
-            // Lưu trạng thái khóa nếu đang bị khóa
-            if (isLocked) {
-                const unlockTime = Date.now() + (remainingTime * 1000);
-                saveLockData(true, unlockTime, loginAttempts);
-            }
-        });
-
-        // ===== KHI ĐÓNG TRANG, LƯU TRẠNG THÁI =====
-        window.addEventListener('pagehide', function() {
-            if (isLocked) {
-                const unlockTime = Date.now() + (remainingTime * 1000);
-                saveLockData(true, unlockTime, loginAttempts);
+        // ===== CLICK OUTSIDE LOCK MODAL =====
+        document.getElementById('lockModalOverlay').addEventListener('click', function(e) {
+            if (e.target === this && lockModalVisible) {
+                closeLockModal();
             }
         });
     </script>

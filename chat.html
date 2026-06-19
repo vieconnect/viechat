@@ -444,6 +444,91 @@
             font-size: 14px;
         }
         
+        /* ===== TOAST NOTIFICATION ===== */
+        .toast-container-custom {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 420px;
+            width: 100%;
+            align-items: center;
+        }
+        .toast-custom {
+            background: white;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            animation: toastSlideIn 0.4s ease;
+            border-left: 4px solid var(--primary);
+            transform: translateX(0);
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 420px;
+        }
+        .toast-custom.toast-success { border-left-color: var(--success); }
+        .toast-custom.toast-error { border-left-color: var(--danger); }
+        .toast-custom.toast-warning { border-left-color: #f39c12; }
+        .toast-custom.toast-info { border-left-color: var(--primary); }
+        .toast-custom .toast-icon {
+            font-size: 22px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .toast-custom.toast-success .toast-icon { color: var(--success); }
+        .toast-custom.toast-error .toast-icon { color: var(--danger); }
+        .toast-custom.toast-warning .toast-icon { color: #f39c12; }
+        .toast-custom.toast-info .toast-icon { color: var(--primary); }
+        .toast-custom .toast-body { flex: 1; }
+        .toast-custom .toast-body .toast-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: #1c1e21;
+        }
+        .toast-custom .toast-body .toast-message {
+            font-size: 13px;
+            color: #555;
+            margin-top: 2px;
+        }
+        .toast-custom .toast-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #999;
+            cursor: pointer;
+            padding: 0 4px;
+            flex-shrink: 0;
+            transition: color 0.2s;
+        }
+        .toast-custom .toast-close:hover {
+            color: #333;
+        }
+        .toast-custom.toast-hide {
+            transform: translateX(120%);
+            opacity: 0;
+        }
+        @keyframes toastSlideIn {
+            from { 
+                transform: translateY(-30px);
+                opacity: 0; 
+            }
+            to { 
+                transform: translateY(0); 
+                opacity: 1; 
+            }
+        }
+        .toast-custom.toast-hide {
+            transform: translateY(-30px);
+            opacity: 0;
+        }
+        
         @media (max-width: 790px) {
             .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: 320px; transform: translateX(-100%); z-index: 1001; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
             .sidebar.open { transform: translateX(0); }
@@ -455,7 +540,296 @@
             .user-profile .avatar-wrapper { width: 40px; height: 40px; }
             .user-profile .avatar-wrapper .avatar { width: 40px; height: 40px; }
             .user-profile .avatar-wrapper .avatar-placeholder { width: 40px; height: 40px; font-size: 16px; }
+            .toast-container-custom { top: 10px; max-width: calc(100% - 20px); }
+            .toast-custom { padding: 12px 14px; font-size: 13px; }
         }
+
+        /* ===== PRIVACY MODAL - 2 COLUMN LAYOUT ===== */
+.privacy-modal .modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+    max-height: 90vh;
+    min-height: 500px;
+}
+.privacy-modal .modal-body {
+    padding: 0;
+    display: flex;
+    height: 100%;
+    overflow: hidden;
+    flex: 1;
+}
+.privacy-modal .modal-header {
+    border-bottom: 1px solid #e4e6eb;
+    padding: 16px 20px;
+    flex-shrink: 0;
+}
+.privacy-modal .modal-footer {
+    border-top: 1px solid #e4e6eb;
+    padding: 12px 20px;
+    flex-shrink: 0;
+}
+
+/* Left Sidebar */
+.privacy-sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: #f8f9fa;
+    border-right: 1px solid #e4e6eb;
+    overflow-y: auto;
+    padding: 8px 0;
+    height: 100%;
+}
+.privacy-sidebar .menu-item-privacy {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+    color: #1c1e21;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+    font-weight: 500;
+}
+.privacy-sidebar .menu-item-privacy:hover {
+    background: #e9ecef;
+}
+.privacy-sidebar .menu-item-privacy.active {
+    background: white;
+    border-left-color: var(--primary);
+    color: var(--primary);
+    font-weight: 600;
+}
+.privacy-sidebar .menu-item-privacy i {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+}
+
+/* Right Content */
+.privacy-content {
+    flex: 1;
+    padding: 20px 24px;
+    overflow-y: auto;
+    height: 100%;
+    background: white;
+}
+.privacy-content .content-section {
+    display: none;
+    animation: contentFadeIn 0.25s ease;
+}
+.privacy-content .content-section.active {
+    display: block;
+}
+@keyframes contentFadeIn {
+    from { opacity: 0; transform: translateX(8px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+.privacy-content .section-header {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1c1e21;
+    margin-bottom: 4px;
+}
+.privacy-content .section-desc {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 20px;
+}
+.privacy-content .form-group {
+    margin-bottom: 16px;
+}
+.privacy-content .form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    display: block;
+    margin-bottom: 4px;
+}
+.privacy-content .form-group .form-control,
+.privacy-content .form-group .form-select {
+    border-radius: 10px;
+    border: 1.5px solid #e0e0e0;
+    padding: 10px 14px;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+.privacy-content .form-group .form-control:focus,
+.privacy-content .form-group .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 132, 255, 0.12);
+}
+.privacy-content .form-switch .form-check-input {
+    width: 44px;
+    height: 24px;
+    cursor: pointer;
+}
+.privacy-content .form-switch .form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+.privacy-content .form-switch .form-check-label {
+    font-size: 14px;
+    color: #1c1e21;
+    cursor: pointer;
+    margin-left: 8px;
+}
+.privacy-content .form-switch .form-check {
+    padding-left: 52px;
+    margin-bottom: 12px;
+}
+.privacy-content .form-switch .form-check .form-check-input {
+    margin-left: -52px;
+}
+
+/* Linked Accounts */
+.linked-account-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f2f5;
+}
+.linked-account-item:last-child {
+    border-bottom: none;
+}
+.linked-account-item .account-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.linked-account-item .account-info .account-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+.linked-account-item .account-info .account-name {
+    font-weight: 600;
+    font-size: 14px;
+}
+.linked-account-item .account-info .account-email {
+    font-size: 12px;
+    color: #888;
+}
+.linked-account-item .account-status .badge {
+    font-size: 11px;
+    padding: 4px 12px;
+}
+.linked-account-item .account-status .btn-link-account {
+    font-size: 12px;
+    padding: 4px 14px;
+    border-radius: 6px;
+    border: 1.5px solid var(--primary);
+    background: transparent;
+    color: var(--primary);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+.linked-account-item .account-status .btn-link-account:hover {
+    background: var(--primary);
+    color: white;
+}
+.linked-account-item .account-status .btn-unlink-account {
+    font-size: 12px;
+    padding: 4px 14px;
+    border-radius: 6px;
+    border: 1.5px solid var(--danger);
+    background: transparent;
+    color: var(--danger);
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 500;
+}
+.linked-account-item .account-status .btn-unlink-account:hover {
+    background: var(--danger);
+    color: white;
+}
+
+/* Responsive Privacy Modal */
+@media (max-width: 790px) {
+    .privacy-modal .modal-content {
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+        min-height: unset;
+    }
+    .privacy-modal .modal-body {
+        flex-direction: column;
+        height: auto;
+        flex: 1;
+        overflow: hidden;
+    }
+    .privacy-sidebar {
+        width: 100%;
+        min-width: unset;
+        height: auto;
+        max-height: 140px;
+        border-right: none;
+        border-bottom: 1px solid #e4e6eb;
+        display: flex;
+        overflow-x: auto;
+        padding: 4px 0;
+        flex-shrink: 0;
+        background: #f8f9fa;
+    }
+    .privacy-sidebar .menu-item-privacy {
+        padding: 10px 16px;
+        white-space: nowrap;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        font-size: 13px;
+        flex-shrink: 0;
+        width: auto;
+        background: transparent;
+    }
+    .privacy-sidebar .menu-item-privacy.active {
+        border-left: none;
+        border-bottom-color: var(--primary);
+        background: transparent;
+    }
+    .privacy-sidebar .menu-item-privacy i {
+        margin-right: 4px;
+    }
+    .privacy-content {
+        padding: 16px;
+        flex: 1;
+        overflow-y: auto;
+        height: auto;
+    }
+    .privacy-content .section-header {
+        font-size: 16px;
+    }
+    .privacy-content .form-switch .form-check-label {
+        font-size: 13px;
+    }
+    .privacy-modal .modal-footer {
+        padding: 10px 16px;
+    }
+}
+@media (max-width: 480px) {
+    .privacy-sidebar .menu-item-privacy {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    .privacy-content {
+        padding: 12px;
+    }
+    .privacy-content .form-switch .form-check-label {
+        font-size: 12px;
+    }
+    .linked-account-item .account-info .account-name {
+        font-size: 13px;
+    }
+}
     </style>
 </head>
 <body>
@@ -715,49 +1089,159 @@
         </div>
     </div>
 
-    <!-- MODAL QUYỀN RIÊNG TƯ -->
-    <div class="modal fade" id="privacySettingsModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">Cài đặt Quyền riêng tư</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<!-- MODAL QUYỀN RIÊNG TƯ - 2 CỘT -->
+<div class="modal fade privacy-modal" id="privacySettingsModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">Cài đặt</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Sidebar trái -->
+                <div class="privacy-sidebar">
+                    <button class="menu-item-privacy active" data-section="account" onclick="switchPrivacySection('account')">
+                        <i class="fas fa-user-circle"></i> Tài khoản và bảo mật
+                    </button>
+                    <button class="menu-item-privacy" data-section="privacy" onclick="switchPrivacySection('privacy')">
+                        <i class="fas fa-lock"></i> Quyền riêng tư
+                    </button>
+                    <button class="menu-item-privacy" data-section="linked" onclick="switchPrivacySection('linked')">
+                        <i class="fas fa-link"></i> Liên kết tài khoản
+                    </button>
                 </div>
-                <div class="modal-body">
-                    <h6 class="fw-bold border-bottom pb-1 text-secondary">Thông tin cá nhân</h6>
-                    <div class="mb-3">
-                        <label class="form-label">Giới tính</label>
-                        <select class="form-select" id="privInputGender"><option value="Nam">Nam</option><option value="Nữ">Nữ</option><option value="Khác">Khác</option></select>
+                
+                <!-- Nội dung phải -->
+                <div class="privacy-content">
+                    <!-- Tài khoản và bảo mật -->
+                    <div class="content-section active" id="section-account">
+                        <div class="section-header">Tài khoản và bảo mật</div>
+                        <div class="section-desc">Quản lý thông tin cá nhân và bảo mật tài khoản của bạn.</div>
+                        
+                        <div class="form-group">
+                            <label>Giới tính</label>
+                            <select class="form-select" id="privInputGender">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Ngày sinh</label>
+                            <input type="date" class="form-control" id="privInputBirthday">
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Ngày sinh</label>
-                        <input type="date" class="form-control" id="privInputBirthday">
+                    
+                    <!-- Quyền riêng tư -->
+                    <div class="content-section" id="section-privacy">
+                        <div class="section-header">Quyền riêng tư</div>
+                        <div class="section-desc">Kiểm soát những gì người khác có thể thấy về bạn.</div>
+                        
+                        <div class="form-switch">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="privSwitchShowGender">
+                                <label class="form-check-label">Hiển thị giới tính khi người khác tìm kiếm</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-switch">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="privSwitchShowBirthday">
+                                <label class="form-check-label">Hiển thị ngày sinh khi người khác tìm kiếm</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-switch">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="privSwitchAllowSearch">
+                                <label class="form-check-label">Cho phép mọi người tìm kiếm tôi bằng Email</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-switch">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="privSwitchAllowFriend">
+                                <label class="form-check-label">Cho phép người lạ gửi lời mời kết bạn</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-switch">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="privSwitchAllowStrangerChat">
+                                <label class="form-check-label">Cho phép người lạ nhắn tin khi chưa kết bạn</label>
+                            </div>
+                        </div>
                     </div>
-                    <h6 class="fw-bold border-bottom pb-1 pt-2 text-secondary">Quyền hiển thị công khai</h6>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="privSwitchShowGender"><label class="form-check-label">Hiển thị giới tính khi người khác tìm kiếm</label>
-                    </div>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" id="privSwitchShowBirthday"><label class="form-check-label">Hiển thị ngày sinh khi người khác tìm kiếm</label>
-                    </div>
-                    <h6 class="fw-bold border-bottom pb-1 pt-2 text-secondary">Tương tác & kết nối</h6>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="privSwitchAllowSearch"><label class="form-check-label">Cho phép mọi người tìm kiếm tôi bằng Email</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="privSwitchAllowFriend"><label class="form-check-label">Cho phép người lạ gửi lời mời kết bạn</label>
-                    </div>
-                    <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="privSwitchAllowStrangerChat"><label class="form-check-label">Cho phép người lạ nhắn tin khi chưa kết bạn</label>
+                    
+                    <!-- Liên kết tài khoản -->
+                    <div class="content-section" id="section-linked">
+                        <div class="section-header">Liên kết tài khoản</div>
+                        <div class="section-desc">Quản lý các tài khoản liên kết để đăng nhập dễ dàng hơn.</div>
+                        
+                        <div id="linkedAccountsContainer">
+                            <!-- Mật khẩu (mặc định) -->
+                            <div class="linked-account-item">
+                                <div class="account-info">
+                                    <div class="account-icon" style="background:#e8f0fe; color:#1a73e8;">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div>
+                                        <div class="account-name">Mật khẩu</div>
+                                        <div class="account-email">Email: <span id="linkedEmailDisplay">---</span></div>
+                                    </div>
+                                </div>
+                                <div class="account-status">
+                                    <span class="badge bg-success">Đã liên kết</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Google -->
+                            <div class="linked-account-item" id="googleAccountItem">
+                                <div class="account-info">
+                                    <div class="account-icon" style="background:#fce8e6; color:#ea4335;">
+                                        <i class="fab fa-google"></i>
+                                    </div>
+                                    <div>
+                                        <div class="account-name">Google</div>
+                                        <div class="account-email">Đăng nhập bằng tài khoản Google</div>
+                                    </div>
+                                </div>
+                                <div class="account-status" id="googleLinkStatus">
+                                    <button class="btn-link-account" onclick="linkProvider('google')">Liên kết</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Facebook -->
+                            <div class="linked-account-item" id="facebookAccountItem">
+                                <div class="account-info">
+                                    <div class="account-icon" style="background:#e8edf5; color:#1877f2;">
+                                        <i class="fab fa-facebook-f"></i>
+                                    </div>
+                                    <div>
+                                        <div class="account-name">Facebook</div>
+                                        <div class="account-email">Đăng nhập bằng tài khoản Facebook</div>
+                                    </div>
+                                </div>
+                                <div class="account-status" id="facebookLinkStatus">
+                                    <button class="btn-link-account" onclick="linkProvider('facebook')">Liên kết</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-muted small mt-3">
+                            <i class="fas fa-info-circle"></i> Liên kết tài khoản để dễ dàng đăng nhập bằng nhiều phương thức khác nhau.
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" onclick="savePrivacySettings()">Lưu thay đổi</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="savePrivacySettings()">Lưu thay đổi</button>
             </div>
         </div>
     </div>
+</div>
 
     <!-- MODAL XÓA TIN NHẮN PHÍA TÔI -->
     <div class="modal fade" id="deleteForMeModal" tabindex="-1" data-bs-backdrop="static">
@@ -841,6 +1325,9 @@
         </div>
     </div>
 
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container-custom" id="toastContainer"></div>
+
     <!-- MODALS CHUNG -->
     <div class="modal fade" id="commonModal" tabindex="-1" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="commonModalTitle">Thông báo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="commonModalBody"></div><div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button></div></div></div></div>
     <div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5>Xác nhận</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="confirmModalBody"></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-danger" id="confirmModalOkBtn">Đồng ý</button></div></div></div></div>
@@ -852,7 +1339,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, updatePassword, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, updatePassword, deleteUser, reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider, FacebookAuthProvider, linkWithPopup, unlink } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue, query, orderByChild, equalTo, get, remove, off, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -903,6 +1390,42 @@
         let activeModalInstance = null;
         let ageWarningModalObj = null;
         let ageWarningShown = false;
+        
+        // ===== TOAST SYSTEM =====
+        function showToast(title, message, type = 'info', duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast-custom toast-${type}`;
+            
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fas ${icons[type] || icons.info}"></i></div>
+                <div class="toast-body">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.closest('.toast-custom').remove()">&times;</button>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.classList.add('toast-hide');
+                    setTimeout(() => {
+                        if (toast.parentNode) toast.remove();
+                    }, 300);
+                }
+            }, duration);
+            
+            return toast;
+        }
 
         // ========== SHOW ABOUT MODAL ==========
         window.showAboutModal = () => {
@@ -1131,13 +1654,13 @@
             if (!file) return;
             
             if (file.size > 2 * 1024 * 1024) {
-                showAlert("Lỗi", "Ảnh quá lớn. Vui lòng chọn ảnh nhỏ hơn 2MB.");
+                showToast("Lỗi", "Ảnh quá lớn. Vui lòng chọn ảnh nhỏ hơn 2MB.", "error");
                 event.target.value = '';
                 return;
             }
             
             if (!file.type.startsWith('image/')) {
-                showAlert("Lỗi", "Vui lòng chọn file ảnh.");
+                showToast("Lỗi", "Vui lòng chọn file ảnh.", "error");
                 event.target.value = '';
                 return;
             }
@@ -1156,7 +1679,7 @@
 
         window.saveAvatar = async () => {
             if (!avatarFileData) {
-                showAlert("Lỗi", "Vui lòng chọn ảnh trước khi lưu.");
+                showToast("Lỗi", "Vui lòng chọn ảnh trước khi lưu.", "error");
                 return;
             }
             
@@ -1166,10 +1689,10 @@
                 const modalEl = document.getElementById('avatarUploadModal');
                 const modal = bootstrap.Modal.getInstance(modalEl);
                 if (modal) modal.hide();
-                showAlert("Thành công", "Đã cập nhật ảnh đại diện thành công!");
+                showToast("Thành công", "Đã cập nhật ảnh đại diện thành công!", "success");
             } catch (error) {
                 console.error('Lỗi lưu avatar:', error);
-                showAlert("Lỗi", "Không thể lưu ảnh đại diện. Vui lòng thử lại.");
+                showToast("Lỗi", "Không thể lưu ảnh đại diện. Vui lòng thử lại.", "error");
             }
         };
 
@@ -1187,10 +1710,10 @@
                     const modalEl = document.getElementById('avatarUploadModal');
                     const modal = bootstrap.Modal.getInstance(modalEl);
                     if (modal) modal.hide();
-                    showAlert("Thành công", "Đã xóa ảnh đại diện thành công!");
+                    showToast("Thành công", "Đã xóa ảnh đại diện thành công!", "success");
                 } catch (error) {
                     console.error('Lỗi xóa avatar:', error);
-                    showAlert("Lỗi", "Không thể xóa ảnh đại diện. Vui lòng thử lại.");
+                    showToast("Lỗi", "Không thể xóa ảnh đại diện. Vui lòng thử lại.", "error");
                 }
             });
         };
@@ -1269,13 +1792,13 @@
             }
             
             if (totalSize > 10 * 1024 * 1024) {
-                showAlert("Lỗi", "Tổng dung lượng các file quá lớn (tối đa 10MB).");
+                showToast("Lỗi", "Tổng dung lượng các file quá lớn (tối đa 10MB).", "error");
                 event.target.value = '';
                 return;
             }
             
             if (selectedFiles.length + files.length > 10) {
-                showAlert("Lỗi", "Chỉ được gửi tối đa 10 file cùng lúc.");
+                showToast("Lỗi", "Chỉ được gửi tối đa 10 file cùng lúc.", "error");
                 event.target.value = '';
                 return;
             }
@@ -1284,7 +1807,7 @@
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
                     if (file.size > 2 * 1024 * 1024) {
-                        showAlert("Lỗi", `File "${file.name}" quá lớn (tối đa 2MB).`);
+                        showToast("Lỗi", `File "${file.name}" quá lớn (tối đa 2MB).`, "error");
                         event.target.value = '';
                         return;
                     }
@@ -1299,7 +1822,7 @@
                 
             } catch (error) {
                 console.error('Lỗi đọc file:', error);
-                showAlert("Lỗi", "Không thể đọc file. Vui lòng thử lại.");
+                showToast("Lỗi", "Không thể đọc file. Vui lòng thử lại.", "error");
                 event.target.value = '';
             }
         };
@@ -1370,7 +1893,7 @@
             
             const snap = await get(ref(db, `users/${uid}`));
             if (!snap.exists()) {
-                showAlert("Lỗi", "Không thể tải thông tin người dùng.");
+                showToast("Lỗi", "Không thể tải thông tin người dùng.", "error");
                 return;
             }
             const targetData = snap.val();
@@ -1555,32 +2078,16 @@
             }
         });
 
+        // ===== SHOW TOAST THAY THẾ SHOW ALERT =====
+        // Giữ showAlert để tương thích ngược nhưng chuyển sang toast
         window.showAlert = (title, message, onClose = null) => {
-            document.getElementById('commonModalTitle').innerText = title;
-            document.getElementById('commonModalBody').innerHTML = message;
-            const modalEl = document.getElementById('commonModal');
-            closeAllModals();
-            setTimeout(() => {
-                const modal = new bootstrap.Modal(modalEl);
-                activeModalInstance = modal;
-                if (onClose) {
-                    modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
-                        modalEl.removeEventListener('hidden.bs.modal', handleHidden);
-                        activeModalInstance = null;
-                        onClose();
-                    }, { once: true });
-                } else {
-                    modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
-                        modalEl.removeEventListener('hidden.bs.modal', handleHidden);
-                        activeModalInstance = null;
-                    }, { once: true });
-                }
-                modal.show();
-            }, 150);
+            // Chuyển sang toast
+            showToast(title, message, 'info', 4000);
+            if (onClose) setTimeout(onClose, 100);
         };
-        
+
         window.showConfirm = (message, onOk) => {
-            document.getElementById('confirmModalBody').innerText = message;
+            document.getElementById('confirmModalBody').innerHTML = message;
             pendingConfirmCallback = onOk;
             const modalEl = document.getElementById('confirmModal');
             closeAllModals();
@@ -1636,13 +2143,16 @@
 
         document.getElementById('changeNameSubmitBtn').onclick = async () => {
             const newName = document.getElementById('changeNameInput').value.trim();
-            if(!newName) { showAlert("Lỗi", "Tên hiển thị không được để trống."); return; }
+            if(!newName) { 
+                showToast("Lỗi", "Tên hiển thị không được để trống.", "error");
+                return; 
+            }
             await update(ref(db, `users/${currentUser.uid}`), { name: newName });
             if (changeNameModalObj) {
                 changeNameModalObj.hide();
                 activeModalInstance = null;
             }
-            showAlert("Thành công", "Đã cập nhật tên hiển thị.");
+            showToast("Thành công", "Đã cập nhật tên hiển thị.", "success");
         };
 
         window.showChangePasswordModal = () => {
@@ -1667,9 +2177,18 @@
             const newPw = document.getElementById('newPasswordInput').value;
             const confPw = document.getElementById('confirmNewPasswordInput').value;
             
-            if(!oldPw || !newPw || !confPw) { showAlert("Lỗi", "Vui lòng nhập đầy đủ các trường."); return; }
-            if(newPw !== confPw) { showAlert("Lỗi", "Xác nhận mật khẩu mới không khớp."); return; }
-            if(newPw.length < 6) { showAlert("Lỗi", "Mật khẩu mới phải từ 6 ký tự trở lên."); return; }
+            if(!oldPw || !newPw || !confPw) { 
+                showToast("Lỗi", "Vui lòng nhập đầy đủ các trường.", "error");
+                return; 
+            }
+            if(newPw !== confPw) { 
+                showToast("Lỗi", "Xác nhận mật khẩu mới không khớp.", "error");
+                return; 
+            }
+            if(newPw.length < 6) { 
+                showToast("Lỗi", "Mật khẩu mới phải từ 6 ký tự trở lên.", "error");
+                return; 
+            }
             
             try {
                 const credential = EmailAuthProvider.credential(currentUser.email, oldPw);
@@ -1679,9 +2198,9 @@
                     changePasswordModalObj.hide();
                     activeModalInstance = null;
                 }
-                showAlert("Thành công", "Đã thay đổi mật khẩu thành công.");
+                showToast("Thành công", "Đã thay đổi mật khẩu thành công.", "success");
             } catch (error) {
-                showAlert("Lỗi", "Mật khẩu cũ không chính xác hoặc có lỗi xảy ra.");
+                showToast("Lỗi", "Mật khẩu cũ không chính xác hoặc có lỗi xảy ra.", "error");
             }
         };
 
@@ -1702,7 +2221,10 @@
 
         document.getElementById('confirmDeleteAccountBtn').onclick = async () => {
             const code = document.getElementById('deleteConfirmCode').value.trim();
-            if(code !== "XOATOANBO") { showAlert("Lỗi", "Mã xác nhận không chính xác."); return; }
+            if(code !== "XOATOANBO") { 
+                showToast("Lỗi", "Mã xác nhận không chính xác.", "error");
+                return; 
+            }
             
             if (deleteAccountModalObj) {
                 deleteAccountModalObj.hide();
@@ -1716,7 +2238,7 @@
                     await remove(ref(db, `friend_status/${uid}`));
                     await deleteUser(auth.currentUser);
                 } catch (error) {
-                    showAlert("Lỗi xác thực", "Vui lòng đăng xuất, đăng nhập lại và thực hiện lại thao tác này.");
+                    showToast("Lỗi xác thực", "Vui lòng đăng xuất, đăng nhập lại và thực hiện lại thao tác này.", "error");
                 }
             });
         };
@@ -1732,6 +2254,9 @@
                 document.getElementById('privSwitchAllowSearch').checked = d.allowSearch !== false;
                 document.getElementById('privSwitchAllowFriend').checked = d.allowFriendRequest !== false;
                 document.getElementById('privSwitchAllowStrangerChat').checked = d.allowStrangerChat !== false;
+                
+                // Load linked accounts
+                await loadLinkedAccounts();
                 
                 const modalEl = document.getElementById('privacySettingsModal');
                 closeAllModals();
@@ -1772,7 +2297,7 @@
                 privacySettingsModalObj.hide();
                 activeModalInstance = null;
             }
-            showAlert("Thành công", "Đã cập nhật cấu hình quyền riêng tư.");
+            showToast("Thành công", "Đã cập nhật cấu hình quyền riêng tư.", "success");
         };
 
         window.openSearchModal = () => {
@@ -1793,14 +2318,7 @@
         };
 
         function showSearchError(message, type = 'danger') {
-            const resultArea = document.getElementById('searchResultArea');
-            const resultContent = document.getElementById('searchResultContent');
-            resultArea.style.display = 'block';
-            resultContent.innerHTML = `
-                <div class="alert alert-${type} text-center mb-0">
-                    <i class="fas ${type === 'danger' ? 'fa-exclamation-triangle' : 'fa-info-circle'}"></i> ${message}
-                </div>
-            `;
+            showToast("Lỗi", message, "error");
         }
 
         window.performSearch = async () => {
@@ -1918,7 +2436,7 @@
             await set(ref(db, `friend_status/${currentUser.uid}/${targetUid}`), "outgoing");
             await set(ref(db, `friend_status/${targetUid}/${currentUser.uid}`), "incoming");
             closeModalObj();
-            showAlert("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!");
+            showToast("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!", "success");
             syncLists();
         };
         
@@ -1931,7 +2449,7 @@
                 searchModalObj.hide();
                 activeModalInstance = null;
             }
-            showAlert("Thành công", "Đã chấp nhận kết bạn!");
+            showToast("Thành công", "Đã chấp nhận kết bạn!", "success");
             syncLists();
         };
         
@@ -1942,7 +2460,7 @@
                 searchModalObj.hide();
                 activeModalInstance = null;
             }
-            showAlert("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!");
+            showToast("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!", "success");
             syncLists();
         };
         
@@ -1979,7 +2497,7 @@
             } else if (status === 'add_friend_stranger') {
                 await set(ref(db, myPath), "outgoing");
                 await set(ref(db, theirPath), "incoming");
-                showAlert("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!");
+                showToast("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!", "success");
             } else if (['remove', 'reject', 'cancel', 'delete_stranger_chat'].includes(status)) {
                 showConfirm("Bạn có chắc chắn muốn thực hiện hành động này?", async () => {
                     const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
@@ -2473,13 +2991,12 @@
             closeContextMenu();
             
             if (!msgId) {
-                console.error('msgId is null or undefined');
-                showAlert("Lỗi", "Không tìm thấy ID tin nhắn.");
+                showToast("Lỗi", "Không tìm thấy ID tin nhắn.", "error");
                 return;
             }
             
             if (!activeChatId) {
-                showAlert("Lỗi", "Không tìm thấy cuộc trò chuyện.");
+                showToast("Lỗi", "Không tìm thấy cuộc trò chuyện.", "error");
                 return;
             }
             
@@ -2487,13 +3004,14 @@
                 const msgRef = ref(db, `messages/${activeChatId}/${msgId}`);
                 const snap = await get(msgRef);
                 if (!snap.exists()) {
-                    showAlert("Lỗi", "Tin nhắn không tồn tại.");
+                    showToast("Lỗi", "Tin nhắn không tồn tại.", "error");
                     return;
                 }
                 await update(msgRef, { revoked: true });
+                showToast("Thành công", "Đã thu hồi tin nhắn.", "success");
             } catch (error) {
                 console.error('Lỗi thu hồi:', error);
-                showAlert("Lỗi", "Không thể thu hồi tin nhắn. Vui lòng thử lại.");
+                showToast("Lỗi", "Không thể thu hồi tin nhắn. Vui lòng thử lại.", "error");
             }
         };
         
@@ -2502,13 +3020,12 @@
             closeContextMenu();
             
             if (!msgId) {
-                console.error('msgId is null or undefined');
-                showAlert("Lỗi", "Không tìm thấy ID tin nhắn.");
+                showToast("Lỗi", "Không tìm thấy ID tin nhắn.", "error");
                 return;
             }
             
             if (!activeChatId) {
-                showAlert("Lỗi", "Không tìm thấy cuộc trò chuyện.");
+                showToast("Lỗi", "Không tìm thấy cuộc trò chuyện.", "error");
                 return;
             }
             
@@ -2521,7 +3038,7 @@
         document.getElementById('confirmDeleteForMeBtn').addEventListener('click', async function() {
             const msgId = pendingDeleteMsgId;
             if (!msgId) {
-                showAlert("Lỗi", "Không tìm thấy ID tin nhắn.");
+                showToast("Lỗi", "Không tìm thấy ID tin nhắn.", "error");
                 return;
             }
             
@@ -2529,7 +3046,7 @@
                 const msgRef = ref(db, `messages/${activeChatId}/${msgId}`);
                 const snap = await get(msgRef);
                 if (!snap.exists()) {
-                    showAlert("Lỗi", "Tin nhắn không tồn tại.");
+                    showToast("Lỗi", "Tin nhắn không tồn tại.", "error");
                     return;
                 }
                 await update(ref(db, `messages/${activeChatId}/${msgId}/deletedBy`), { [currentUser.uid]: true });
@@ -2537,10 +3054,10 @@
                 if (deleteForMeModalObj) {
                     deleteForMeModalObj.hide();
                 }
-                showAlert("Thành công", "Đã xóa tin nhắn phía bạn!");
+                showToast("Thành công", "Đã xóa tin nhắn phía bạn!", "success");
             } catch (error) {
                 console.error('Lỗi xóa:', error);
-                showAlert("Lỗi", "Không thể xóa tin nhắn. Vui lòng thử lại.");
+                showToast("Lỗi", "Không thể xóa tin nhắn. Vui lòng thử lại.", "error");
             }
             pendingDeleteMsgId = null;
         });
@@ -2757,6 +3274,180 @@
             document.getElementById('sidebarToggleBtn').onclick = (e) => { e.stopPropagation(); toggleSidebar(); };
             window.addEventListener('resize', () => { if(window.innerWidth > 790) window.closeSidebar(); });
         }, 100);
+
+        // ===== LIÊN KẾT TÀI KHOẢN =====
+        let linkedProviders = [];
+
+        async function loadLinkedAccounts() {
+            if (!currentUser) return;
+            
+            try {
+                const snap = await get(ref(db, `users/${currentUser.uid}`));
+                if (snap.exists()) {
+                    const userData = snap.val();
+                    linkedProviders = userData.providers || ['password'];
+                    updateLinkedAccountsUI();
+                }
+            } catch (error) {
+                console.error('Lỗi tải thông tin liên kết:', error);
+            }
+        }
+
+        function updateLinkedAccountsUI() {
+            const providers = linkedProviders || ['password'];
+            
+            // Cập nhật email hiển thị
+            const emailDisplay = document.getElementById('linkedEmailDisplay');
+            if (emailDisplay && currentUser) {
+                emailDisplay.textContent = currentUser.email || '---';
+            }
+            
+            // Google
+            const googleContainer = document.getElementById('googleLinkStatus');
+            const isGoogleLinked = providers.includes('google.com') || providers.includes('google');
+            if (isGoogleLinked) {
+                googleContainer.innerHTML = `
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-success">Đã liên kết</span>
+                        <button class="btn btn-sm btn-outline-danger" onclick="unlinkProvider('google')">Ngắt kết nối</button>
+                    </div>
+                `;
+            } else {
+                googleContainer.innerHTML = `
+                    <button class="btn btn-sm btn-outline-primary" onclick="linkProvider('google')">Liên kết</button>
+                `;
+            }
+            
+            // Facebook
+            const facebookContainer = document.getElementById('facebookLinkStatus');
+            const isFacebookLinked = providers.includes('facebook.com') || providers.includes('facebook');
+            if (isFacebookLinked) {
+                facebookContainer.innerHTML = `
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-success">Đã liên kết</span>
+                        <button class="btn btn-sm btn-outline-danger" onclick="unlinkProvider('facebook')">Ngắt kết nối</button>
+                    </div>
+                `;
+            } else {
+                facebookContainer.innerHTML = `
+                    <button class="btn btn-sm btn-outline-primary" onclick="linkProvider('facebook')">Liên kết</button>
+                `;
+            }
+        }
+
+        window.linkProvider = async (providerType) => {
+            if (!currentUser) {
+                showToast("Lỗi", "Vui lòng đăng nhập trước.", "error");
+                return;
+            }
+            
+            let provider;
+            let providerName;
+            if (providerType === 'google') {
+                provider = new GoogleAuthProvider();
+                providerName = 'Google';
+            } else if (providerType === 'facebook') {
+                provider = new FacebookAuthProvider();
+                providerName = 'Facebook';
+            } else {
+                return;
+            }
+            
+            // Disable button
+            const btn = document.querySelector(`#${providerType}LinkStatus button`);
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = 'Đang xử lý...';
+            }
+            
+            try {
+                const result = await linkWithPopup(currentUser, provider);
+                
+                // Cập nhật providers trong database
+                const snap = await get(ref(db, `users/${currentUser.uid}`));
+                if (snap.exists()) {
+                    const userData = snap.val();
+                    const providers = userData.providers || ['password'];
+                    const providerId = providerType === 'google' ? 'google.com' : 'facebook.com';
+                    if (!providers.includes(providerId)) {
+                        providers.push(providerId);
+                        await update(ref(db, `users/${currentUser.uid}`), { providers: providers });
+                        linkedProviders = providers;
+                        updateLinkedAccountsUI();
+                        showToast("Thành công", `Đã liên kết tài khoản ${providerName} thành công!`, "success");
+                    }
+                }
+            } catch (error) {
+                console.error('Lỗi liên kết:', error);
+                if (error.code === 'auth/credential-already-in-use') {
+                    showToast("Lỗi", 'Tài khoản này đã được liên kết với một tài khoản khác.', "error");
+                } else if (error.code === 'auth/popup-closed-by-user') {
+                    showToast("Thông báo", 'Bạn đã đóng cửa sổ liên kết.', "warning");
+                } else {
+                    showToast("Lỗi", 'Không thể liên kết tài khoản. Vui lòng thử lại.', "error");
+                }
+            } finally {
+                // Enable button
+                if (btn) {
+                    btn.disabled = false;
+                    btn.textContent = 'Liên kết';
+                }
+            }
+        };
+
+        window.unlinkProvider = async (providerType) => {
+            if (!currentUser) {
+                showToast("Lỗi", "Vui lòng đăng nhập trước.", "error");
+                return;
+            }
+            
+            const providers = linkedProviders || ['password'];
+            const providerId = providerType === 'google' ? 'google.com' : 'facebook.com';
+            
+            if (providers.length <= 1) {
+                showToast("Thông báo", 'Bạn cần ít nhất một phương thức đăng nhập. Không thể ngắt kết nối.', "warning");
+                return;
+            }
+            
+            const providerName = providerType === 'google' ? 'Google' : 'Facebook';
+            
+            showConfirm(`Bạn có chắc muốn ngắt kết nối tài khoản ${providerName}?`, async () => {
+                try {
+                    // Ngắt kết nối provider khỏi Firebase Auth
+                    await unlink(currentUser, providerId);
+                    
+                    // Cập nhật providers trong database
+                    const snap = await get(ref(db, `users/${currentUser.uid}`));
+                    if (snap.exists()) {
+                        const userData = snap.val();
+                        let providersList = userData.providers || ['password'];
+                        providersList = providersList.filter(p => p !== providerId);
+                        await update(ref(db, `users/${currentUser.uid}`), { providers: providersList });
+                        linkedProviders = providersList;
+                        updateLinkedAccountsUI();
+                        showToast("Thành công", `Đã ngắt kết nối tài khoản ${providerName}.`, "success");
+                    }
+                } catch (error) {
+                    console.error('Lỗi ngắt kết nối:', error);
+                    showToast("Lỗi", 'Không thể ngắt kết nối. Vui lòng thử lại.', "error");
+                }
+            });
+        };
+
+        // ===== SWITCH PRIVACY SECTION =====
+window.switchPrivacySection = (section) => {
+    // Update sidebar buttons
+    document.querySelectorAll('.privacy-sidebar .menu-item-privacy').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.querySelector(`.privacy-sidebar .menu-item-privacy[data-section="${section}"]`).classList.add('active');
+    
+    // Update content sections
+    document.querySelectorAll('.privacy-content .content-section').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`section-${section}`).classList.add('active');
+};
     </script>
 </body>
 </html>
