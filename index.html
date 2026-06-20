@@ -1004,11 +1004,11 @@
     <div class="lock-modal-overlay" id="lockModalOverlay">
         <div class="lock-modal">
             <div class="lock-icon"><i class="fas fa-lock"></i></div>
-            <div class="lock-title">Tài khoản bị khóa</div>
-            <div class="lock-sub">Tài khoản của bạn đã bị khóa vĩnh viễn do vi phạm điều khoản sử dụng.</div>
+            <div class="lock-title">Đăng nhập bị hạn chế</div>
+            <div class="lock-sub">Tài khoản của bạn đã bị khóa do phát hiện một số vi phạm.</div>
             <div class="lock-details">
                 <div class="detail-item">
-                    <span class="label">ID tài khoản</span>
+                    <span class="label">ID</span>
                     <span class="value" id="lockInfoId">---</span>
                 </div>
                 <div class="detail-item">
@@ -1034,7 +1034,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, fetchSignInMethodsForEmail, OAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -1243,7 +1243,6 @@
                 'auth/network-request-failed': 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.',
                 'auth/popup-closed-by-user': 'Bạn đã đóng cửa sổ đăng nhập.',
                 'auth/account-exists-with-different-credential': 'Tài khoản đã tồn tại với phương thức đăng nhập khác.',
-                'auth/email-already-in-use': 'Email này đã được sử dụng.',
                 'default': 'Đã xảy ra lỗi. Vui lòng thử lại sau.'
             };
             return messages[errorCode] || messages.default;
@@ -1281,10 +1280,10 @@
             }
         }
 
-        // ===== LẤY THÔNG TIN TỪ FACEBOOK (GIỚI TÍNH, NGÀY SINH) =====
+        // ===== LẤY THÔNG TIN TỪ FACEBOOK =====
         async function getFacebookUserInfo(accessToken) {
             try {
-                const response = await fetch(`https://graph.facebook.com/me?fields=id,name,email,gender,birthday&access_token=${accessToken}`);
+                const response = await fetch(`https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`);
                 const data = await response.json();
                 return data;
             } catch (error) {
@@ -1298,11 +1297,9 @@
             let provider;
             if (providerType === 'google') {
                 provider = new GoogleAuthProvider();
-                // Google tự động có email, name
             } else if (providerType === 'facebook') {
                 provider = new FacebookAuthProvider();
-                // Yêu cầu quyền email, gender, birthday từ Facebook
-                provider.addScope('email,user_gender,user_birthday');
+                provider.addScope('email');
             } else {
                 return;
             }
@@ -1338,37 +1335,20 @@
                     hideLoading();
                     window.location.href = "chat.html";
                 } else {
-                    // Lấy thông tin bổ sung từ Facebook
-                    let fbGender = '';
-                    let fbBirthday = '';
+                    // Lấy thông tin từ Facebook API
+                    let fbEmail = '';
+                    let fbName = '';
                     
                     if (providerType === 'facebook') {
                         try {
-                            // Lấy access token từ user
                             const credential = FacebookAuthProvider.credentialFromResult(result);
                             const accessToken = credential.accessToken;
                             
                             if (accessToken) {
                                 const fbData = await getFacebookUserInfo(accessToken);
                                 if (fbData) {
-                                    // Xử lý giới tính
-                                    if (fbData.gender) {
-                                        if (fbData.gender === 'male') fbGender = 'Nam';
-                                        else if (fbData.gender === 'female') fbGender = 'Nữ';
-                                        else fbGender = 'Khác';
-                                    }
-                                    
-                                    // Xử lý ngày sinh (format: MM/DD/YYYY)
-                                    if (fbData.birthday) {
-                                        const parts = fbData.birthday.split('/');
-                                        if (parts.length === 3) {
-                                            // Chuyển từ MM/DD/YYYY sang YYYY-MM-DD
-                                            const month = parts[0].padStart(2, '0');
-                                            const day = parts[1].padStart(2, '0');
-                                            const year = parts[2];
-                                            fbBirthday = `${year}-${month}-${day}`;
-                                        }
-                                    }
+                                    if (fbData.email) fbEmail = fbData.email;
+                                    if (fbData.name) fbName = fbData.name;
                                 }
                             }
                         } catch (error) {
@@ -1376,18 +1356,14 @@
                         }
                     }
                     
-                    // Kiểm tra nếu là Facebook và không có email
-                    if (providerType === 'facebook' && !user.email) {
-                        isProcessingAuth = false;
-                        currentSocialProvider = null;
-                        hideLoading();
-                        document.getElementById('googleLoginBtn').disabled = false;
-                        document.getElementById('facebookLoginBtn').disabled = false;
-                        await signOut(auth);
-                        showToast('Yêu cầu ủy quyền', 'Bạn cần ủy quyền email khi đăng nhập bằng Facebook để tiếp tục.', 'warning', 5000);
-                        return;
+                    // Nếu là Google, lấy email từ user
+                    if (providerType === 'google' && user.email) {
+                        fbEmail = user.email;
+                        fbName = user.displayName || extractNameFromEmail(user.email);
                     }
                     
+                    // KHÔNG KIỂM TRA EMAIL NỮA - vẫn cho phép người dùng tiếp tục
+                    // Nếu không có email từ Facebook, người dùng sẽ tự nhập
                     pendingSocialUser = user;
                     isProcessingAuth = false;
                     hideLoading();
@@ -1397,16 +1373,16 @@
                     const genderInput = document.getElementById('complete-gender');
                     const birthdayInput = document.getElementById('complete-birthday');
                     
-                    // Lấy tên từ Facebook hoặc Google
-                    let displayName = user.displayName || '';
-                    if (!displayName && user.email) {
-                        displayName = extractNameFromEmail(user.email);
+                    // Lấy tên
+                    let displayName = fbName || user.displayName || '';
+                    if (!displayName && fbEmail) {
+                        displayName = extractNameFromEmail(fbEmail);
                     }
                     nameInput.value = displayName;
                     
-                    // Nếu có email (Google luôn có, Facebook có thể có)
-                    if (user.email) {
-                        emailInput.value = user.email;
+                    // Xử lý email - Nếu có email từ Facebook thì điền và readonly, không có thì để trống cho người dùng nhập
+                    if (fbEmail) {
+                        emailInput.value = fbEmail;
                         emailInput.readOnly = true;
                         emailInput.style.background = '#f0f0f0';
                         emailInput.style.color = '#666';
@@ -1417,21 +1393,13 @@
                         emailInput.style.background = '#f8f9fa';
                         emailInput.style.color = '#1c1e21';
                         emailInput.style.cursor = 'text';
+                        // Hiển thị thông báo nhẹ nhàng
+                        showToast('Thông báo', 'Vui lòng nhập email của bạn để hoàn tất đăng ký do tài khoản Facebook của bạn chưa liên kết email.', 'info', 4000);
                     }
                     
-                    // Điền giới tính nếu có từ Facebook
-                    if (fbGender) {
-                        genderInput.value = fbGender;
-                    } else {
-                        genderInput.value = 'Nam';
-                    }
-                    
-                    // Điền ngày sinh nếu có từ Facebook
-                    if (fbBirthday) {
-                        birthdayInput.value = fbBirthday;
-                    } else {
-                        birthdayInput.value = '2005-01-01';
-                    }
+                    // Đặt giá trị mặc định cho giới tính và ngày sinh
+                    genderInput.value = 'Nam';
+                    birthdayInput.value = '2005-01-01';
                     
                     document.getElementById('complete-terms-checkbox').checked = false;
                     
@@ -1447,7 +1415,8 @@
                 document.getElementById('googleLoginBtn').disabled = false;
                 document.getElementById('facebookLoginBtn').disabled = false;
                 
-                // Xử lý lỗi từ Facebook khi người dùng không ủy quyền
+                console.error('Lỗi đăng nhập social:', error);
+                
                 if (error.code === 'auth/account-exists-with-different-credential') {
                     showToast('Lỗi', 'Tài khoản này đã được đăng ký bằng phương thức khác. Vui lòng đăng nhập bằng phương thức đó.', 'warning');
                 } else {
@@ -1715,7 +1684,7 @@
                         }
                         nameInput.value = displayName;
                         
-                        // Kiểm tra email
+                        // Kiểm tra email - nếu có thì readonly, không có thì cho nhập
                         if (user.email) {
                             emailInput.value = user.email;
                             emailInput.readOnly = true;
@@ -1730,7 +1699,7 @@
                             emailInput.style.cursor = 'text';
                         }
                         
-                        // Đặt giá trị mặc định cho gender và birthday
+                        // Đặt giá trị mặc định
                         genderInput.value = 'Nam';
                         birthdayInput.value = '2005-01-01';
                         
