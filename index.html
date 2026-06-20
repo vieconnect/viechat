@@ -1057,7 +1057,7 @@
         let lockModalVisible = false;
         let pendingSocialUser = null;
         let isProcessingAuth = false;
-        let currentSocialProvider = null; // Lưu provider hiện tại
+        let currentSocialProvider = null;
 
         // ===== TOAST =====
         function showToast(title, message, type = 'info', duration = 4000) {
@@ -1287,6 +1287,8 @@
                 provider = new GoogleAuthProvider();
             } else if (providerType === 'facebook') {
                 provider = new FacebookAuthProvider();
+                // Yêu cầu quyền email từ Facebook
+                provider.addScope('email');
             } else {
                 return;
             }
@@ -1322,24 +1324,48 @@
                     hideLoading();
                     window.location.href = "chat.html";
                 } else {
+                    // Kiểm tra nếu là Facebook và không có email
+                    if (providerType === 'facebook' && !user.email) {
+                        isProcessingAuth = false;
+                        currentSocialProvider = null;
+                        hideLoading();
+                        document.getElementById('googleLoginBtn').disabled = false;
+                        document.getElementById('facebookLoginBtn').disabled = false;
+                        // Đăng xuất người dùng
+                        await signOut(auth);
+                        showToast('Yêu cầu ủy quyền', 'Bạn cần ủy quyền email khi đăng nhập bằng Facebook để tiếp tục.', 'warning', 5000);
+                        return;
+                    }
+                    
                     pendingSocialUser = user;
                     isProcessingAuth = false;
                     hideLoading();
                     
-                    // Nếu là Facebook, để trống email để người dùng tự nhập
-                    // Nếu là Google, tự động điền email
                     const emailInput = document.getElementById('complete-email');
-                    if (providerType === 'google') {
-                        emailInput.value = user.email || '';
+                    const nameInput = document.getElementById('complete-name');
+                    
+                    // Lấy tên từ Facebook hoặc Google
+                    let displayName = user.displayName || '';
+                    if (!displayName && user.email) {
+                        displayName = extractNameFromEmail(user.email);
+                    }
+                    nameInput.value = displayName;
+                    
+                    // Nếu có email (Google luôn có, Facebook có thể có)
+                    if (user.email) {
+                        emailInput.value = user.email;
+                        emailInput.readOnly = true;
                         emailInput.style.background = '#f0f0f0';
                         emailInput.style.color = '#666';
+                        emailInput.style.cursor = 'not-allowed';
                     } else {
                         emailInput.value = '';
+                        emailInput.readOnly = false;
                         emailInput.style.background = '#f8f9fa';
                         emailInput.style.color = '#1c1e21';
+                        emailInput.style.cursor = 'text';
                     }
                     
-                    document.getElementById('complete-name').value = extractNameFromEmail(user.email) || '';
                     document.getElementById('complete-birthday').value = '2005-01-01';
                     document.getElementById('complete-terms-checkbox').checked = false;
                     
@@ -1379,7 +1405,6 @@
                 showToast('Thông báo', 'Vui lòng nhập email.', 'warning');
                 return;
             }
-            // Validate email
             if (!email.includes('@') || !email.includes('.')) {
                 showToast('Thông báo', 'Vui lòng nhập email hợp lệ.', 'warning');
                 return;
@@ -1405,18 +1430,6 @@
                 let providerId = 'unknown';
                 if (pendingSocialUser.providerData && pendingSocialUser.providerData.length > 0) {
                     providerId = pendingSocialUser.providerData[0].providerId || 'unknown';
-                }
-                
-                // Nếu là Facebook và email khác với email trong provider, cập nhật email trong Firebase Auth
-                if (currentSocialProvider === 'facebook' && email !== pendingSocialUser.email) {
-                    try {
-                        // Đối với Facebook, không thể cập nhật email trực tiếp trong Auth
-                        // Chúng ta vẫn lưu email vào database và sử dụng email đó
-                        // Còn trong Auth vẫn giữ email cũ (hoặc null)
-                        console.log('Facebook user, email will be stored in database only');
-                    } catch (error) {
-                        console.error('Error updating email:', error);
-                    }
                 }
                 
                 await set(ref(db, `users/${pendingSocialUser.uid}`), {
@@ -1617,18 +1630,32 @@
                     const snap = await get(ref(db, `users/${user.uid}`));
                     if (!snap.exists()) {
                         pendingSocialUser = user;
-                        // Kiểm tra xem user có email không (Google có email, Facebook có thể không)
+                        
                         const emailInput = document.getElementById('complete-email');
+                        const nameInput = document.getElementById('complete-name');
+                        
+                        // Lấy tên
+                        let displayName = user.displayName || '';
+                        if (!displayName && user.email) {
+                            displayName = extractNameFromEmail(user.email);
+                        }
+                        nameInput.value = displayName;
+                        
+                        // Kiểm tra email
                         if (user.email) {
-                            emailInput.value = user.email || '';
+                            emailInput.value = user.email;
+                            emailInput.readOnly = true;
                             emailInput.style.background = '#f0f0f0';
                             emailInput.style.color = '#666';
+                            emailInput.style.cursor = 'not-allowed';
                         } else {
                             emailInput.value = '';
+                            emailInput.readOnly = false;
                             emailInput.style.background = '#f8f9fa';
                             emailInput.style.color = '#1c1e21';
+                            emailInput.style.cursor = 'text';
                         }
-                        document.getElementById('complete-name').value = extractNameFromEmail(user.email) || '';
+                        
                         document.getElementById('complete-birthday').value = '2005-01-01';
                         document.getElementById('complete-terms-checkbox').checked = false;
                         switchForm('complete');
