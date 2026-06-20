@@ -1037,15 +1037,14 @@
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyCXSoUXXSJK6n3iX9Sktqb7NsPL46sJBD0",
-            authDomain: "comment-anonymous.firebaseapp.com",
-            databaseURL: "https://comment-anonymous-default-rtdb.firebaseio.com",
-            projectId: "comment-anonymous",
-            storageBucket: "comment-anonymous.appspot.com",
-            messagingSenderId: "305645030498",
-            appId: "1:305645030498:web:102c539ed4ff19d2bf953b"
-        };
+const firebaseConfig = {
+  apiKey: "AIzaSyAhMEgCE8G0uu9eJn5_RPK9Hkwuk1ARUkA",
+  authDomain: "viechat-app.firebaseapp.com",
+  projectId: "viechat-app",
+  storageBucket: "viechat-app.firebasestorage.app",
+  messagingSenderId: "925227569457",
+  appId: "1:925227569457:web:e8c725f0937c309cf2e010"
+};
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
