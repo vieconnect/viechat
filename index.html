@@ -1037,15 +1037,15 @@
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAhMEgCE8G0uu9eJn5_RPK9Hkwuk1ARUkA",
-  authDomain: "viechat-app.firebaseapp.com",
-  databaseURL: "https://viechat-app-default-rtdb.firebaseio.com",
-  projectId: "viechat-app",
-  storageBucket: "viechat-app.firebasestorage.app",
-  messagingSenderId: "925227569457",
-  appId: "1:925227569457:web:e8c725f0937c309cf2e010"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyAhMEgCE8G0uu9eJn5_RPK9Hkwuk1ARUkA",
+            authDomain: "viechat-app.firebaseapp.com",
+            databaseURL: "https://viechat-app-default-rtdb.firebaseio.com",
+            projectId: "viechat-app",
+            storageBucket: "viechat-app.firebasestorage.app",
+            messagingSenderId: "925227569457",
+            appId: "1:925227569457:web:e8c725f0937c309cf2e010"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -1459,6 +1459,7 @@ const firebaseConfig = {
                 return;
             }
             
+            // ===== KIỂM TRA ĐỘ TUỔI =====
             const ageCheck = checkAgeFromServer(birthday);
             if (!ageCheck.isValid) {
                 showToast('Yêu cầu độ tuổi', 'Bạn cần phải trên 12 tuổi để sử dụng dịch vụ.', 'error');
@@ -1492,6 +1493,10 @@ const firebaseConfig = {
                         end: "---",
                     }
                 });
+                
+                // Lưu vào localStorage để dự phòng
+                localStorage.setItem('userEmail', email.toLowerCase());
+                localStorage.setItem('userName', name);
                 
                 hideLoading();
                 showToast('Thành công', 'Đăng ký tài khoản thành công!', 'success', 1500);
@@ -1563,6 +1568,7 @@ const firebaseConfig = {
                 return;
             }
             
+            // ===== KIỂM TRA ĐỘ TUỔI =====
             const ageCheck = checkAgeFromServer(birthday);
             if (!ageCheck.isValid) {
                 showToast('Yêu cầu độ tuổi', 'Bạn cần phải trên 12 tuổi để sử dụng dịch vụ.', 'error');

@@ -2042,41 +2042,49 @@ const firebaseConfig = {
             return escapeHtml(name);
         }
 
-        onAuthStateChanged(auth, (user) => {
-            if (!user) { 
-                cleanupChatListeners(); 
-                cleanupGlobalListeners();
-                currentUser = null; 
-                window.location.href = "index.html"; 
-            } else {
-                currentUser = user;
-                onValue(ref(db, `users/${user.uid}`), (snap) => {
-                    const data = snap.val();
-                    if(data) {
-                        if(data.isLocked === true || data.isLocked === "true") { signOut(auth); return; }
-                        document.getElementById('my-email').innerText = user.email;
-                        document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
-                        
-                        const avatar = getAvatarDataFromUser(data);
-                        updateAvatarUI(avatar);
-                        
-                        if (!avatar) {
-                            const placeholder = document.getElementById('my-avatar-placeholder');
-                            const name = data.name || 'Người dùng';
-                            placeholder.textContent = name.charAt(0).toUpperCase();
-                        }
-                        
-                        if (data.birthday && isUnderAge(data.birthday) && !ageWarningShown) {
-                            setTimeout(() => {
-                                showAgeWarning();
-                            }, 1000);
-                        }
-                        
-                        syncLists(); setupOutsideClick();
-                    }
-                });
+onAuthStateChanged(auth, (user) => {
+    if (!user) { 
+        cleanupChatListeners(); 
+        cleanupGlobalListeners();
+        currentUser = null; 
+        window.location.href = "index.html"; 
+    } else {
+        currentUser = user;
+        onValue(ref(db, `users/${user.uid}`), (snap) => {
+            const data = snap.val();
+            if(data) {
+                if(data.isLocked === true || data.isLocked === "true") { 
+                    signOut(auth); 
+                    return; 
+                }
+                
+                // ===== SỬA Ở ĐÂY =====
+                // Lấy email từ database (data.email) thay vì user.email
+                const displayEmail = data.email || user.email || 'Chưa có email';
+                document.getElementById('my-email').innerText = displayEmail;
+                document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
+                
+                const avatar = getAvatarDataFromUser(data);
+                updateAvatarUI(avatar);
+                
+                if (!avatar) {
+                    const placeholder = document.getElementById('my-avatar-placeholder');
+                    const name = data.name || 'Người dùng';
+                    placeholder.textContent = name.charAt(0).toUpperCase();
+                }
+                
+                if (data.birthday && isUnderAge(data.birthday) && !ageWarningShown) {
+                    setTimeout(() => {
+                        showAgeWarning();
+                    }, 1000);
+                }
+                
+                syncLists(); 
+                setupOutsideClick();
             }
         });
+    }
+});
 
         // ===== SHOW TOAST THAY THẾ SHOW ALERT =====
         // Giữ showAlert để tương thích ngược nhưng chuyển sang toast
