@@ -1305,308 +1305,295 @@
             }
         }
 
-        // ===== SOCIAL LOGIN =====
-        window.socialLogin = async (providerType) => {
-            let provider;
-            if (providerType === 'google') {
-                provider = new GoogleAuthProvider();
-            } else if (providerType === 'facebook') {
-                provider = new FacebookAuthProvider();
-                provider.addScope('email');
-            } else {
-                return;
-            }
-            
-            document.getElementById('googleLoginBtn').disabled = true;
-            document.getElementById('facebookLoginBtn').disabled = true;
-            
-            showLoading(`Đang đăng nhập với ${providerType === 'google' ? 'Google' : 'Facebook'}...`, 'Vui lòng đợi');
-            
-            try {
-                const result = await signInWithPopup(auth, provider);
-                const user = result.user;
-                
-                isProcessingAuth = true;
-                currentSocialProvider = providerType;
-                
-                const userExists = await checkUserExists(user.uid);
-                
-                if (userExists) {
-                    const snap = await get(ref(db, `users/${user.uid}`));
-                    const userData = snap.val();
-                    if (userData.isLocked === true || userData.isLocked === "true") {
-                        hideLoading();
-                        showLockModal(userData.lockInfo);
-                        await signOut(auth);
-                        document.getElementById('googleLoginBtn').disabled = false;
-                        document.getElementById('facebookLoginBtn').disabled = false;
-                        isProcessingAuth = false;
-                        currentSocialProvider = null;
-                        return;
-                    }
-                    isProcessingAuth = false;
-                    hideLoading();
-                    window.location.href = "chat.html";
-                } else {
-                    // Lấy thông tin từ Facebook API
-                    let fbEmail = '';
-                    let fbName = '';
-                    
-                    if (providerType === 'facebook') {
-                        try {
-                            const credential = FacebookAuthProvider.credentialFromResult(result);
-                            const accessToken = credential.accessToken;
-                            
-                            if (accessToken) {
-                                const fbData = await getFacebookUserInfo(accessToken);
-                                if (fbData) {
-                                    if (fbData.email) fbEmail = fbData.email;
-                                    if (fbData.name) fbName = fbData.name;
-                                }
-                            }
-                        } catch (error) {
-                            console.error('Lỗi lấy thông tin Facebook:', error);
-                        }
-                    }
-                    
-                    // Nếu là Google, lấy email từ user
-                    if (providerType === 'google' && user.email) {
-                        fbEmail = user.email;
-                        fbName = user.displayName || extractNameFromEmail(user.email);
-                    }
-                    
-                    // Kiểm tra nếu là Facebook và không có email
-                    if (providerType === 'facebook' && !fbEmail) {
-                        isProcessingAuth = false;
-                        currentSocialProvider = null;
-                        hideLoading();
-                        document.getElementById('googleLoginBtn').disabled = false;
-                        document.getElementById('facebookLoginBtn').disabled = false;
-                        await signOut(auth);
-                        showToast('Yêu cầu ủy quyền', 'Bạn cần ủy quyền email khi đăng nhập bằng Facebook để tiếp tục.', 'warning', 5000);
-                        return;
-                    }
-                    
-                    pendingSocialUser = user;
-                    isProcessingAuth = false;
-                    hideLoading();
-                    
-                    const emailInput = document.getElementById('complete-email');
-                    const nameInput = document.getElementById('complete-name');
-                    const passwordInput = document.getElementById('complete-password');
-                    const confirmPasswordInput = document.getElementById('complete-confirm-password');
-                    const genderInput = document.getElementById('complete-gender');
-                    const birthdayInput = document.getElementById('complete-birthday');
-                    
-                    // Lấy tên
-                    let displayName = fbName || user.displayName || '';
-                    if (!displayName && fbEmail) {
-                        displayName = extractNameFromEmail(fbEmail);
-                    }
-                    nameInput.value = displayName;
-                    
-                    // Điền email (readonly)
-                    emailInput.value = fbEmail;
-                    emailInput.readOnly = true;
-                    emailInput.style.background = '#f0f0f0';
-                    emailInput.style.color = '#666';
-                    emailInput.style.cursor = 'not-allowed';
-                    
-                    // Reset password fields
-                    passwordInput.value = '';
-                    confirmPasswordInput.value = '';
-                    
-                    // Đặt giá trị mặc định cho giới tính và ngày sinh
-                    genderInput.value = 'Nam';
-                    birthdayInput.value = '2005-01-01';
-                    
-                    document.getElementById('complete-terms-checkbox').checked = false;
-                    
-                    switchForm('complete');
-                    
-                    document.getElementById('googleLoginBtn').disabled = false;
-                    document.getElementById('facebookLoginBtn').disabled = false;
-                }
-            } catch (error) {
-                isProcessingAuth = false;
-                currentSocialProvider = null;
+// ===== SOCIAL LOGIN =====
+window.socialLogin = async (providerType) => {
+    let provider;
+    if (providerType === 'google') {
+        provider = new GoogleAuthProvider();
+    } else if (providerType === 'facebook') {
+        provider = new FacebookAuthProvider();
+        provider.addScope('email');
+    } else {
+        return;
+    }
+    
+    document.getElementById('googleLoginBtn').disabled = true;
+    document.getElementById('facebookLoginBtn').disabled = true;
+    
+    showLoading(`Đang đăng nhập với ${providerType === 'google' ? 'Google' : 'Facebook'}...`, 'Vui lòng đợi');
+    
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        isProcessingAuth = true;
+        currentSocialProvider = providerType;
+        
+        const userExists = await checkUserExists(user.uid);
+        
+        if (userExists) {
+            const snap = await get(ref(db, `users/${user.uid}`));
+            const userData = snap.val();
+            if (userData.isLocked === true || userData.isLocked === "true") {
                 hideLoading();
+                showLockModal(userData.lockInfo);
+                await signOut(auth);
                 document.getElementById('googleLoginBtn').disabled = false;
                 document.getElementById('facebookLoginBtn').disabled = false;
-                
-                console.error('Lỗi đăng nhập social:', error);
-                
-                if (error.code === 'auth/account-exists-with-different-credential') {
-                    showToast('Lỗi', 'Tài khoản này đã được đăng ký bằng phương thức khác. Vui lòng đăng nhập bằng phương thức đó.', 'warning');
-                } else {
-                    showToast('Lỗi', getFirebaseErrorMessage(error.code), 'error');
-                }
+                isProcessingAuth = false;
+                currentSocialProvider = null;
+                return;
             }
-        };
-
-        // ===== HANDLE COMPLETE PROFILE =====
-        window.handleCompleteProfile = async () => {
-            const name = document.getElementById('complete-name').value.trim();
-            const gender = document.getElementById('complete-gender').value;
-            const birthday = document.getElementById('complete-birthday').value;
-            const email = document.getElementById('complete-email').value.trim();
-            const password = document.getElementById('complete-password').value;
-            const confirmPassword = document.getElementById('complete-confirm-password').value;
-            const termsChecked = document.getElementById('complete-terms-checkbox').checked;
+            isProcessingAuth = false;
+            hideLoading();
+            window.location.href = "chat.html";
+        } else {
+            // Lấy thông tin từ Facebook API
+            let fbEmail = '';
+            let fbName = '';
             
-            if (!pendingSocialUser) {
-                showToast('Lỗi', 'Không tìm thấy thông tin đăng nhập. Vui lòng thử lại.', 'error');
-                return;
-            }
-            
-            if (!name) {
-                showToast('Thông báo', 'Vui lòng nhập họ và tên.', 'warning');
-                return;
-            }
-            if (!email) {
-                showToast('Thông báo', 'Vui lòng nhập email.', 'warning');
-                return;
-            }
-            if (!email.includes('@') || !email.includes('.')) {
-                showToast('Thông báo', 'Vui lòng nhập email hợp lệ.', 'warning');
-                return;
-            }
-            if (!password) {
-                showToast('Thông báo', 'Vui lòng tạo mật khẩu.', 'warning');
-                return;
-            }
-            if (password.length < 6) {
-                showToast('Thông báo', 'Mật khẩu phải có ít nhất 6 ký tự.', 'warning');
-                return;
-            }
-            if (password !== confirmPassword) {
-                showToast('Thông báo', 'Mật khẩu xác nhận không khớp.', 'error');
-                return;
-            }
-            if (!birthday) {
-                showToast('Thông báo', 'Vui lòng chọn ngày sinh.', 'warning');
-                return;
-            }
-            if (!termsChecked) {
-                showToast('Thông báo', 'Bạn chưa đồng ý với điều khoản.', 'warning');
-                return;
-            }
-            
-            // ===== KIỂM TRA ĐỘ TUỔI =====
-            const ageCheck = checkAgeFromServer(birthday);
-            if (!ageCheck.isValid) {
-                showToast('Yêu cầu độ tuổi', 'Bạn cần phải trên 12 tuổi để sử dụng dịch vụ.', 'error');
-                return;
-            }
-            
-            showLoading('Đang hoàn tất đăng ký...', 'Vui lòng đợi');
-            
-            try {
-                let providerId = 'unknown';
-                let providerEmail = pendingSocialUser.email || '';
-                
-                if (pendingSocialUser.providerData && pendingSocialUser.providerData.length > 0) {
-                    providerId = pendingSocialUser.providerData[0].providerId || 'unknown';
-                }
-                
-                // ===== QUAN TRỌNG: Tạo tài khoản email/password trong Firebase Auth =====
+            if (providerType === 'facebook') {
                 try {
-                    // Kiểm tra email đã tồn tại chưa
-                    const methods = await fetchSignInMethodsForEmail(auth, email);
+                    const credential = FacebookAuthProvider.credentialFromResult(result);
+                    const accessToken = credential.accessToken;
                     
-                    if (methods.length === 0) {
-                        // Email chưa tồn tại, tạo tài khoản mới
-                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                        const newUser = userCredential.user;
-                        
-                        // Cập nhật displayName
-                        await updateProfile(newUser, {
-                            displayName: name
-                        });
-                        
-                        // Liên kết với tài khoản social (Facebook/Google)
-                        try {
-                            // Lấy credential từ social login
-                            let credential;
-                            if (providerId.includes('facebook')) {
-                                credential = FacebookAuthProvider.credentialFromResult(pendingSocialUser);
-                            } else if (providerId.includes('google')) {
-                                credential = GoogleAuthProvider.credentialFromResult(pendingSocialUser);
-                            }
-                            
-                            if (credential) {
-                                await linkWithCredential(newUser, credential);
-                            }
-                        } catch (linkError) {
-                            console.error('Lỗi liên kết tài khoản:', linkError);
-                            // Vẫn tiếp tục, không ảnh hưởng đến việc tạo tài khoản
+                    if (accessToken) {
+                        const fbData = await getFacebookUserInfo(accessToken);
+                        if (fbData) {
+                            if (fbData.email) fbEmail = fbData.email;
+                            if (fbData.name) fbName = fbData.name;
                         }
-                        
-                        // Cập nhật pendingSocialUser thành user mới
-                        pendingSocialUser = newUser;
-                        
-                    } else {
-                        // Email đã tồn tại, thông báo
-                        showToast('Thông báo', 'Email này đã được sử dụng. Vui lòng sử dụng email khác.', 'warning');
-                        hideLoading();
-                        return;
                     }
-                } catch (authError) {
-                    console.error('Lỗi tạo tài khoản Auth:', authError);
-                    
-                    if (authError.code === 'auth/email-already-in-use') {
-                        showToast('Thông báo', 'Email này đã được sử dụng. Vui lòng sử dụng email khác.', 'warning');
-                        hideLoading();
-                        return;
-                    } else {
-                        showToast('Lỗi', 'Không thể tạo tài khoản. Vui lòng thử lại.', 'error');
-                        hideLoading();
-                        return;
-                    }
+                } catch (error) {
+                    console.error('Lỗi lấy thông tin Facebook:', error);
                 }
+            }
+            
+            // Nếu là Google, lấy email từ user
+            if (providerType === 'google' && user.email) {
+                fbEmail = user.email;
+                fbName = user.displayName || extractNameFromEmail(user.email);
+            }
+            
+            // ===== SỬA: KHÔNG KIỂM TRA EMAIL BẮT BUỘC =====
+            // Nếu Facebook không trả về email, người dùng vẫn có thể tự nhập
+            // Chỉ hiển thị thông báo nếu là Facebook và không có email
+            
+            pendingSocialUser = user;
+            isProcessingAuth = false;
+            hideLoading();
+            
+            const emailInput = document.getElementById('complete-email');
+            const nameInput = document.getElementById('complete-name');
+            const genderInput = document.getElementById('complete-gender');
+            const birthdayInput = document.getElementById('complete-birthday');
+            
+            // Lấy tên
+            let displayName = fbName || user.displayName || '';
+            if (!displayName && fbEmail) {
+                displayName = extractNameFromEmail(fbEmail);
+            }
+            nameInput.value = displayName;
+            
+            // Xử lý email - Nếu có email từ Facebook thì điền và readonly, không có thì để trống cho người dùng nhập
+            if (fbEmail) {
+                emailInput.value = fbEmail;
+                emailInput.readOnly = true;
+                emailInput.style.background = '#f0f0f0';
+                emailInput.style.color = '#666';
+                emailInput.style.cursor = 'not-allowed';
+            } else {
+                emailInput.value = '';
+                emailInput.readOnly = false;
+                emailInput.style.background = '#f8f9fa';
+                emailInput.style.color = '#1c1e21';
+                emailInput.style.cursor = 'text';
+                // Hiển thị thông báo nhẹ nhàng (không phải lỗi)
+                if (providerType === 'facebook') {
+                    showToast('Thông báo', 'Tài khoản Facebook của bạn chưa liên kết email. Vui lòng nhập email để hoàn tất đăng ký.', 'info', 4000);
+                }
+            }
+            
+            // Đặt giá trị mặc định cho giới tính và ngày sinh
+            genderInput.value = 'Nam';
+            birthdayInput.value = '2005-01-01';
+            
+            document.getElementById('complete-terms-checkbox').checked = false;
+            
+            switchForm('complete');
+            
+            document.getElementById('googleLoginBtn').disabled = false;
+            document.getElementById('facebookLoginBtn').disabled = false;
+        }
+    } catch (error) {
+        isProcessingAuth = false;
+        currentSocialProvider = null;
+        hideLoading();
+        document.getElementById('googleLoginBtn').disabled = false;
+        document.getElementById('facebookLoginBtn').disabled = false;
+        
+        console.error('Lỗi đăng nhập social:', error);
+        
+        if (error.code === 'auth/account-exists-with-different-credential') {
+            showToast('Lỗi', 'Tài khoản này đã được đăng ký bằng phương thức khác. Vui lòng đăng nhập bằng phương thức đó.', 'warning');
+        } else {
+            showToast('Lỗi', getFirebaseErrorMessage(error.code), 'error');
+        }
+    }
+};
+
+ // ===== HANDLE COMPLETE PROFILE =====
+window.handleCompleteProfile = async () => {
+    const name = document.getElementById('complete-name').value.trim();
+    const gender = document.getElementById('complete-gender').value;
+    const birthday = document.getElementById('complete-birthday').value;
+    const email = document.getElementById('complete-email').value.trim();
+    const password = document.getElementById('complete-password').value;
+    const confirmPassword = document.getElementById('complete-confirm-password').value;
+    const termsChecked = document.getElementById('complete-terms-checkbox').checked;
+    
+    if (!pendingSocialUser) {
+        showToast('Lỗi', 'Không tìm thấy thông tin đăng nhập. Vui lòng thử lại.', 'error');
+        return;
+    }
+    
+    if (!name) {
+        showToast('Thông báo', 'Vui lòng nhập họ và tên.', 'warning');
+        return;
+    }
+    if (!email) {
+        showToast('Thông báo', 'Vui lòng nhập email.', 'warning');
+        return;
+    }
+    if (!email.includes('@') || !email.includes('.')) {
+        showToast('Thông báo', 'Vui lòng nhập email hợp lệ.', 'warning');
+        return;
+    }
+    if (!password) {
+        showToast('Thông báo', 'Vui lòng tạo mật khẩu.', 'warning');
+        return;
+    }
+    if (password.length < 6) {
+        showToast('Thông báo', 'Mật khẩu phải có ít nhất 6 ký tự.', 'warning');
+        return;
+    }
+    if (password !== confirmPassword) {
+        showToast('Thông báo', 'Mật khẩu xác nhận không khớp.', 'error');
+        return;
+    }
+    if (!birthday) {
+        showToast('Thông báo', 'Vui lòng chọn ngày sinh.', 'warning');
+        return;
+    }
+    if (!termsChecked) {
+        showToast('Thông báo', 'Bạn chưa đồng ý với điều khoản.', 'warning');
+        return;
+    }
+    
+    // ===== KIỂM TRA ĐỘ TUỔI =====
+    const ageCheck = checkAgeFromServer(birthday);
+    if (!ageCheck.isValid) {
+        showToast('Yêu cầu độ tuổi', 'Bạn cần phải trên 12 tuổi để sử dụng dịch vụ.', 'error');
+        return;
+    }
+    
+    showLoading('Đang hoàn tất đăng ký...', 'Vui lòng đợi');
+    
+    try {
+        let providerId = 'unknown';
+        if (pendingSocialUser.providerData && pendingSocialUser.providerData.length > 0) {
+            providerId = pendingSocialUser.providerData[0].providerId || 'unknown';
+        }
+        
+        // ===== Tạo tài khoản email/password trong Firebase Auth =====
+        try {
+            const methods = await fetchSignInMethodsForEmail(auth, email);
+            
+            if (methods.length === 0) {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const newUser = userCredential.user;
                 
-                // Lưu vào Realtime Database
-                await set(ref(db, `users/${pendingSocialUser.uid}`), {
-                    email: email.toLowerCase(),
-                    name: name,
-                    gender: gender,
-                    birthday: birthday,
-                    showGender: true,
-                    showBirthday: true,
-                    allowStrangerChat: true,
-                    allowFriendRequest: true,
-                    isLocked: false,
-                    haveGreenTick: false,
-                    providers: ['password', providerId],
-                    lockInfo: {
-                        id: "---",
-                        reason: "---",
-                        start: "---",
-                        end: "---",
-                    }
+                await updateProfile(newUser, {
+                    displayName: name
                 });
                 
-                // Lưu vào localStorage
-                localStorage.setItem('userEmail', email.toLowerCase());
-                localStorage.setItem('userName', name);
+                try {
+                    let credential;
+                    if (providerId.includes('facebook')) {
+                        credential = FacebookAuthProvider.credentialFromResult(pendingSocialUser);
+                    } else if (providerId.includes('google')) {
+                        credential = GoogleAuthProvider.credentialFromResult(pendingSocialUser);
+                    }
+                    
+                    if (credential) {
+                        await linkWithCredential(newUser, credential);
+                    }
+                } catch (linkError) {
+                    console.error('Lỗi liên kết tài khoản:', linkError);
+                }
                 
+                pendingSocialUser = newUser;
+                
+            } else {
+                showToast('Thông báo', 'Email này đã được sử dụng. Vui lòng sử dụng email khác.', 'warning');
                 hideLoading();
-                showToast('Thành công', 'Đăng ký tài khoản thành công! Bạn có thể đăng nhập bằng email và mật khẩu.', 'success', 3000);
-                
-                const user = pendingSocialUser;
-                pendingSocialUser = null;
-                currentSocialProvider = null;
-                
-                setTimeout(() => {
-                    window.location.href = "chat.html";
-                }, 2000);
-                
-            } catch (error) {
-                hideLoading();
-                showToast('Lỗi', 'Không thể lưu thông tin. Vui lòng thử lại.', 'error');
-                console.error('Complete profile error:', error);
+                return;
             }
-        };
+        } catch (authError) {
+            console.error('Lỗi tạo tài khoản Auth:', authError);
+            
+            if (authError.code === 'auth/email-already-in-use') {
+                showToast('Thông báo', 'Email này đã được sử dụng. Vui lòng sử dụng email khác.', 'warning');
+                hideLoading();
+                return;
+            } else {
+                showToast('Lỗi', 'Không thể tạo tài khoản. Vui lòng thử lại.', 'error');
+                hideLoading();
+                return;
+            }
+        }
+        
+        // Lưu vào Realtime Database
+        await set(ref(db, `users/${pendingSocialUser.uid}`), {
+            email: email.toLowerCase(),
+            name: name,
+            gender: gender,
+            birthday: birthday,
+            showGender: true,
+            showBirthday: true,
+            allowStrangerChat: true,
+            allowFriendRequest: true,
+            isLocked: false,
+            haveGreenTick: false,
+            providers: ['password', providerId],
+            lockInfo: {
+                id: "---",
+                reason: "---",
+                start: "---",
+                end: "---",
+            }
+        });
+        
+        // Lưu vào localStorage
+        localStorage.setItem('userEmail', email.toLowerCase());
+        localStorage.setItem('userName', name);
+        
+        hideLoading();
+        showToast('Thành công', 'Đăng ký tài khoản thành công! Bạn có thể đăng nhập bằng email và mật khẩu.', 'success', 3000);
+        
+        pendingSocialUser = null;
+        currentSocialProvider = null;
+        
+        setTimeout(() => {
+            window.location.href = "chat.html";
+        }, 2000);
+        
+    } catch (error) {
+        hideLoading();
+        showToast('Lỗi', 'Không thể lưu thông tin. Vui lòng thử lại.', 'error');
+        console.error('Complete profile error:', error);
+    }
+};
 
         // ===== HANDLE LOGIN =====
         window.handleLogin = async () => {
