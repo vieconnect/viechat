@@ -645,6 +645,61 @@
         .lock-modal .lock-btn-secondary:hover {
             background: #d0d0d0;
         }
+
+        /* ===== PASSWORD STRENGTH INDICATOR ===== */
+        .password-strength {
+            margin: -6px 0 12px 0;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .password-strength .strength-bar {
+            flex: 1;
+            height: 4px;
+            border-radius: 4px;
+            background: #e0e0e0;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .password-strength .strength-bar .strength-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: all 0.4s ease;
+        }
+        .password-strength .strength-label {
+            font-size: 12px;
+            font-weight: 600;
+            min-width: 70px;
+            text-align: right;
+            color: #888;
+            transition: color 0.3s ease;
+        }
+        .password-requirements {
+            font-size: 12px;
+            color: #888;
+            margin: -4px 0 12px 0;
+            padding: 0 4px;
+        }
+        .password-requirements .req-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 0;
+            transition: color 0.3s ease;
+        }
+        .password-requirements .req-item .req-icon {
+            font-size: 12px;
+            width: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .password-requirements .req-item.met {
+            color: var(--success);
+        }
+        .password-requirements .req-item.unmet {
+            color: #999;
+        }
         
         @media (max-width: 992px) {
             .auth-left { padding: 40px; }
@@ -792,6 +847,39 @@
                             <i class="fas fa-eye"></i>
                         </button>
                     </div>
+                    
+                    <!-- Password Strength Indicator -->
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar">
+                            <div class="strength-fill" id="strengthFill"></div>
+                        </div>
+                        <span class="strength-label" id="strengthLabel">Yếu</span>
+                    </div>
+                    
+                    <!-- Password Requirements -->
+                    <div class="password-requirements" id="passwordRequirements">
+                        <div class="req-item unmet" id="reqLength">
+                            <span class="req-icon"><i class="fas fa-circle"></i></span>
+                            <span>Ít nhất 8 ký tự</span>
+                        </div>
+                        <div class="req-item unmet" id="reqUppercase">
+                            <span class="req-icon"><i class="fas fa-circle"></i></span>
+                            <span>Chứa chữ hoa (A-Z)</span>
+                        </div>
+                        <div class="req-item unmet" id="reqLowercase">
+                            <span class="req-icon"><i class="fas fa-circle"></i></span>
+                            <span>Chứa chữ thường (a-z)</span>
+                        </div>
+                        <div class="req-item unmet" id="reqDigit">
+                            <span class="req-icon"><i class="fas fa-circle"></i></span>
+                            <span>Chứa số (0-9)</span>
+                        </div>
+                        <div class="req-item unmet" id="reqSpecial">
+                            <span class="req-icon"><i class="fas fa-circle"></i></span>
+                            <span>Chứa ký tự đặc biệt (!@#$%^&*)</span>
+                        </div>
+                    </div>
+                    
                     <div class="password-wrapper">
                         <input type="password" id="signup-confirm-password" placeholder="Xác nhận mật khẩu" autocomplete="new-password">
                         <button type="button" class="password-toggle" onclick="togglePassword('signup-confirm-password', this)">
@@ -1011,62 +1099,88 @@
             disableAllForms(false);
         }
 
-        // ===== SWITCH FORM =====
-        window.switchForm = (target) => {
-            if (isTransitioning || target === currentForm) return;
-            
-            const overlay = document.getElementById('formLoadingOverlay');
-            if (overlay.classList.contains('show')) return;
-            
-            isTransitioning = true;
-            
-            const forms = {
-                login: document.getElementById('login-form'),
-                signup: document.getElementById('signup-form'),
-                forgot: document.getElementById('forgot-password-form')
+        // ===== PASSWORD STRENGTH CHECKER =====
+        function checkPasswordStrength(password) {
+            const checks = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                digit: /[0-9]/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
             };
             
-            const currentPanel = forms[currentForm];
-            const targetPanel = forms[target];
+            const metCount = Object.values(checks).filter(Boolean).length;
             
-            if (!currentPanel || !targetPanel) {
-                isTransitioning = false;
-                return;
+            let strength = 'weak';
+            let label = 'Yếu';
+            let color = '#f02849';
+            let width = 20;
+            
+            if (metCount >= 5) {
+                strength = 'strong';
+                label = 'Mạnh';
+                color = '#42b72a';
+                width = 100;
+            } else if (metCount >= 4) {
+                strength = 'medium';
+                label = 'Trung bình';
+                color = '#f39c12';
+                width = 75;
+            } else if (metCount >= 3) {
+                strength = 'medium-weak';
+                label = 'Trung bình yếu';
+                color = '#f1c40f';
+                width = 50;
+            } else if (metCount >= 2) {
+                strength = 'weak';
+                label = 'Yếu';
+                color = '#e67e22';
+                width = 30;
+            } else {
+                strength = 'very-weak';
+                label = 'Rất yếu';
+                color = '#f02849';
+                width = 10;
             }
             
-            currentPanel.classList.remove('active');
-            currentPanel.style.display = 'none';
-            
-            targetPanel.style.display = 'block';
-            void targetPanel.offsetWidth;
-            targetPanel.classList.add('active');
-            currentForm = target;
-            isTransitioning = false;
-            
-            const firstInput = targetPanel.querySelector('input:not([type="hidden"]):not([type="checkbox"])');
-            if (firstInput) {
-                setTimeout(() => {
-                    firstInput.focus();
-                    if (window.innerWidth <= 768) {
-                        firstInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }, 300);
-            }
-        };
+            return {
+                strength,
+                label,
+                color,
+                width,
+                metCount,
+                checks,
+                isValid: strength === 'strong' || strength === 'medium'
+            };
+        }
 
-        // ===== FIREBASE ERROR =====
-        function getFirebaseErrorMessage(errorCode) {
-            const messages = {
-                'auth/invalid-credential': 'Email hoặc mật khẩu không đúng.',
-                'auth/invalid-email': 'Email không hợp lệ.',
-                'auth/email-already-in-use': 'Email này đã được sử dụng.',
-                'auth/weak-password': 'Mật khẩu phải có ít nhất 6 ký tự.',
-                'auth/user-not-found': 'Không tìm thấy tài khoản với email này.',
-                'auth/too-many-requests': 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
-                'auth/network-request-failed': 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.',
-                'default': 'Đã xảy ra lỗi. Vui lòng thử lại sau.'
+        function updatePasswordStrengthUI(password) {
+            const fill = document.getElementById('strengthFill');
+            const label = document.getElementById('strengthLabel');
+            const result = checkPasswordStrength(password);
+            
+            fill.style.width = result.width + '%';
+            fill.style.backgroundColor = result.color;
+            label.textContent = result.label;
+            label.style.color = result.color;
+            
+            // Update requirement items
+            const reqMap = {
+                length: document.getElementById('reqLength'),
+                uppercase: document.getElementById('reqUppercase'),
+                lowercase: document.getElementById('reqLowercase'),
+                digit: document.getElementById('reqDigit'),
+                special: document.getElementById('reqSpecial')
             };
-            return messages[errorCode] || messages.default;
+            
+            Object.keys(reqMap).forEach(key => {
+                const el = reqMap[key];
+                const met = result.checks[key];
+                el.className = `req-item ${met ? 'met' : 'unmet'}`;
+                el.querySelector('.req-icon').innerHTML = met ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-circle"></i>';
+            });
+            
+            return result;
         }
 
         // ===== CHECK AGE =====
@@ -1126,12 +1240,16 @@
                 showToast('Thông báo', 'Bạn chưa đồng ý với điều khoản.', 'warning');
                 return;
             }
-            if (pass !== confirmPass) {
-                showToast('Thông báo', 'Mật khẩu xác nhận không khớp.', 'error');
+            
+            // Kiểm tra độ mạnh mật khẩu
+            const strengthResult = checkPasswordStrength(pass);
+            if (!strengthResult.isValid) {
+                showToast('Mật khẩu yếu', 'Vui lòng tạo mật khẩu mạnh hơn với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.', 'error');
                 return;
             }
-            if (pass.length < 6) {
-                showToast('Thông báo', 'Mật khẩu phải có ít nhất 6 ký tự.', 'warning');
+            
+            if (pass !== confirmPass) {
+                showToast('Thông báo', 'Mật khẩu xác nhận không khớp.', 'error');
                 return;
             }
             
@@ -1202,6 +1320,64 @@
             }
         };
 
+        // ===== FIREBASE ERROR =====
+        function getFirebaseErrorMessage(errorCode) {
+            const messages = {
+                'auth/invalid-credential': 'Email hoặc mật khẩu không đúng.',
+                'auth/invalid-email': 'Email không hợp lệ.',
+                'auth/email-already-in-use': 'Email này đã được sử dụng.',
+                'auth/weak-password': 'Mật khẩu phải có ít nhất 6 ký tự.',
+                'auth/user-not-found': 'Không tìm thấy tài khoản với email này.',
+                'auth/too-many-requests': 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
+                'auth/network-request-failed': 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.',
+                'default': 'Đã xảy ra lỗi. Vui lòng thử lại sau.'
+            };
+            return messages[errorCode] || messages.default;
+        }
+
+        // ===== SWITCH FORM =====
+        window.switchForm = (target) => {
+            if (isTransitioning || target === currentForm) return;
+            
+            const overlay = document.getElementById('formLoadingOverlay');
+            if (overlay.classList.contains('show')) return;
+            
+            isTransitioning = true;
+            
+            const forms = {
+                login: document.getElementById('login-form'),
+                signup: document.getElementById('signup-form'),
+                forgot: document.getElementById('forgot-password-form')
+            };
+            
+            const currentPanel = forms[currentForm];
+            const targetPanel = forms[target];
+            
+            if (!currentPanel || !targetPanel) {
+                isTransitioning = false;
+                return;
+            }
+            
+            currentPanel.classList.remove('active');
+            currentPanel.style.display = 'none';
+            
+            targetPanel.style.display = 'block';
+            void targetPanel.offsetWidth;
+            targetPanel.classList.add('active');
+            currentForm = target;
+            isTransitioning = false;
+            
+            const firstInput = targetPanel.querySelector('input:not([type="hidden"]):not([type="checkbox"])');
+            if (firstInput) {
+                setTimeout(() => {
+                    firstInput.focus();
+                    if (window.innerWidth <= 768) {
+                        firstInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 300);
+            }
+        };
+
         // ===== KEYPRESS =====
         document.getElementById('password').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') handleLogin();
@@ -1219,13 +1395,17 @@
             if (e.key === 'Enter') handleForgotPassword();
         });
 
+        // ===== PASSWORD STRENGTH REAL-TIME =====
+        document.getElementById('signup-password').addEventListener('input', function() {
+            updatePasswordStrengthUI(this.value);
+        });
+
         // ===== AUTH STATE =====
         onAuthStateChanged(auth, async (user) => {
             if (user && !isSigningUp) {
                 try {
                     const snap = await get(ref(db, `users/${user.uid}`));
                     if (!snap.exists()) {
-                        // Nếu user chưa có trong database, đăng xuất và yêu cầu đăng ký lại
                         await signOut(auth);
                         showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ. Vui lòng đăng ký lại.', 'warning');
                         return;
