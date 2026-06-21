@@ -717,74 +717,6 @@
             color: var(--primary);
         }
 
-        /* Linked Accounts */
-        .linked-account-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f2f5;
-        }
-        .linked-account-item:last-child {
-            border-bottom: none;
-        }
-        .linked-account-item .account-info {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        .linked-account-item .account-info .account-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-        .linked-account-item .account-info .account-name {
-            font-weight: 600;
-            font-size: 14px;
-        }
-        .linked-account-item .account-info .account-email {
-            font-size: 12px;
-            color: #888;
-        }
-        .linked-account-item .account-status .badge {
-            font-size: 11px;
-            padding: 4px 12px;
-        }
-        .linked-account-item .account-status .btn-link-account {
-            font-size: 12px;
-            padding: 4px 14px;
-            border-radius: 6px;
-            border: 1.5px solid var(--primary);
-            background: transparent;
-            color: var(--primary);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-        .linked-account-item .account-status .btn-link-account:hover {
-            background: var(--primary);
-            color: white;
-        }
-        .linked-account-item .account-status .btn-unlink-account {
-            font-size: 12px;
-            padding: 4px 14px;
-            border-radius: 6px;
-            border: 1.5px solid var(--danger);
-            background: transparent;
-            color: var(--danger);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-        .linked-account-item .account-status .btn-unlink-account:hover {
-            background: var(--danger);
-            color: white;
-        }
-
         /* Responsive Privacy Modal */
         @media (max-width: 790px) {
             .privacy-modal .modal-content {
@@ -856,9 +788,6 @@
             }
             .privacy-content .form-switch .form-check-label {
                 font-size: 12px;
-            }
-            .linked-account-item .account-info .account-name {
-                font-size: 13px;
             }
         }
     </style>
@@ -1120,7 +1049,7 @@
         </div>
     </div>
 
-    <!-- MODAL QUYỀN RIÊNG TƯ - 2 CỘT -->
+    <!-- MODAL QUYỀN RIÊNG TƯ - 2 CỘT (ĐÃ XÓA TAB LIÊN KẾT TÀI KHOẢN) -->
     <div class="modal fade privacy-modal" id="privacySettingsModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -1137,9 +1066,6 @@
                         <button class="menu-item-privacy" data-section="privacy" onclick="switchPrivacySection('privacy')">
                             <i class="fas fa-lock"></i> Quyền riêng tư
                         </button>
-                        <button class="menu-item-privacy" data-section="linked" onclick="switchPrivacySection('linked')">
-                            <i class="fas fa-link"></i> Liên kết tài khoản
-                        </button>
                     </div>
                     
                     <!-- Nội dung phải -->
@@ -1148,31 +1074,6 @@
                         <div class="content-section active" id="section-account">
                             <div class="section-header">Tài khoản và bảo mật</div>
                             <div class="section-desc">Quản lý thông tin cá nhân và bảo mật tài khoản của bạn.</div>
-                            
-                            <!-- ===== THÊM MẬT KHẨU (CHO SOCIAL LOGIN) ===== -->
-                            <div id="add-password-section" style="display:none; background:#f8f9fa; border-radius:12px; padding:16px; margin-bottom:20px; border:1px solid #e4e6eb;">
-                                <div class="fw-bold mb-2" style="color:var(--primary);">
-                                    <i class="fas fa-key me-2"></i>Thêm mật khẩu để đăng nhập bằng email
-                                </div>
-                                <div class="text-muted small mb-3">Bạn đang sử dụng tài khoản social. Thêm mật khẩu để có thể đăng nhập bằng email.</div>
-                                
-                                <div class="password-wrapper" style="margin-bottom:10px;">
-                                    <input type="password" class="form-control" id="addPasswordInput" placeholder="Nhập mật khẩu mới (6+ ký tự)">
-                                    <button type="button" class="password-toggle" onclick="togglePassword('addPasswordInput', this)" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#999; cursor:pointer;">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                                <div class="password-wrapper" style="margin-bottom:10px;">
-                                    <input type="password" class="form-control" id="addConfirmPasswordInput" placeholder="Xác nhận mật khẩu">
-                                    <button type="button" class="password-toggle" onclick="togglePassword('addConfirmPasswordInput', this)" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:#999; cursor:pointer;">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                                <button class="btn btn-primary btn-sm" onclick="addPasswordToAccount()" id="addPasswordBtn">
-                                    <i class="fas fa-plus me-1"></i> Thêm mật khẩu
-                                </button>
-                                <div id="addPasswordStatus" class="mt-2" style="font-size:13px;"></div>
-                            </div>
                             
                             <div class="form-group">
                                 <label>Giới tính</label>
@@ -1227,66 +1128,6 @@
                                     <input class="form-check-input" type="checkbox" id="privSwitchAllowStrangerChat">
                                     <label class="form-check-label">Cho phép người lạ nhắn tin khi chưa kết bạn</label>
                                 </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Liên kết tài khoản -->
-                        <div class="content-section" id="section-linked">
-                            <div class="section-header">Liên kết tài khoản</div>
-                            <div class="section-desc">Quản lý các tài khoản liên kết để đăng nhập dễ dàng hơn.</div>
-                            
-                            <div id="linkedAccountsContainer">
-                                <!-- Mật khẩu (mặc định) -->
-                                <div class="linked-account-item">
-                                    <div class="account-info">
-                                        <div class="account-icon" style="background:#e8f0fe; color:#1a73e8;">
-                                            <i class="fas fa-envelope"></i>
-                                        </div>
-                                        <div>
-                                            <div class="account-name">Mật khẩu</div>
-                                            <div class="account-email">Email: <span id="linkedEmailDisplay">---</span></div>
-                                        </div>
-                                    </div>
-                                    <div class="account-status">
-                                        <span class="badge bg-success">Đã liên kết</span>
-                                    </div>
-                                </div>
-                                
-                                <!-- Google -->
-                                <div class="linked-account-item" id="googleAccountItem">
-                                    <div class="account-info">
-                                        <div class="account-icon" style="background:#fce8e6; color:#ea4335;">
-                                            <i class="fab fa-google"></i>
-                                        </div>
-                                        <div>
-                                            <div class="account-name">Google</div>
-                                            <div class="account-email">Đăng nhập bằng tài khoản Google</div>
-                                        </div>
-                                    </div>
-                                    <div class="account-status" id="googleLinkStatus">
-                                        <button class="btn-link-account" onclick="linkProvider('google')">Liên kết</button>
-                                    </div>
-                                </div>
-                                
-                                <!-- Facebook -->
-                                <div class="linked-account-item" id="facebookAccountItem">
-                                    <div class="account-info">
-                                        <div class="account-icon" style="background:#e8edf5; color:#1877f2;">
-                                            <i class="fab fa-facebook-f"></i>
-                                        </div>
-                                        <div>
-                                            <div class="account-name">Facebook</div>
-                                            <div class="account-email">Đăng nhập bằng tài khoản Facebook</div>
-                                        </div>
-                                    </div>
-                                    <div class="account-status" id="facebookLinkStatus">
-                                        <button class="btn-link-account" onclick="linkProvider('facebook')">Liên kết</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="text-muted small mt-3">
-                                <i class="fas fa-info-circle"></i> Liên kết tài khoản để dễ dàng đăng nhập bằng nhiều phương thức khác nhau.
                             </div>
                         </div>
                     </div>
@@ -1395,7 +1236,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, updatePassword, deleteUser, reauthenticateWithCredential, EmailAuthProvider, GoogleAuthProvider, FacebookAuthProvider, linkWithPopup, unlink, createUserWithEmailAndPassword, fetchSignInMethodsForEmail, linkWithCredential } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signOut, updatePassword, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue, query, orderByChild, equalTo, get, remove, off, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -2321,116 +2162,6 @@
             });
         };
 
-        // ===== ===== ===== THÊM MẬT KHẨU CHO SOCIAL LOGIN ===== ===== =====
-        window.addPasswordToAccount = async () => {
-            const password = document.getElementById('addPasswordInput').value;
-            const confirmPassword = document.getElementById('addConfirmPasswordInput').value;
-            const statusEl = document.getElementById('addPasswordStatus');
-            const btn = document.getElementById('addPasswordBtn');
-            
-            // Reset status
-            statusEl.innerHTML = '';
-            statusEl.className = 'mt-2';
-            
-            // Kiểm tra
-            if (!password || password.length < 6) {
-                statusEl.innerHTML = '<span style="color:var(--danger);">⚠️ Mật khẩu phải có ít nhất 6 ký tự.</span>';
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                statusEl.innerHTML = '<span style="color:var(--danger);">⚠️ Mật khẩu xác nhận không khớp.</span>';
-                return;
-            }
-            
-            if (!currentUser) {
-                statusEl.innerHTML = '<span style="color:var(--danger);">⚠️ Vui lòng đăng nhập lại.</span>';
-                return;
-            }
-            
-            // Disable button
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Đang xử lý...';
-            statusEl.innerHTML = '<span style="color:var(--primary);">⏳ Đang cập nhật mật khẩu...</span>';
-            
-            try {
-                // Lấy email từ database
-                const snap = await get(ref(db, `users/${currentUser.uid}`));
-                if (!snap.exists()) {
-                    throw new Error('Không tìm thấy thông tin người dùng');
-                }
-                
-                const userData = snap.val();
-                const email = userData.email || currentUser.email;
-                
-                if (!email) {
-                    throw new Error('Không tìm thấy email để tạo mật khẩu');
-                }
-                
-                // Tạo tài khoản email/password trong Firebase Auth
-                const methods = await fetchSignInMethodsForEmail(auth, email);
-                
-                if (methods.length === 0) {
-                    // Email chưa tồn tại, tạo tài khoản mới với email và mật khẩu
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    const newUser = userCredential.user;
-                    
-                    // Liên kết với tài khoản social hiện tại
-                    try {
-                        let credential;
-                        const providers = userData.providers || [];
-                        
-                        if (providers.some(p => p.includes('facebook'))) {
-                            credential = FacebookAuthProvider.credentialFromResult(currentUser);
-                        } else if (providers.some(p => p.includes('google'))) {
-                            credential = GoogleAuthProvider.credentialFromResult(currentUser);
-                        }
-                        
-                        if (credential) {
-                            await linkWithCredential(newUser, credential);
-                        }
-                    } catch (linkError) {
-                        console.error('Lỗi liên kết tài khoản:', linkError);
-                    }
-                    
-                    // Cập nhật providers trong database
-                    const updatedProviders = userData.providers || [];
-                    if (!updatedProviders.includes('password')) {
-                        updatedProviders.push('password');
-                        await update(ref(db, `users/${currentUser.uid}`), { 
-                            providers: updatedProviders,
-                            email: email.toLowerCase()
-                        });
-                    }
-                    
-                    // Cập nhật currentUser
-                    currentUser = newUser;
-                    
-                    statusEl.innerHTML = '<span style="color:var(--success);">✅ Đã thêm mật khẩu thành công! Bạn có thể đăng nhập bằng email và mật khẩu.</span>';
-                    statusEl.className = 'mt-2 text-success';
-                    
-                    // Ẩn phần thêm mật khẩu
-                    document.getElementById('add-password-section').style.display = 'none';
-                    
-                    // Cập nhật UI
-                    document.getElementById('my-email').innerText = email;
-                    
-                    showToast('Thành công', 'Đã thêm mật khẩu cho tài khoản!', 'success');
-                    
-                } else {
-                    // Email đã tồn tại
-                    statusEl.innerHTML = `<span style="color:var(--danger);">⚠️ Email này đã được sử dụng. Vui lòng sử dụng email khác.</span>`;
-                }
-                
-            } catch (error) {
-                console.error('Lỗi thêm mật khẩu:', error);
-                statusEl.innerHTML = `<span style="color:var(--danger);">⚠️ ${error.message || 'Không thể thêm mật khẩu. Vui lòng thử lại.'}</span>`;
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-plus me-1"></i> Thêm mật khẩu';
-            }
-        };
-
         // ===== SHOW PRIVACY MODAL =====
         window.showPrivacyModal = async () => {
             const snap = await get(ref(db, `users/${currentUser.uid}`));
@@ -2443,26 +2174,6 @@
                 document.getElementById('privSwitchAllowSearch').checked = d.allowSearch !== false;
                 document.getElementById('privSwitchAllowFriend').checked = d.allowFriendRequest !== false;
                 document.getElementById('privSwitchAllowStrangerChat').checked = d.allowStrangerChat !== false;
-                
-                // Reset password fields
-                document.getElementById('addPasswordInput').value = '';
-                document.getElementById('addConfirmPasswordInput').value = '';
-                document.getElementById('addPasswordStatus').innerHTML = '';
-                
-                // Kiểm tra hiển thị phần thêm mật khẩu
-                const providers = d.providers || [];
-                const hasPassword = providers.includes('password');
-                const hasSocial = providers.some(p => p.includes('facebook') || p.includes('google'));
-                const addPwSection = document.getElementById('add-password-section');
-                
-                if (!hasPassword && hasSocial && d.email) {
-                    addPwSection.style.display = 'block';
-                } else {
-                    addPwSection.style.display = 'none';
-                }
-                
-                // Load linked accounts
-                await loadLinkedAccounts();
                 
                 const modalEl = document.getElementById('privacySettingsModal');
                 closeAllModals();
@@ -3486,274 +3197,6 @@
             window.addEventListener('resize', () => { if(window.innerWidth > 790) window.closeSidebar(); });
         }, 100);
 
-        // ===== LINKED ACCOUNTS =====
-        let linkedProviders = [];
-
-        async function loadLinkedAccounts() {
-            if (!currentUser) return;
-            
-            try {
-                const snap = await get(ref(db, `users/${currentUser.uid}`));
-                if (snap.exists()) {
-                    const userData = snap.val();
-                    linkedProviders = userData.providers || ['password'];
-                    updateLinkedAccountsUI();
-                }
-            } catch (error) {
-                console.error('Lỗi tải thông tin liên kết:', error);
-            }
-        }
-
-function updateLinkedAccountsUI() {
-    const providers = linkedProviders || ['password'];
-    
-    const emailDisplay = document.getElementById('linkedEmailDisplay');
-    if (emailDisplay && currentUser) {
-        emailDisplay.textContent = currentUser.email || '---';
-    }
-    
-    // Google
-    const googleContainer = document.getElementById('googleLinkStatus');
-    const isGoogleLinked = providers.includes('google.com') || providers.includes('google');
-    if (isGoogleLinked) {
-        // Kiểm tra nếu chỉ còn 1 provider
-        const remainingProviders = providers.filter(p => p !== 'google.com' && p !== 'google');
-        const isOnlyProvider = remainingProviders.length === 0;
-        
-        if (isOnlyProvider) {
-            googleContainer.innerHTML = `
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-success">Đã liên kết</span>
-                    <span class="text-muted small">(Không thể ngắt - provider duy nhất)</span>
-                </div>
-            `;
-        } else {
-            googleContainer.innerHTML = `
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-success">Đã liên kết</span>
-                    <button class="btn btn-sm btn-outline-danger" onclick="unlinkProvider('google')">Ngắt kết nối</button>
-                </div>
-            `;
-        }
-    } else {
-        googleContainer.innerHTML = `
-            <button class="btn btn-sm btn-outline-primary" onclick="linkProvider('google')">Liên kết</button>
-        `;
-    }
-    
-    // Facebook
-    const facebookContainer = document.getElementById('facebookLinkStatus');
-    const isFacebookLinked = providers.includes('facebook.com') || providers.includes('facebook');
-    if (isFacebookLinked) {
-        const remainingProviders = providers.filter(p => p !== 'facebook.com' && p !== 'facebook');
-        const isOnlyProvider = remainingProviders.length === 0;
-        
-        if (isOnlyProvider) {
-            facebookContainer.innerHTML = `
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-success">Đã liên kết</span>
-                    <span class="text-muted small">(Không thể ngắt - provider duy nhất)</span>
-                </div>
-            `;
-        } else {
-            facebookContainer.innerHTML = `
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-success">Đã liên kết</span>
-                    <button class="btn btn-sm btn-outline-danger" onclick="unlinkProvider('facebook')">Ngắt kết nối</button>
-                </div>
-            `;
-        }
-    } else {
-        facebookContainer.innerHTML = `
-            <button class="btn btn-sm btn-outline-primary" onclick="linkProvider('facebook')">Liên kết</button>
-        `;
-    }
-}
-
-        window.linkProvider = async (providerType) => {
-            if (!currentUser) {
-                showToast("Lỗi", "Vui lòng đăng nhập trước.", "error");
-                return;
-            }
-            
-            let provider;
-            let providerName;
-            if (providerType === 'google') {
-                provider = new GoogleAuthProvider();
-                providerName = 'Google';
-            } else if (providerType === 'facebook') {
-                provider = new FacebookAuthProvider();
-                providerName = 'Facebook';
-            } else {
-                return;
-            }
-            
-            const btn = document.querySelector(`#${providerType}LinkStatus button`);
-            if (btn) {
-                btn.disabled = true;
-                btn.textContent = 'Đang xử lý...';
-            }
-            
-            try {
-                const result = await linkWithPopup(currentUser, provider);
-                
-                const snap = await get(ref(db, `users/${currentUser.uid}`));
-                if (snap.exists()) {
-                    const userData = snap.val();
-                    const providers = userData.providers || ['password'];
-                    const providerId = providerType === 'google' ? 'google.com' : 'facebook.com';
-                    if (!providers.includes(providerId)) {
-                        providers.push(providerId);
-                        await update(ref(db, `users/${currentUser.uid}`), { providers: providers });
-                        linkedProviders = providers;
-                        updateLinkedAccountsUI();
-                        showToast("Thành công", `Đã liên kết tài khoản ${providerName} thành công!`, "success");
-                    }
-                }
-            } catch (error) {
-                console.error('Lỗi liên kết:', error);
-                if (error.code === 'auth/credential-already-in-use') {
-                    showToast("Lỗi", 'Tài khoản này đã được liên kết với một tài khoản khác.', "error");
-                } else if (error.code === 'auth/popup-closed-by-user') {
-                    showToast("Thông báo", 'Bạn đã đóng cửa sổ liên kết.', "warning");
-                } else {
-                    showToast("Lỗi", 'Không thể liên kết tài khoản. Vui lòng thử lại.', "error");
-                }
-            } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.textContent = 'Liên kết';
-                }
-            }
-        };
-
-window.unlinkProvider = async (providerType) => {
-    if (!currentUser) {
-        showToast("Lỗi", "Vui lòng đăng nhập trước.", "error");
-        return;
-    }
-    
-    const providers = linkedProviders || ['password'];
-    const providerId = providerType === 'google' ? 'google.com' : 'facebook.com';
-    
-    // Kiểm tra nếu chỉ có 1 provider (không có password) và user đang cố ngắt kết nối provider đó
-    const hasPassword = providers.includes('password');
-    const hasSocial = providers.some(p => p.includes('facebook') || p.includes('google'));
-    
-    // Nếu chỉ có 1 provider và không có password, không cho ngắt kết nối
-    if (providers.length <= 1 && !hasPassword) {
-        showToast("Thông báo", 'Bạn chỉ có 1 phương thức đăng nhập. Vui lòng thêm mật khẩu trước khi ngắt kết nối.', 'warning');
-        return;
-    }
-    
-    // Nếu chỉ có 1 provider và đó là password, không cho ngắt
-    if (providers.length <= 1 && hasPassword && !hasSocial) {
-        showToast("Thông báo", 'Bạn chỉ có 1 phương thức đăng nhập. Không thể ngắt kết nối.', 'warning');
-        return;
-    }
-    
-    const providerName = providerType === 'google' ? 'Google' : 'Facebook';
-    
-    showConfirm(`Bạn có chắc muốn ngắt kết nối tài khoản ${providerName}? Hành động này sẽ đăng xuất bạn và bạn sẽ cần đăng nhập lại.`, async () => {
-        try {
-            // Lấy thông tin user trước khi ngắt kết nối
-            const snap = await get(ref(db, `users/${currentUser.uid}`));
-            if (!snap.exists()) {
-                showToast("Lỗi", 'Không tìm thấy thông tin người dùng.', 'error');
-                return;
-            }
-            
-            const userData = snap.val();
-            let providersList = userData.providers || ['password'];
-            
-            // Kiểm tra sau khi ngắt kết nối còn provider nào không
-            const remainingProviders = providersList.filter(p => p !== providerId);
-            
-            // Nếu sau khi ngắt kết nối không còn provider nào (chỉ còn 1 provider và đó là provider cần ngắt)
-            if (remainingProviders.length === 0) {
-                // Trường hợp này không thể xảy ra vì đã kiểm tra ở trên, nhưng vẫn xử lý
-                showToast("Lỗi", 'Không thể ngắt kết nối provider cuối cùng.', 'error');
-                return;
-            }
-            
-            // Ngắt kết nối provider khỏi Firebase Auth
-            try {
-                await unlink(currentUser, providerId);
-            } catch (unlinkError) {
-                console.error('Lỗi ngắt kết nối Auth:', unlinkError);
-                // Nếu lỗi do không tìm thấy provider, vẫn tiếp tục xóa khỏi database
-                if (unlinkError.code !== 'auth/no-such-provider') {
-                    throw unlinkError;
-                }
-            }
-            
-            // Cập nhật providers trong database
-            await update(ref(db, `users/${currentUser.uid}`), { 
-                providers: remainingProviders 
-            });
-            
-            linkedProviders = remainingProviders;
-            updateLinkedAccountsUI();
-            
-            // Kiểm tra xem còn social provider nào không
-            const hasSocialRemaining = remainingProviders.some(p => p.includes('facebook') || p.includes('google'));
-            const hasPasswordRemaining = remainingProviders.includes('password');
-            
-            // Nếu không còn social provider nào và có password -> xóa tài khoản khỏi Authentication
-            if (!hasSocialRemaining && hasPasswordRemaining) {
-                showToast("Thông báo", 'Đã ngắt kết nối thành công. Tài khoản của bạn sẽ được cập nhật.', 'success', 2000);
-                
-                // Xóa tài khoản khỏi Authentication
-                try {
-                    await deleteUser(currentUser);
-                    // Đăng xuất và chuyển về trang đăng nhập
-                    showToast("Thông báo", 'Tài khoản đã được cập nhật. Vui lòng đăng nhập lại bằng email và mật khẩu.', 'info', 3000);
-                    setTimeout(() => {
-                        signOut(auth);
-                        window.location.href = "index.html";
-                    }, 2000);
-                } catch (deleteError) {
-                    console.error('Lỗi xóa tài khoản:', deleteError);
-                    if (deleteError.code === 'auth/requires-recent-login') {
-                        showToast("Yêu cầu xác thực lại", 'Vui lòng đăng nhập lại để xác thực.', 'warning');
-                        signOut(auth);
-                        window.location.href = "index.html";
-                    } else {
-                        showToast("Lỗi", 'Không thể xóa tài khoản. Vui lòng thử lại.', 'error');
-                    }
-                }
-            } else if (!hasSocialRemaining && !hasPasswordRemaining) {
-                // Không còn provider nào -> xóa hoàn toàn
-                try {
-                    await deleteUser(currentUser);
-                    showToast("Thông báo", 'Tài khoản đã được cập nhật. Vui lòng đăng nhập lại.', 'info', 3000);
-                    setTimeout(() => {
-                        signOut(auth);
-                        window.location.href = "index.html";
-                    }, 2000);
-                } catch (deleteError) {
-                    console.error('Lỗi xóa tài khoản:', deleteError);
-                    if (deleteError.code === 'auth/requires-recent-login') {
-                        showToast("Yêu cầu xác thực lại", 'Vui lòng đăng nhập lại để xác thực.', 'warning');
-                        signOut(auth);
-                        window.location.href = "index.html";
-                    } else {
-                        showToast("Lỗi", 'Không thể xóa tài khoản. Vui lòng thử lại.', 'error');
-                    }
-                }
-            } else {
-                // Vẫn còn provider khác, không cần xóa tài khoản
-                showToast("Thành công", `Đã ngắt kết nối tài khoản ${providerName}.`, 'success');
-                // Cập nhật lại UI
-                await loadLinkedAccounts();
-            }
-            
-        } catch (error) {
-            console.error('Lỗi ngắt kết nối:', error);
-            showToast("Lỗi", 'Không thể ngắt kết nối. Vui lòng thử lại.', 'error');
-        }
-    });
-};
         // ===== SWITCH PRIVACY SECTION =====
         window.switchPrivacySection = (section) => {
             document.querySelectorAll('.privacy-sidebar .menu-item-privacy').forEach(btn => {

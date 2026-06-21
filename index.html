@@ -315,29 +315,6 @@
             transform: none;
             box-shadow: none;
         }
-        .auth-right .btn-primary-custom {
-            width: 100%;
-            padding: 13px;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 16px;
-            border: none;
-            background: var(--primary);
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .auth-right .btn-primary-custom:hover {
-            background: #0066cc;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(0, 132, 255, 0.3);
-        }
-        .auth-right .btn-primary-custom:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
         
         .social-divider {
             display: flex;
@@ -355,50 +332,6 @@
             padding: 0 14px;
             font-size: 13px;
             color: #999;
-        }
-        .social-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        .social-buttons button {
-            flex: 1;
-            padding: 11px;
-            border-radius: 10px;
-            border: 1.5px solid #e0e0e0;
-            background: white;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            touch-action: manipulation;
-        }
-        .social-buttons button:hover {
-            background: #f8f9fa;
-            border-color: #ccc;
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-        .social-buttons button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        .social-buttons .btn-google {
-            color: #ea4335;
-        }
-        .social-buttons .btn-google i {
-            font-size: 20px;
-        }
-        .social-buttons .btn-facebook {
-            color: #1877f2;
-        }
-        .social-buttons .btn-facebook i {
-            font-size: 20px;
         }
         
         .auth-right .switch-link {
@@ -713,27 +646,6 @@
             background: #d0d0d0;
         }
         
-        .step-indicator {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        .step-indicator .step-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ddd;
-            transition: all 0.3s;
-        }
-        .step-indicator .step-dot.active {
-            background: var(--primary);
-            transform: scale(1.2);
-        }
-        .step-indicator .step-dot.done {
-            background: var(--success);
-        }
-        
         @media (max-width: 992px) {
             .auth-left { padding: 40px; }
             .auth-right { width: 380px; min-width: 380px; padding: 32px 36px; }
@@ -774,7 +686,6 @@
             }
             .toast-container-custom { top: 10px; max-width: calc(100% - 20px); }
             .lock-modal { padding: 30px 20px; }
-            .social-buttons { flex-direction: column; }
             .switch-link a, .forgot-link a {
                 padding: 6px 0;
                 display: inline-block;
@@ -830,7 +741,7 @@
                     <div class="form-title">Đăng nhập</div>
                     <div class="form-sub">Chào mừng bạn quay trở lại</div>
                     
-                    <input type="email" id="email" placeholder="Tên, email hoặc số điện thoại" autocomplete="email">
+                    <input type="email" id="email" placeholder="Email" autocomplete="email">
                     
                     <div class="password-wrapper">
                         <input type="password" id="password" placeholder="Mật khẩu" autocomplete="current-password">
@@ -846,18 +757,6 @@
                     <button onclick="handleLogin()" class="btn-login" id="loginBtn">
                         Đăng nhập
                     </button>
-                    
-                    <div class="social-divider">
-                        <span>Hoặc đăng nhập với</span>
-                    </div>
-                    <div class="social-buttons">
-                        <button class="btn-google" onclick="socialLogin('google')" id="googleLoginBtn">
-                            <i class="fab fa-google"></i> Google
-                        </button>
-                        <button class="btn-facebook" onclick="socialLogin('facebook')" id="facebookLoginBtn">
-                            <i class="fab fa-facebook-f"></i> Facebook
-                        </button>
-                    </div>
                     
                     <div class="switch-link">
                         Chưa có tài khoản? <a href="#" onclick="switchForm('signup')">Đăng ký</a>
@@ -911,18 +810,6 @@
                         Đăng ký tài khoản
                     </button>
                     
-                    <div class="social-divider">
-                        <span>Hoặc đăng ký với</span>
-                    </div>
-                    <div class="social-buttons">
-                        <button class="btn-google" onclick="socialLogin('google')">
-                            <i class="fab fa-google"></i> Google
-                        </button>
-                        <button class="btn-facebook" onclick="socialLogin('facebook')">
-                            <i class="fab fa-facebook-f"></i> Facebook
-                        </button>
-                    </div>
-                    
                     <div class="switch-link">
                         Đã có tài khoản? <a href="#" onclick="switchForm('login')">Đăng nhập</a>
                     </div>
@@ -941,62 +828,6 @@
                     
                     <div class="switch-link">
                         <a href="#" onclick="switchForm('login')" style="font-weight: 500;">← Quay lại đăng nhập</a>
-                    </div>
-                </div>
-
-                <!-- FORM HOÀN THIỆN THÔNG TIN (Bước cuối cùng cho social login) -->
-                <div id="complete-profile-form" class="form-panel">
-                    <div class="step-indicator">
-                        <span class="step-dot done"></span>
-                        <span class="step-dot active"></span>
-                    </div>
-                    <div class="form-title">Hoàn thiện thông tin</div>
-                    <div class="form-sub">Vui lòng cung cấp thông tin để hoàn tất đăng ký</div>
-                    
-                    <input type="text" id="complete-name" placeholder="Họ và tên" autocomplete="name">
-                    <input type="email" id="complete-email" placeholder="Email" readonly style="background:#f0f0f0; color:#666;">
-                    
-                    <div class="password-wrapper">
-                        <input type="password" id="complete-password" placeholder="Tạo mật khẩu (6+ ký tự)" autocomplete="new-password">
-                        <button type="button" class="password-toggle" onclick="togglePassword('complete-password', this)">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                    <div class="password-wrapper">
-                        <input type="password" id="complete-confirm-password" placeholder="Xác nhận mật khẩu" autocomplete="new-password">
-                        <button type="button" class="password-toggle" onclick="togglePassword('complete-confirm-password', this)">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px;">
-                        <div style="flex: 1;">
-                            <label for="complete-gender">Giới tính</label>
-                            <select id="complete-gender">
-                                <option value="Nam">Nam</option>
-                                <option value="Nữ">Nữ</option>
-                                <option value="Khác">Khác</option>
-                            </select>
-                        </div>
-                        <div style="flex: 1;">
-                            <label for="complete-birthday">Ngày sinh</label>
-                            <input type="date" id="complete-birthday">
-                        </div>
-                    </div>
-                    
-                    <div class="terms-checkbox">
-                        <input type="checkbox" id="complete-terms-checkbox">
-                        <label for="complete-terms-checkbox">
-                            Bằng việc đăng ký tài khoản, bạn đã đồng ý với <a href="./dieu-khoan-su-dung.html" target="_blank">Điều khoản sử dụng</a> của VieChat
-                        </label>
-                    </div>
-                    
-                    <button onclick="handleCompleteProfile()" class="btn-primary-custom" id="completeProfileBtn">
-                        Hoàn tất đăng ký
-                    </button>
-                    
-                    <div class="switch-link" style="margin-top: 12px;">
-                        <a href="#" onclick="cancelCompleteProfile()" style="font-weight: 500; color: var(--danger);">← Hủy bỏ</a>
                     </div>
                 </div>
 
@@ -1047,7 +878,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, fetchSignInMethodsForEmail, updateProfile, linkWithCredential } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -1068,9 +899,6 @@
         let currentForm = 'login';
         let isTransitioning = false;
         let lockModalVisible = false;
-        let pendingSocialUser = null;
-        let isProcessingAuth = false;
-        let currentSocialProvider = null;
 
         // ===== TOAST =====
         function showToast(title, message, type = 'info', duration = 4000) {
@@ -1146,12 +974,11 @@
 
         // ===== DISABLE FORMS =====
         function disableAllForms(disabled) {
-            const formIds = ['login-form', 'signup-form', 'forgot-password-form', 'complete-profile-form'];
+            const formIds = ['login-form', 'signup-form', 'forgot-password-form'];
             const btnIds = {
                 'login-form': 'loginBtn',
                 'signup-form': 'signupBtn',
-                'forgot-password-form': 'forgotBtn',
-                'complete-profile-form': 'completeProfileBtn'
+                'forgot-password-form': 'forgotBtn'
             };
             
             formIds.forEach(formId => {
@@ -1163,10 +990,6 @@
                 });
                 const btn = document.getElementById(btnIds[formId]);
                 if (btn) btn.disabled = disabled;
-            });
-            
-            document.querySelectorAll('.social-buttons button').forEach(btn => {
-                btn.disabled = disabled;
             });
             
             document.querySelectorAll('.switch-link a, .forgot-link a').forEach(el => {
@@ -1200,8 +1023,7 @@
             const forms = {
                 login: document.getElementById('login-form'),
                 signup: document.getElementById('signup-form'),
-                forgot: document.getElementById('forgot-password-form'),
-                complete: document.getElementById('complete-profile-form')
+                forgot: document.getElementById('forgot-password-form')
             };
             
             const currentPanel = forms[currentForm];
@@ -1232,18 +1054,6 @@
             }
         };
 
-        // ===== CANCEL COMPLETE PROFILE =====
-        window.cancelCompleteProfile = async () => {
-            if (pendingSocialUser) {
-                try {
-                    await signOut(auth);
-                } catch (e) {}
-                pendingSocialUser = null;
-                currentSocialProvider = null;
-            }
-            switchForm('login');
-        };
-
         // ===== FIREBASE ERROR =====
         function getFirebaseErrorMessage(errorCode) {
             const messages = {
@@ -1254,8 +1064,6 @@
                 'auth/user-not-found': 'Không tìm thấy tài khoản với email này.',
                 'auth/too-many-requests': 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
                 'auth/network-request-failed': 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.',
-                'auth/popup-closed-by-user': 'Bạn đã đóng cửa sổ đăng nhập.',
-                'auth/account-exists-with-different-credential': 'Tài khoản đã tồn tại với phương thức đăng nhập khác.',
                 'default': 'Đã xảy ra lỗi. Vui lòng thử lại sau.'
             };
             return messages[errorCode] || messages.default;
@@ -1272,328 +1080,6 @@
             }
             return { age, isValid: age >= 12 };
         }
-
-        // ===== EXTRACT NAME FROM EMAIL =====
-        function extractNameFromEmail(email) {
-            if (!email) return '';
-            const parts = email.split('@');
-            if (parts.length < 2) return '';
-            let name = parts[0];
-            name = name.replace(/[._]/g, ' ');
-            return name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
-        }
-
-        // ===== CHECK IF USER EXISTS IN DB =====
-        async function checkUserExists(uid) {
-            try {
-                const snap = await get(ref(db, `users/${uid}`));
-                return snap.exists();
-            } catch (error) {
-                return false;
-            }
-        }
-
-        // ===== LẤY THÔNG TIN TỪ FACEBOOK =====
-        async function getFacebookUserInfo(accessToken) {
-            try {
-                const response = await fetch(`https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`);
-                const data = await response.json();
-                return data;
-            } catch (error) {
-                console.error('Lỗi lấy thông tin Facebook:', error);
-                return null;
-            }
-        }
-
-// ===== SOCIAL LOGIN =====
-window.socialLogin = async (providerType) => {
-    let provider;
-    if (providerType === 'google') {
-        provider = new GoogleAuthProvider();
-    } else if (providerType === 'facebook') {
-        provider = new FacebookAuthProvider();
-        provider.addScope('email');
-    } else {
-        return;
-    }
-    
-    document.getElementById('googleLoginBtn').disabled = true;
-    document.getElementById('facebookLoginBtn').disabled = true;
-    
-    showLoading(`Đang đăng nhập với ${providerType === 'google' ? 'Google' : 'Facebook'}...`, 'Vui lòng đợi');
-    
-    try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        
-        isProcessingAuth = true;
-        currentSocialProvider = providerType;
-        
-        const userExists = await checkUserExists(user.uid);
-        
-        if (userExists) {
-            const snap = await get(ref(db, `users/${user.uid}`));
-            const userData = snap.val();
-            if (userData.isLocked === true || userData.isLocked === "true") {
-                hideLoading();
-                showLockModal(userData.lockInfo);
-                await signOut(auth);
-                document.getElementById('googleLoginBtn').disabled = false;
-                document.getElementById('facebookLoginBtn').disabled = false;
-                isProcessingAuth = false;
-                currentSocialProvider = null;
-                return;
-            }
-            isProcessingAuth = false;
-            hideLoading();
-            window.location.href = "chat.html";
-        } else {
-            // Lấy thông tin từ Facebook API
-            let fbEmail = '';
-            let fbName = '';
-            
-            if (providerType === 'facebook') {
-                try {
-                    const credential = FacebookAuthProvider.credentialFromResult(result);
-                    const accessToken = credential.accessToken;
-                    
-                    if (accessToken) {
-                        const fbData = await getFacebookUserInfo(accessToken);
-                        if (fbData) {
-                            if (fbData.email) fbEmail = fbData.email;
-                            if (fbData.name) fbName = fbData.name;
-                        }
-                    }
-                } catch (error) {
-                    console.error('Lỗi lấy thông tin Facebook:', error);
-                }
-            }
-            
-            // Nếu là Google, lấy email từ user
-            if (providerType === 'google' && user.email) {
-                fbEmail = user.email;
-                fbName = user.displayName || extractNameFromEmail(user.email);
-            }
-            
-            // ===== SỬA: KHÔNG KIỂM TRA EMAIL BẮT BUỘC =====
-            // Nếu Facebook không trả về email, người dùng vẫn có thể tự nhập
-            // Chỉ hiển thị thông báo nếu là Facebook và không có email
-            
-            pendingSocialUser = user;
-            isProcessingAuth = false;
-            hideLoading();
-            
-            const emailInput = document.getElementById('complete-email');
-            const nameInput = document.getElementById('complete-name');
-            const genderInput = document.getElementById('complete-gender');
-            const birthdayInput = document.getElementById('complete-birthday');
-            
-            // Lấy tên
-            let displayName = fbName || user.displayName || '';
-            if (!displayName && fbEmail) {
-                displayName = extractNameFromEmail(fbEmail);
-            }
-            nameInput.value = displayName;
-            
-            // Xử lý email - Nếu có email từ Facebook thì điền và readonly, không có thì để trống cho người dùng nhập
-            if (fbEmail) {
-                emailInput.value = fbEmail;
-                emailInput.readOnly = true;
-                emailInput.style.background = '#f0f0f0';
-                emailInput.style.color = '#666';
-                emailInput.style.cursor = 'not-allowed';
-            } else {
-                emailInput.value = '';
-                emailInput.readOnly = false;
-                emailInput.style.background = '#f8f9fa';
-                emailInput.style.color = '#1c1e21';
-                emailInput.style.cursor = 'text';
-                // Hiển thị thông báo nhẹ nhàng (không phải lỗi)
-                if (providerType === 'facebook') {
-                    showToast('Thông báo', 'Tài khoản Facebook của bạn chưa liên kết email. Vui lòng nhập email để hoàn tất đăng ký.', 'info', 4000);
-                }
-            }
-            
-            // Đặt giá trị mặc định cho giới tính và ngày sinh
-            genderInput.value = 'Nam';
-            birthdayInput.value = '2005-01-01';
-            
-            document.getElementById('complete-terms-checkbox').checked = false;
-            
-            switchForm('complete');
-            
-            document.getElementById('googleLoginBtn').disabled = false;
-            document.getElementById('facebookLoginBtn').disabled = false;
-        }
-    } catch (error) {
-        isProcessingAuth = false;
-        currentSocialProvider = null;
-        hideLoading();
-        document.getElementById('googleLoginBtn').disabled = false;
-        document.getElementById('facebookLoginBtn').disabled = false;
-        
-        console.error('Lỗi đăng nhập social:', error);
-        
-        if (error.code === 'auth/account-exists-with-different-credential') {
-            showToast('Lỗi', 'Tài khoản này đã được đăng ký bằng phương thức khác. Vui lòng đăng nhập bằng phương thức đó.', 'warning');
-        } else {
-            showToast('Lỗi', getFirebaseErrorMessage(error.code), 'error');
-        }
-    }
-};
-
- // ===== HANDLE COMPLETE PROFILE =====
-window.handleCompleteProfile = async () => {
-    const name = document.getElementById('complete-name').value.trim();
-    const gender = document.getElementById('complete-gender').value;
-    const birthday = document.getElementById('complete-birthday').value;
-    const email = document.getElementById('complete-email').value.trim();
-    const password = document.getElementById('complete-password').value;
-    const confirmPassword = document.getElementById('complete-confirm-password').value;
-    const termsChecked = document.getElementById('complete-terms-checkbox').checked;
-    
-    if (!pendingSocialUser) {
-        showToast('Lỗi', 'Không tìm thấy thông tin đăng nhập. Vui lòng thử lại.', 'error');
-        return;
-    }
-    
-    if (!name) {
-        showToast('Thông báo', 'Vui lòng nhập họ và tên.', 'warning');
-        return;
-    }
-    if (!email) {
-        showToast('Thông báo', 'Vui lòng nhập email.', 'warning');
-        return;
-    }
-    if (!email.includes('@') || !email.includes('.')) {
-        showToast('Thông báo', 'Vui lòng nhập email hợp lệ.', 'warning');
-        return;
-    }
-    if (!password) {
-        showToast('Thông báo', 'Vui lòng tạo mật khẩu.', 'warning');
-        return;
-    }
-    if (password.length < 6) {
-        showToast('Thông báo', 'Mật khẩu phải có ít nhất 6 ký tự.', 'warning');
-        return;
-    }
-    if (password !== confirmPassword) {
-        showToast('Thông báo', 'Mật khẩu xác nhận không khớp.', 'error');
-        return;
-    }
-    if (!birthday) {
-        showToast('Thông báo', 'Vui lòng chọn ngày sinh.', 'warning');
-        return;
-    }
-    if (!termsChecked) {
-        showToast('Thông báo', 'Bạn chưa đồng ý với điều khoản.', 'warning');
-        return;
-    }
-    
-    // ===== KIỂM TRA ĐỘ TUỔI =====
-    const ageCheck = checkAgeFromServer(birthday);
-    if (!ageCheck.isValid) {
-        showToast('Yêu cầu độ tuổi', 'Bạn cần phải trên 12 tuổi để sử dụng dịch vụ.', 'error');
-        return;
-    }
-    
-    showLoading('Đang hoàn tất đăng ký...', 'Vui lòng đợi');
-    
-    try {
-        let providerId = 'unknown';
-        if (pendingSocialUser.providerData && pendingSocialUser.providerData.length > 0) {
-            providerId = pendingSocialUser.providerData[0].providerId || 'unknown';
-        }
-        
-        // ===== Tạo tài khoản email/password trong Firebase Auth =====
-        try {
-            const methods = await fetchSignInMethodsForEmail(auth, email);
-            
-            if (methods.length === 0) {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const newUser = userCredential.user;
-                
-                await updateProfile(newUser, {
-                    displayName: name
-                });
-                
-                try {
-                    let credential;
-                    if (providerId.includes('facebook')) {
-                        credential = FacebookAuthProvider.credentialFromResult(pendingSocialUser);
-                    } else if (providerId.includes('google')) {
-                        credential = GoogleAuthProvider.credentialFromResult(pendingSocialUser);
-                    }
-                    
-                    if (credential) {
-                        await linkWithCredential(newUser, credential);
-                    }
-                } catch (linkError) {
-                    console.error('Lỗi liên kết tài khoản:', linkError);
-                }
-                
-                pendingSocialUser = newUser;
-                
-            } else {
-                showToast('Thông báo', 'Email này đã được sử dụng. Vui lòng sử dụng email khác.', 'warning');
-                hideLoading();
-                return;
-            }
-        } catch (authError) {
-            console.error('Lỗi tạo tài khoản Auth:', authError);
-            
-            if (authError.code === 'auth/email-already-in-use') {
-                showToast('Thông báo', 'Email này đã được sử dụng. Vui lòng sử dụng email khác.', 'warning');
-                hideLoading();
-                return;
-            } else {
-                showToast('Lỗi', 'Không thể tạo tài khoản. Vui lòng thử lại.', 'error');
-                hideLoading();
-                return;
-            }
-        }
-        
-        // Lưu vào Realtime Database
-        await set(ref(db, `users/${pendingSocialUser.uid}`), {
-            email: email.toLowerCase(),
-            name: name,
-            gender: gender,
-            birthday: birthday,
-            showGender: true,
-            showBirthday: true,
-            allowStrangerChat: true,
-            allowFriendRequest: true,
-            isLocked: false,
-            haveGreenTick: false,
-            providers: ['password', providerId],
-            lockInfo: {
-                id: "---",
-                reason: "---",
-                start: "---",
-                end: "---",
-            }
-        });
-        
-        // Lưu vào localStorage
-        localStorage.setItem('userEmail', email.toLowerCase());
-        localStorage.setItem('userName', name);
-        
-        hideLoading();
-        showToast('Thành công', 'Đăng ký tài khoản thành công! Bạn có thể đăng nhập bằng email và mật khẩu.', 'success', 3000);
-        
-        pendingSocialUser = null;
-        currentSocialProvider = null;
-        
-        setTimeout(() => {
-            window.location.href = "chat.html";
-        }, 2000);
-        
-    } catch (error) {
-        hideLoading();
-        showToast('Lỗi', 'Không thể lưu thông tin. Vui lòng thử lại.', 'error');
-        console.error('Complete profile error:', error);
-    }
-};
 
         // ===== HANDLE LOGIN =====
         window.handleLogin = async () => {
@@ -1732,77 +1218,16 @@ window.handleCompleteProfile = async () => {
         document.getElementById('resetEmailInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') handleForgotPassword();
         });
-        document.getElementById('complete-name').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') handleCompleteProfile();
-        });
-        document.getElementById('complete-birthday').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') handleCompleteProfile();
-        });
-        document.getElementById('complete-email').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') handleCompleteProfile();
-        });
-        document.getElementById('complete-password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') handleCompleteProfile();
-        });
-        document.getElementById('complete-confirm-password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') handleCompleteProfile();
-        });
 
         // ===== AUTH STATE =====
         onAuthStateChanged(auth, async (user) => {
-            if (isProcessingAuth) {
-                return;
-            }
-            
-            if (currentForm === 'complete' && pendingSocialUser && user && user.uid === pendingSocialUser.uid) {
-                return;
-            }
-            
             if (user && !isSigningUp) {
                 try {
                     const snap = await get(ref(db, `users/${user.uid}`));
                     if (!snap.exists()) {
-                        pendingSocialUser = user;
-                        
-                        const emailInput = document.getElementById('complete-email');
-                        const nameInput = document.getElementById('complete-name');
-                        const passwordInput = document.getElementById('complete-password');
-                        const confirmPasswordInput = document.getElementById('complete-confirm-password');
-                        const genderInput = document.getElementById('complete-gender');
-                        const birthdayInput = document.getElementById('complete-birthday');
-                        
-                        // Lấy tên
-                        let displayName = user.displayName || '';
-                        if (!displayName && user.email) {
-                            displayName = extractNameFromEmail(user.email);
-                        }
-                        nameInput.value = displayName;
-                        
-                        // Điền email (readonly)
-                        if (user.email) {
-                            emailInput.value = user.email;
-                            emailInput.readOnly = true;
-                            emailInput.style.background = '#f0f0f0';
-                            emailInput.style.color = '#666';
-                            emailInput.style.cursor = 'not-allowed';
-                        } else {
-                            emailInput.value = '';
-                            emailInput.readOnly = false;
-                            emailInput.style.background = '#f8f9fa';
-                            emailInput.style.color = '#1c1e21';
-                            emailInput.style.cursor = 'text';
-                        }
-                        
-                        // Reset password fields
-                        passwordInput.value = '';
-                        confirmPasswordInput.value = '';
-                        
-                        // Đặt giá trị mặc định
-                        genderInput.value = 'Nam';
-                        birthdayInput.value = '2005-01-01';
-                        
-                        document.getElementById('complete-terms-checkbox').checked = false;
-                        switchForm('complete');
+                        // Nếu user chưa có trong database, đăng xuất và yêu cầu đăng ký lại
+                        await signOut(auth);
+                        showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ. Vui lòng đăng ký lại.', 'warning');
                         return;
                     }
                     
@@ -1824,13 +1249,11 @@ window.handleCompleteProfile = async () => {
             const loginForm = document.getElementById('login-form');
             const signupForm = document.getElementById('signup-form');
             const forgotForm = document.getElementById('forgot-password-form');
-            const completeForm = document.getElementById('complete-profile-form');
             
             loginForm.style.display = 'block';
             loginForm.classList.add('active');
             signupForm.style.display = 'none';
             forgotForm.style.display = 'none';
-            completeForm.style.display = 'none';
             currentForm = 'login';
             
             setTimeout(() => {
