@@ -2645,51 +2645,151 @@
             }
         };
 
-        // ===== SYNC LISTS =====
-        function syncLists() {
-            cleanupGlobalListeners();
+// ===== SYNC LISTS =====
+function syncLists() {
+    cleanupGlobalListeners();
 
-            globalFriendStatusListener = onValue(ref(db, `friend_status/${currentUser.uid}`), (statusSnap) => {
-                const relations = statusSnap.val() || {};
-                let counts = { incoming: 0, outgoing: 0, friends: 0, strangers: 0 };
+    globalFriendStatusListener = onValue(ref(db, `friend_status/${currentUser.uid}`), (statusSnap) => {
+        const relations = statusSnap.val() || {};
+        let counts = { incoming: 0, outgoing: 0, friends: 0, strangers: 0 };
+        
+        document.getElementById('incoming-list').innerHTML = ""; 
+        document.getElementById('outgoing-list').innerHTML = ""; 
+        document.getElementById('friend-list').innerHTML = "";
+        document.getElementById('stranger-list').innerHTML = "";
+
+        // ===== HIỂN THỊ CÁC RELATION ĐÃ CÓ =====
+        Object.keys(relations).forEach((uid) => {
+            const status = relations[uid];
+            
+            // Bỏ qua status 'stranger' (sẽ xử lý riêng)
+            if (status === 'stranger') return;
+            
+            get(ref(db, `users/${uid}`)).then((u) => {
+                if (!u.exists()) return;
+                const data = u.val();
                 
-                document.getElementById('incoming-list').innerHTML = ""; 
-                document.getElementById('outgoing-list').innerHTML = ""; 
-                document.getElementById('friend-list').innerHTML = "";
-                document.getElementById('stranger-list').innerHTML = "";
+                const oldEl = document.getElementById(`item-${uid}`);
+                if (oldEl) oldEl.remove();
+                
+                const div = document.createElement('div'); 
+                div.id = `item-${uid}`; 
+                div.className = `item ${activeChatId && activeChatId.includes(uid) ? 'active' : ''}`;
+                
+                let acts = '';
+                if(status === 'incoming') {
+                    counts.incoming++;
+                    acts = `<button class="btn-icon bg-success" onclick="event.stopPropagation();updateStatus('${uid}','accepted')">✔</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','reject')">✖</button>`;
+                }
+                else if(status === 'outgoing') {
+                    counts.outgoing++;
+                    acts = `<button class="btn-icon bg-secondary" onclick="event.stopPropagation();updateStatus('${uid}','cancel')">Hủy</button>`;
+                }
+                else if(status === 'accepted') {
+                    counts.friends++;
+                    acts = `<button class="btn-icon bg-secondary text-dark" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','remove')">🗑</button>`;
+                }
+                else if(status === 'blocked') {
+                    counts.strangers++;
+                    acts = `<button class="btn-icon bg-primary" onclick="event.stopPropagation();updateStatus('${uid}','unblock')">Mở</button>`;
+                }
+                else if(status === 'deleted_stranger') {
+                    counts.strangers++;
+                    acts = `<button class="btn-icon bg-success" onclick="event.stopPropagation();updateStatus('${uid}','add_friend_stranger')">➕</button>
+                           <button class="btn-icon bg-danger" onclick="event.stopPropagation();remove(ref(db, 'friend_status/${currentUser.uid}/${uid}'));syncLists();">🗑</button>`;
+                }
+                
+                const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
+                const avatar = getAvatarDataFromUser(data);
+                const avatarHtml = avatar ? 
+                    `<img src="${avatar}" class="item-avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover; margin-right:10px; flex-shrink:0;">` :
+                    `<div class="item-avatar-placeholder" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--primary), #0056b3); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:14px; margin-right:10px; flex-shrink:0;">${(data.name || 'U').charAt(0).toUpperCase()}</div>`;
+                
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center; flex:1; min-width:0;">
+                        ${avatarHtml}
+                        <div class="item-info">
+                            <div class="name">${escapeHtml(data.name)}${verifiedHtml}</div>
+                            <div class="email">${escapeHtml(data.email)}</div>
+                        </div>
+                    </div>
+                    <div class="btn-group">${acts}</div>
+                `;
+                div.onclick = () => { closeSidebar(); openChatFunction(uid, data.name, div); };
+                
+                if (status === 'incoming') {
+                    document.getElementById('incoming-list').appendChild(div);
+                } else if (status === 'outgoing') {
+                    document.getElementById('outgoing-list').appendChild(div);
+                } else if (status === 'accepted') {
+                    document.getElementById('friend-list').appendChild(div);
+                } else if (status === 'blocked' || status === 'deleted_stranger') {
+                    document.getElementById('stranger-list').appendChild(div);
+                }
+                
+                updateBadgeCounts(counts);
+            });
+        });
 
-                statusSnap.forEach((child) => {
-                    const status = child.val();
-                    const uid = child.key;
+        // ===== XỬ LÝ NGƯỜI LẠ: HIỂN THỊ TẤT CẢ 'stranger' =====
+        // Lọc ra những người có status là 'stranger'
+        const strangerList = [];
+        Object.keys(relations).forEach((uid) => {
+            if (relations[uid] === 'stranger') {
+                strangerList.push(uid);
+            }
+        });
+        
+        // Hiển thị từng người lạ
+        strangerList.forEach((uid) => {
+            // Kiểm tra xem đã có trong danh sách chưa (tránh trùng)
+            if (document.getElementById(`item-${uid}`)) return;
+            
+            get(ref(db, `users/${uid}`)).then((u) => {
+                if (!u.exists()) {
+                    // Nếu user không tồn tại, xóa friend_status
+                    remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
+                    return;
+                }
+                
+                const data = u.val();
+                
+                // Kiểm tra xem có tin nhắn nào không trước khi hiển thị
+                const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+                get(ref(db, `messages/${chatId}`)).then((msgSnap) => {
+                    if (!msgSnap.exists()) {
+                        // Nếu không có tin nhắn, xóa friend_status
+                        remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
+                        return;
+                    }
                     
-                    get(ref(db, `users/${uid}`)).then((u) => {
-                        if (!u.exists()) return;
-                        const data = u.val();
+                    // Kiểm tra xem có tin nhắn hợp lệ không
+                    get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`)).then((clearSnap) => {
+                        const clearTime = clearSnap.val() || 0;
+                        let hasVisibleMsg = false;
                         
-                        const oldEl = document.getElementById(`item-${uid}`);
-                        if (oldEl) oldEl.remove();
+                        msgSnap.forEach((m) => {
+                            const msg = m.val();
+                            if (msg.timestamp > clearTime && !(msg.deletedBy && msg.deletedBy[currentUser.uid])) {
+                                hasVisibleMsg = true;
+                            }
+                        });
+                        
+                        if (!hasVisibleMsg) {
+                            // Không có tin nhắn hợp lệ, không hiển thị
+                            return;
+                        }
+                        
+                        // ===== HIỂN THỊ NGƯỜI LẠ =====
+                        counts.strangers++;
                         
                         const div = document.createElement('div'); 
                         div.id = `item-${uid}`; 
-                        div.className = `item ${activeChatId && activeChatId.includes(uid) ? 'active' : ''}`;
+                        div.className = `item ${activeChatId === chatId ? 'active' : ''}`;
                         
-                        let acts = '';
-                        if(status === 'incoming') {
-                            counts.incoming++;
-                            acts = `<button class="btn-icon bg-success" onclick="event.stopPropagation();updateStatus('${uid}','accepted')">✔</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','reject')">✖</button>`;
-                        }
-                        else if(status === 'outgoing') {
-                            counts.outgoing++;
-                            acts = `<button class="btn-icon bg-secondary" onclick="event.stopPropagation();updateStatus('${uid}','cancel')">Hủy</button>`;
-                        }
-                        else if(status === 'accepted') {
-                            counts.friends++;
-                            acts = `<button class="btn-icon bg-secondary text-dark" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','remove')">🗑</button>`;
-                        }
-                        else if(status === 'blocked') {
-                            counts.strangers++;
-                            acts = `<button class="btn-icon bg-primary" onclick="event.stopPropagation();updateStatus('${uid}','unblock')">Mở</button>`;
-                        }
+                        const acts = `<button class="btn-icon bg-success" title="Kết bạn" onclick="event.stopPropagation();updateStatus('${uid}','add_friend_stranger')">➕</button>
+                                   <button class="btn-icon bg-secondary text-dark" title="Chặn" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button>
+                                   <button class="btn-icon bg-danger" title="Xóa cuộc trò chuyện" onclick="event.stopPropagation();updateStatus('${uid}','delete_stranger_chat')">🗑</button>`;
                         
                         const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
                         const avatar = getAvatarDataFromUser(data);
@@ -2701,103 +2801,23 @@
                             <div style="display:flex; align-items:center; flex:1; min-width:0;">
                                 ${avatarHtml}
                                 <div class="item-info">
-                                    <div class="name">${escapeHtml(data.name)}${verifiedHtml}</div>
+                                    <div class="name">${escapeHtml(data.name)}${verifiedHtml} <span class="badge bg-warning text-dark" style="font-size:8px;">Lạ</span></div>
                                     <div class="email">${escapeHtml(data.email)}</div>
                                 </div>
                             </div>
                             <div class="btn-group">${acts}</div>
                         `;
                         div.onclick = () => { closeSidebar(); openChatFunction(uid, data.name, div); };
+                        document.getElementById('stranger-list').appendChild(div);
                         
-                        if (status === 'incoming') {
-                            document.getElementById('incoming-list').appendChild(div);
-                        } else if (status === 'outgoing') {
-                            document.getElementById('outgoing-list').appendChild(div);
-                        } else if (status === 'accepted') {
-                            document.getElementById('friend-list').appendChild(div);
-                        } else if (status === 'blocked') {
-                            document.getElementById('stranger-list').appendChild(div);
-                        }
-                        
+                        // Cập nhật badge
                         updateBadgeCounts(counts);
                     });
                 });
-
-                if (globalMessagesListener) off(ref(db, `messages`), globalMessagesListener);
-                
-                globalMessagesListener = onValue(ref(db, `messages`), (msgsSnap) => {
-                    const strangerListContainer = document.getElementById('stranger-list');
-                    const strangerItems = strangerListContainer.querySelectorAll('.item');
-                    strangerItems.forEach(item => {
-                        if (item.querySelector('.badge')) item.remove();
-                    });
-
-                    if (!msgsSnap.exists()) return;
-                    
-                    msgsSnap.forEach((chatDoc) => {
-                        const chatId = chatDoc.key;
-                        if (chatId.includes(currentUser.uid)) {
-                            const parts = chatId.split('_');
-                            const targetUid = parts[0] === currentUser.uid ? parts[1] : parts[0];
-                            const currentRel = relations[targetUid];
-                            
-                            if (!currentRel || currentRel === 'deleted_stranger') {
-                                get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`)).then((clearSnap) => {
-                                    const clearTime = clearSnap.val() || 0;
-                                    let hasVisibleMsg = false;
-                                    
-                                    chatDoc.forEach((m) => {
-                                        const msg = m.val();
-                                        if (msg.timestamp > clearTime && !(msg.deletedBy && msg.deletedBy[currentUser.uid])) {
-                                            hasVisibleMsg = true;
-                                        }
-                                    });
-
-                                    if (hasVisibleMsg && !document.getElementById(`item-${targetUid}`)) {
-                                        get(ref(db, `users/${targetUid}`)).then((u) => {
-                                            if (!u.exists()) return;
-                                            const data = u.val();
-                                            if (document.getElementById(`item-${targetUid}`)) return;
-
-                                            const div = document.createElement('div'); 
-                                            div.id = `item-${targetUid}`; 
-                                            div.className = `item ${activeChatId === chatId ? 'active' : ''}`;
-                                            
-                                            const acts = `<button class="btn-icon bg-success" title="Kết bạn" onclick="event.stopPropagation();updateStatus('${targetUid}','add_friend_stranger')">➕</button>
-                                                       <button class="btn-icon bg-secondary text-dark" title="Chặn" onclick="event.stopPropagation();updateStatus('${targetUid}','blocked')">🚫</button>
-                                                       <button class="btn-icon bg-danger" title="Xóa cuộc trò chuyện" onclick="event.stopPropagation();updateStatus('${targetUid}','delete_stranger_chat')">🗑</button>`;
-                                            
-                                            const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
-                                            const avatar = getAvatarDataFromUser(data);
-                                            const avatarHtml = avatar ? 
-                                                `<img src="${avatar}" class="item-avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover; margin-right:10px; flex-shrink:0;">` :
-                                                `<div class="item-avatar-placeholder" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--primary), #0056b3); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:14px; margin-right:10px; flex-shrink:0;">${(data.name || 'U').charAt(0).toUpperCase()}</div>`;
-                                            
-                                            div.innerHTML = `
-                                                <div style="display:flex; align-items:center; flex:1; min-width:0;">
-                                                    ${avatarHtml}
-                                                    <div class="item-info">
-                                                        <div class="name">${escapeHtml(data.name)}${verifiedHtml} <span class="badge bg-warning text-dark" style="font-size:8px;">Lạ</span></div>
-                                                        <div class="email">${escapeHtml(data.email)}</div>
-                                                    </div>
-                                                </div>
-                                                <div class="btn-group">${acts}</div>
-                                            `;
-                                            div.onclick = () => { closeSidebar(); openChatFunction(targetUid, data.name, div); };
-                                            document.getElementById('stranger-list').appendChild(div);
-                                            
-                                            const strangerItems2 = document.querySelectorAll('#stranger-list .item');
-                                            document.getElementById('strangers-badge').textContent = strangerItems2.length;
-                                            document.getElementById('strangers-badge').style.display = strangerItems2.length > 0 ? 'inline' : 'none';
-                                        });
-                                    }
-                                });
-                            }
-                        }
-                    });
-                });
             });
-        }
+        });
+    });
+}
 
         // ===== RENDER MESSAGES =====
         async function renderMessages(snapshot, clearTime) {
@@ -3180,80 +3200,83 @@
             pendingDeleteMsgId = null;
         });
 
-        // ===== SEND MESSAGE =====
-        window.sendMessage = async () => {
-            const text = document.getElementById('message-input').value.trim();
-            if (selectedFiles.length === 0 && !text) return;
-            
-            const myPath = `friend_status/${currentUser.uid}/${currentChatUid}`;
-            const theirPath = `friend_status/${currentChatUid}/${currentUser.uid}`;
-            
-            const mySnap = await get(ref(db, myPath));
-            if (mySnap.val() === 'deleted_stranger') await remove(ref(db, myPath));
-            
-            const theirSnap = await get(ref(db, theirPath));
-            if (theirSnap.val() === 'deleted_stranger') await remove(ref(db, theirPath));
+// ===== SEND MESSAGE =====
+window.sendMessage = async () => {
+    const text = document.getElementById('message-input').value.trim();
+    if (selectedFiles.length === 0 && !text) return;
+    
+    const myUid = currentUser.uid;
+    const targetUid = currentChatUid;
+    
+    // ===== TẠO FRIEND_STATUS CHO CẢ 2 PHÍA =====
+    const myPath = `friend_status/${myUid}/${targetUid}`;
+    const theirPath = `friend_status/${targetUid}/${myUid}`;
+    
+    try {
+        // Kiểm tra và tạo friend_status cho chính mình
+        const mySnap = await get(ref(db, myPath));
+        if (!mySnap.exists()) {
+            await set(ref(db, myPath), 'stranger');
+            console.log('✅ Đã tạo friend_status cho người gửi:', myPath);
+        } else if (mySnap.val() === 'deleted_stranger') {
+            // Nếu đã xóa, tạo lại
+            await set(ref(db, myPath), 'stranger');
+            console.log('✅ Đã tạo lại friend_status cho người gửi:', myPath);
+        }
+        
+        // ===== QUAN TRỌNG: Tạo friend_status cho người nhận =====
+        const theirSnap = await get(ref(db, theirPath));
+        if (!theirSnap.exists()) {
+            await set(ref(db, theirPath), 'stranger');
+            console.log('✅ Đã tạo friend_status cho người nhận:', theirPath);
+        } else if (theirSnap.val() === 'deleted_stranger') {
+            await set(ref(db, theirPath), 'stranger');
+            console.log('✅ Đã tạo lại friend_status cho người nhận:', theirPath);
+        }
+    } catch (error) {
+        console.error('❌ Lỗi tạo friend_status:', error);
+    }
 
-            const senderName = document.getElementById('my-name').innerText.replace(/<[^>]*>/g, '');
-            const replyData = replyToMessage ? {
-                id: replyToMessage.id,
-                sender: replyToMessage.sender,
-                senderName: replyToMessage.name || 'Người dùng',
-                text: replyToMessage.text || '',
-                file: replyToMessage.file || null
-            } : null;
-            
-            if (selectedFiles.length > 0) {
-                for (let i = 0; i < selectedFiles.length; i++) {
-                    const file = selectedFiles[i];
-                    const fileData = selectedFilesData[i];
-                    
-                    const fileMsgData = {
-                        sender: currentUser.uid,
-                        senderName: senderName,
-                        text: '',
-                        timestamp: serverTimestamp(),
-                        revoked: false,
-                        file: {
-                            name: file.name,
-                            size: file.size,
-                            type: file.type || 'application/octet-stream',
-                            data: fileData
-                        }
-                    };
-                    
-                    if (replyData) {
-                        fileMsgData.replyTo = replyData;
+    const senderName = document.getElementById('my-name').innerText.replace(/<[^>]*>/g, '');
+    const replyData = replyToMessage ? {
+        id: replyToMessage.id,
+        sender: replyToMessage.sender,
+        senderName: replyToMessage.name || 'Người dùng',
+        text: replyToMessage.text || '',
+        file: replyToMessage.file || null
+    } : null;
+    
+    try {
+        if (selectedFiles.length > 0) {
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                const fileData = selectedFilesData[i];
+                
+                const fileMsgData = {
+                    sender: currentUser.uid,
+                    senderName: senderName,
+                    text: '',
+                    timestamp: serverTimestamp(),
+                    revoked: false,
+                    file: {
+                        name: file.name,
+                        size: file.size,
+                        type: file.type || 'application/octet-stream',
+                        data: fileData
                     }
-                    
-                    await push(ref(db, `messages/${activeChatId}`), fileMsgData);
+                };
+                
+                if (replyData) {
+                    fileMsgData.replyTo = replyData;
                 }
                 
-                clearAllFiles();
-                
-                if (text) {
-                    const textMsgData = {
-                        sender: currentUser.uid,
-                        senderName: senderName,
-                        text: text,
-                        timestamp: serverTimestamp(),
-                        revoked: false
-                    };
-                    
-                    if (replyData) {
-                        textMsgData.replyTo = replyData;
-                    }
-                    
-                    await push(ref(db, `messages/${activeChatId}`), textMsgData);
-                }
-                
-                if (replyToMessage) cancelReply();
-                document.getElementById('message-input').value = "";
-                return;
+                await push(ref(db, `messages/${activeChatId}`), fileMsgData);
             }
             
+            clearAllFiles();
+            
             if (text) {
-                const msgData = {
+                const textMsgData = {
                     sender: currentUser.uid,
                     senderName: senderName,
                     text: text,
@@ -3261,21 +3284,49 @@
                     revoked: false
                 };
                 
-                if (replyToMessage) {
-                    msgData.replyTo = {
-                        id: replyToMessage.id,
-                        sender: replyToMessage.sender,
-                        senderName: replyToMessage.name || 'Người dùng',
-                        text: replyToMessage.text || '',
-                        file: replyToMessage.file || null
-                    };
-                    cancelReply();
+                if (replyData) {
+                    textMsgData.replyTo = replyData;
                 }
                 
-                await push(ref(db, `messages/${activeChatId}`), msgData);
-                document.getElementById('message-input').value = "";
+                await push(ref(db, `messages/${activeChatId}`), textMsgData);
             }
-        };
+            
+            if (replyToMessage) cancelReply();
+            document.getElementById('message-input').value = "";
+        } else if (text) {
+            const msgData = {
+                sender: currentUser.uid,
+                senderName: senderName,
+                text: text,
+                timestamp: serverTimestamp(),
+                revoked: false
+            };
+            
+            if (replyToMessage) {
+                msgData.replyTo = {
+                    id: replyToMessage.id,
+                    sender: replyToMessage.sender,
+                    senderName: replyToMessage.name || 'Người dùng',
+                    text: replyToMessage.text || '',
+                    file: replyToMessage.file || null
+                };
+                cancelReply();
+            }
+            
+            await push(ref(db, `messages/${activeChatId}`), msgData);
+            document.getElementById('message-input').value = "";
+        }
+        
+        // ===== REFRESH DANH SÁCH NGAY LẬP TỨC =====
+        setTimeout(() => {
+            syncLists();
+        }, 300);
+        
+    } catch (error) {
+        console.error('❌ Lỗi gửi tin nhắn:', error);
+        showToast("Lỗi", "Không thể gửi tin nhắn. Vui lòng thử lại.", "error");
+    }
+};
 
         // ===== GO HOME =====
         window.goHome = () => { 
