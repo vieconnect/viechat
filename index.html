@@ -1022,28 +1022,32 @@
             }, duration);
         }
 
-        // ===== LOCK MODAL =====
-        window.showLockModal = (lockInfo) => {
-            if (!lockInfo) lockInfo = {};
-            document.getElementById('lockInfoId').textContent = lockInfo.id || "---";
-            document.getElementById('lockInfoReason').textContent = lockInfo.reason || "Vi phạm điều khoản sử dụng";
-            document.getElementById('lockInfoStart').textContent = lockInfo.start || "---";
-            document.getElementById('lockInfoEnd').textContent = lockInfo.end || "Vĩnh viễn";
-            
-            document.getElementById('lockModalOverlay').classList.add('show');
-            lockModalVisible = true;
-            document.body.style.overflow = 'hidden';
-        };
+// ===== LOCK MODAL =====
+window.showLockModal = (lockInfo) => {
+    if (!lockInfo) lockInfo = {};
+    document.getElementById('lockInfoId').textContent = lockInfo.id || "---";
+    document.getElementById('lockInfoReason').textContent = lockInfo.reason || "Vi phạm điều khoản sử dụng";
+    document.getElementById('lockInfoStart').textContent = lockInfo.start || "---";
+    document.getElementById('lockInfoEnd').textContent = lockInfo.end || "Vĩnh viễn";
+    
+    const overlay = document.getElementById('lockModalOverlay');
+    overlay.classList.add('show');
+    lockModalVisible = true;
+    document.body.style.overflow = 'hidden';
+    
+    // Đảm bảo loading overlay đã ẩn
+    hideLoading();
+};
 
-        window.closeLockModal = () => {
-            document.getElementById('lockModalOverlay').classList.remove('show');
-            lockModalVisible = false;
-            document.body.style.overflow = '';
-        };
+window.closeLockModal = () => {
+    document.getElementById('lockModalOverlay').classList.remove('show');
+    lockModalVisible = false;
+    document.body.style.overflow = '';
+};
 
-        window.openAppeal = () => {
-            window.open('https://forms.gle/BkAcSN3WhEUM3fZ6A', '_blank');
-        };
+window.openAppeal = () => {
+    window.open('https://forms.gle/BkAcSN3WhEUM3fZ6A', '_blank');
+};
 
         // ===== TOGGLE PASSWORD =====
         window.togglePassword = (inputId, button) => {
@@ -1094,10 +1098,13 @@
             disableAllForms(true);
         }
 
-        function hideLoading() {
-            document.getElementById('formLoadingOverlay').classList.remove('show');
-            disableAllForms(false);
-        }
+function hideLoading() {
+    const overlay = document.getElementById('formLoadingOverlay');
+    if (overlay) {
+        overlay.classList.remove('show');
+    }
+    disableAllForms(false);
+}
 
         // ===== PASSWORD STRENGTH CHECKER =====
         function checkPasswordStrength(password) {
@@ -1400,29 +1407,38 @@
             updatePasswordStrengthUI(this.value);
         });
 
-        // ===== AUTH STATE =====
-        onAuthStateChanged(auth, async (user) => {
-            if (user && !isSigningUp) {
-                try {
-                    const snap = await get(ref(db, `users/${user.uid}`));
-                    if (!snap.exists()) {
-                        await signOut(auth);
-                        showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ. Vui lòng đăng ký lại.', 'warning');
-                        return;
-                    }
-                    
-                    const userData = snap.val();
-                    if (userData.isLocked === true || userData.isLocked === "true") {
-                        showLockModal(userData.lockInfo);
-                        await signOut(auth);
-                        return;
-                    }
-                    window.location.href = "chat.html";
-                } catch (error) {
-                    window.location.href = "chat.html";
-                }
+// ===== AUTH STATE =====
+onAuthStateChanged(auth, async (user) => {
+    if (user && !isSigningUp) {
+        // Ẩn loading overlay nếu đang hiển thị
+        hideLoading();
+        
+        try {
+            const snap = await get(ref(db, `users/${user.uid}`));
+            if (!snap.exists()) {
+                await signOut(auth);
+                showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ. Vui lòng đăng ký lại.', 'warning');
+                return;
             }
-        });
+            
+            const userData = snap.val();
+            if (userData.isLocked === true || userData.isLocked === "true") {
+                // Hiển thị modal khóa tài khoản
+                showLockModal(userData.lockInfo);
+                // Đăng xuất người dùng
+                await signOut(auth);
+                return;
+            }
+            window.location.href = "chat.html";
+        } catch (error) {
+            console.error('Lỗi kiểm tra tài khoản:', error);
+            window.location.href = "chat.html";
+        }
+    } else if (!user) {
+        // Không có user, đảm bảo ẩn loading
+        hideLoading();
+    }
+});
 
         // ===== INIT =====
         document.addEventListener('DOMContentLoaded', function() {
