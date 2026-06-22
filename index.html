@@ -1302,7 +1302,7 @@ function hideLoading() {
             } catch (e) {
                 isSigningUp = false;
                 hideLoading();
-                showToast('Lỗi', getFirebaseErrorMessage(e.code), 'error');
+                showToast('Thông báo', getFirebaseErrorMessage(e.code), 'error');
             }
         };
 
@@ -1319,11 +1319,11 @@ function hideLoading() {
             try {
                 await sendPasswordResetEmail(auth, email);
                 hideLoading();
-                showToast('Thành công', 'Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư.', 'success');
+                showToast('Thành công', 'Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư (Nếu bạn không thấy email gửi về hòm thư chính, vui lòng kiểm tra trong mục Thư rác/Spam)', 'success');
                 setTimeout(() => switchForm('login'), 1500);
             } catch (e) {
                 hideLoading();
-                showToast('Lỗi', getFirebaseErrorMessage(e.code), 'error');
+                showToast('Thông báo', getFirebaseErrorMessage(e.code), 'error');
             }
         };
 
@@ -1335,8 +1335,10 @@ function hideLoading() {
                 'auth/email-already-in-use': 'Email này đã được sử dụng.',
                 'auth/weak-password': 'Mật khẩu phải có ít nhất 6 ký tự.',
                 'auth/user-not-found': 'Không tìm thấy tài khoản với email này.',
-                'auth/too-many-requests': 'Quá nhiều yêu cầu. Vui lòng thử lại sau.',
+                'auth/too-many-requests': 'Lưu lượng truy cập quá cao. Vui lòng thử lại sau.',
                 'auth/network-request-failed': 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.',
+                'auth/admin-restricted-operation': 'Quyền đăng ký tài khoản đã bị hạn chế. Vui lòng liên hệ với Quản trị viên ứng dụng để biết thêm thông tin',
+                'auth/user-disabled': 'Tài khoản của bạn đã bị vô hiệu hóa. Vui lòng liên hệ với Quản trị viên ứng dụng để biết thêm thông tin'
                 'default': 'Đã xảy ra lỗi. Vui lòng thử lại sau.'
             };
             return messages[errorCode] || messages.default;
