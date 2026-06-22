@@ -843,6 +843,208 @@
                 font-size: 12px;
             }
         }
+
+/* ===== BOTTOM SHEET CHO MOBILE ===== */
+@media (max-width: 790px) {
+    /* Tất cả modal chuyển thành bottom sheet */
+    .modal {
+        padding: 0 !important;
+    }
+    .modal-dialog {
+        margin: 0 !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        transform: none !important;
+    }
+    .modal-dialog-centered {
+        align-items: flex-end !important;
+        min-height: 100% !important;
+    }
+    .modal-content {
+        border-radius: 20px 20px 0 0 !important;
+        border: none !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+    }
+    
+    /* ===== HIỆU ỨNG TRƯỢT LÊN TỪ TỪ ===== */
+    /* Trạng thái ẩn - ở dưới cùng */
+    .modal.fade .modal-dialog {
+        transform: translateY(100%) !important;
+        transition: transform 0.4s ease-out !important;
+    }
+    /* Trạng thái hiện - trượt lên */
+    .modal.show .modal-dialog {
+        transform: translateY(0) !important;
+        transition: transform 0.4s ease-out !important;
+    }
+    /* Đảm bảo khi đóng thì trượt xuống */
+    .modal.fade:not(.show) .modal-dialog {
+        transform: translateY(100%) !important;
+        transition: transform 0.4s ease-out !important;
+    }
+    
+    .modal-header {
+        border-radius: 20px 20px 0 0 !important;
+        padding: 20px 20px 12px 20px !important;
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 10 !important;
+        background: white !important;
+        border-bottom: 1px solid #f0f2f5 !important;
+        flex-direction: column !important;
+        align-items: center !important;
+    }
+    .modal-header .modal-title {
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        padding-top: 8px !important;
+    }
+    .modal-header .btn-close {
+        position: absolute !important;
+        right: 16px !important;
+        top: 16px !important;
+        margin: 0 !important;
+        z-index: 11 !important;
+    }
+    /* Handle indicator */
+    .modal-header::before {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 4px;
+        background: #ddd;
+        border-radius: 2px;
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    /* Header có màu nền riêng */
+    .modal-header.bg-primary {
+        background: white !important;
+        color: #1c1e21 !important;
+    }
+    .modal-header.bg-primary .modal-title {
+        color: #1c1e21 !important;
+    }
+    .modal-header.bg-primary .btn-close {
+        filter: none !important;
+    }
+    .modal-header.bg-danger {
+        background: white !important;
+        color: #1c1e21 !important;
+    }
+    .modal-header.bg-danger .modal-title {
+        color: #1c1e21 !important;
+    }
+    .modal-header.bg-danger .btn-close {
+        filter: none !important;
+    }
+    .modal-header.bg-warning {
+        background: white !important;
+        color: #1c1e21 !important;
+    }
+    .modal-header.bg-warning .modal-title {
+        color: #1c1e21 !important;
+    }
+    .modal-header.bg-warning .btn-close {
+        filter: none !important;
+    }
+    
+    .modal-body {
+        padding: 16px 20px !important;
+        overflow-y: auto !important;
+        flex: 1 !important;
+    }
+    .modal-footer {
+        border-radius: 0 0 20px 20px !important;
+        padding: 12px 20px !important;
+        position: sticky !important;
+        bottom: 0 !important;
+        background: white !important;
+        z-index: 10 !important;
+        border-top: 1px solid #f0f2f5 !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+    .modal-footer .btn {
+        flex: 1 !important;
+        min-width: 80px !important;
+    }
+    
+    /* Privacy modal trên mobile */
+    .privacy-modal .modal-content {
+        max-height: 92vh !important;
+    }
+    .privacy-modal .privacy-sidebar {
+        max-height: 100px !important;
+    }
+    .privacy-modal .privacy-content {
+        padding: 12px 16px !important;
+    }
+    
+    /* Search modal */
+    #searchModal .modal-body {
+        padding: 16px !important;
+    }
+    
+    /* Avatar upload modal */
+    #avatarUploadModal .modal-body {
+        padding: 20px !important;
+    }
+    
+    /* About modal */
+    #aboutModal .modal-body {
+        padding: 20px !important;
+    }
+    
+    /* User info modal */
+    #userInfoModal .modal-content {
+        padding: 0 !important;
+    }
+    #userInfoModal .modal-body {
+        padding: 16px 20px !important;
+    }
+    #userInfoModal .modal-footer {
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+    }
+    #userInfoModal .modal-footer .btn {
+        flex: 1 !important;
+        min-width: 100px !important;
+    }
+    
+    /* Delete for me modal */
+    #deleteForMeModal .modal-footer .btn {
+        flex: 1 !important;
+    }
+    
+    /* Modal backdrop animation mượt mà */
+    .modal-backdrop {
+        transition: opacity 0.4s ease !important;
+    }
+    .modal-backdrop.fade {
+        opacity: 0 !important;
+    }
+    .modal-backdrop.show {
+        opacity: 0.5 !important;
+    }
+}
+
+/* Animation keyframes (dự phòng) */
+@keyframes bottomSheetSlideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
     </style>
 </head>
 <body>
@@ -2602,49 +2804,127 @@
             }
         };
 
-        // ===== UPDATE STATUS =====
-        window.updateStatus = async (uid, status) => {
-            const myPath = `friend_status/${currentUser.uid}/${uid}`;
-            const theirPath = `friend_status/${uid}/${currentUser.uid}`;
-            
-            if (status === 'accepted') {
-                await update(ref(db), { [myPath]: "accepted", [theirPath]: "accepted" });
-                setTimeout(() => openChatFunction(uid, "", null), 400);
-            } 
-            else if (status === 'unblock') { 
-                await remove(ref(db, myPath));
-            } 
-            else if (status === 'unblock_stranger') { 
-                await remove(ref(db, myPath)); 
-                if(activeChatId && activeChatId.includes(uid)) goHome(); 
-            } else if (status === 'blocked') { 
-                await set(ref(db, myPath), "blocked"); 
-                if(activeChatId && activeChatId.includes(uid)) goHome(); 
-            } else if (status === 'add_friend_stranger') {
-                await set(ref(db, myPath), "outgoing");
-                await set(ref(db, theirPath), "incoming");
-                showToast("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!", "success");
-            } else if (['remove', 'reject', 'cancel', 'delete_stranger_chat'].includes(status)) {
-                showConfirm("Bạn có chắc chắn muốn thực hiện hành động này?", async () => {
-                    const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
-                    
-                    if (status === 'delete_stranger_chat') {
-                        await set(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`), Date.now());
-                        await set(ref(db, myPath), "deleted_stranger");
-                    } else if (status === 'reject') {
-                        await set(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`), Date.now());
-                        await remove(ref(db, myPath)); 
-                        await remove(ref(db, theirPath));
-                    } else {
-                        await remove(ref(db, myPath)); 
-                        await remove(ref(db, theirPath));
-                        await remove(ref(db, `messages/${chatId}`));
-                    }
-                    if(activeChatId && activeChatId.includes(uid)) goHome();
-                });
+// ===== UPDATE STATUS =====
+window.updateStatus = async (uid, status) => {
+    const myUid = currentUser.uid;
+    const updates = {};
+    
+    if (status === 'accepted') {
+        updates[`friend_status/${myUid}/${uid}`] = "accepted";
+        updates[`friend_status/${uid}/${myUid}`] = "accepted";
+        await update(ref(db), updates);
+        showToast("Thành công", "Đã kết bạn thành công!", "success");
+        setTimeout(() => openChatFunction(uid, "", null), 400);
+    } 
+    // ===== BỎ CHẶN: CHỈ XÓA STATUS BLOCKED =====
+    else if (status === 'unblock') {
+        // Xóa status 'blocked' của mình
+        await remove(ref(db, `friend_status/${myUid}/${uid}`));
+        // Kiểm tra nếu đã từng là bạn bè thì tạo lại status 'accepted'
+        const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
+        // Nếu phía kia vẫn còn 'accepted' thì mình cũng tạo lại 'accepted'
+        if (theirStatus.val() === 'accepted') {
+            await set(ref(db, `friend_status/${myUid}/${uid}`), 'accepted');
+            showToast("Thành công", "Đã bỏ chặn", "success");
+        } else {
+            // Nếu không còn là bạn bè, tạo lại 'stranger' nếu có tin nhắn
+            const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+            const msgSnap = await get(ref(db, `messages/${chatId}`));
+            if (msgSnap.exists()) {
+                await set(ref(db, `friend_status/${myUid}/${uid}`), 'stranger');
             }
-        };
-
+            showToast("Thành công", "Đã bỏ chặn!", "success");
+        }
+        if(activeChatId && activeChatId.includes(uid)) goHome();
+    } 
+    else if (status === 'unblock_stranger') {
+        // Xóa status 'blocked' của mình
+        await remove(ref(db, `friend_status/${myUid}/${uid}`));
+        // Kiểm tra nếu đã từng là bạn bè thì tạo lại status 'accepted'
+        const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
+        if (theirStatus.val() === 'accepted') {
+            await set(ref(db, `friend_status/${myUid}/${uid}`), 'accepted');
+            showToast("Thành công", "Đã bỏ chặn", "success");
+        } else {
+            const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+            const msgSnap = await get(ref(db, `messages/${chatId}`));
+            if (msgSnap.exists()) {
+                await set(ref(db, `friend_status/${myUid}/${uid}`), 'stranger');
+            }
+            showToast("Thành công", "Đã bỏ chặn!", "success");
+        }
+        if(activeChatId && activeChatId.includes(uid)) goHome();
+    } 
+    // ===== CHẶN: GIỮ NGUYÊN TRẠNG THÁI BẠN BÈ, CHỈ THÊM BLOCKED =====
+    else if (status === 'blocked') {
+        // Kiểm tra xem có đang là bạn bè không
+        const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
+        const currentRel = await get(ref(db, `friend_status/${myUid}/${uid}`));
+        
+        // Nếu đang là bạn bè (accepted) thì giữ nguyên, chỉ thêm blocked
+        if (currentRel.val() === 'accepted' || theirStatus.val() === 'accepted') {
+            // Giữ nguyên status 'accepted' và thêm 'blocked' riêng
+            await set(ref(db, `friend_status/${myUid}/${uid}`), "blocked");
+            // KHÔNG XÓA 'accepted' của người kia
+            showToast("Thông báo", "Đã chặn bạn bè!", "warning");
+        } else {
+            // Nếu chưa là bạn bè thì chỉ chặn
+            await set(ref(db, `friend_status/${myUid}/${uid}`), "blocked");
+            showToast("Thành công", "Đã chặn người dùng!", "warning");
+        }
+        
+        if(activeChatId && activeChatId.includes(uid)) goHome();
+    } 
+    else if (status === 'add_friend_stranger') {
+        updates[`friend_status/${myUid}/${uid}`] = "outgoing";
+        updates[`friend_status/${uid}/${myUid}`] = "incoming";
+        await update(ref(db), updates);
+        showToast("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!", "success");
+    } 
+    else if (status === 'reject') {
+        const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+        await set(ref(db, `users/${myUid}/cleared_chats/${chatId}`), Date.now());
+        await remove(ref(db, `friend_status/${myUid}/${uid}`));
+        await remove(ref(db, `friend_status/${uid}/${myUid}`));
+        if(activeChatId && activeChatId.includes(uid)) goHome();
+        showToast("Thành công", "Đã từ chối lời mời kết bạn!", "warning");
+    }
+    else if (status === 'cancel') {
+        await remove(ref(db, `friend_status/${myUid}/${uid}`));
+        await remove(ref(db, `friend_status/${uid}/${myUid}`));
+        showToast("Thành công", "Đã hủy yêu cầu kết bạn!", "warning");
+    }
+    else if (status === 'remove') {
+        showConfirm("Bạn có chắc chắn muốn xóa bạn bè này?", async () => {
+            const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+            await remove(ref(db, `friend_status/${myUid}/${uid}`));
+            await remove(ref(db, `friend_status/${uid}/${myUid}`));
+            await remove(ref(db, `messages/${chatId}`));
+            if(activeChatId && activeChatId.includes(uid)) goHome();
+            showToast("Thành công", "Đã xóa bạn bè!", "warning");
+        });
+    }
+    // ===== XÓA NGƯỜI LẠ (CÓ MODAL XÁC NHẬN) =====
+    else if (status === 'delete_stranger_chat') {
+        showConfirm(
+            `<div class="text-center">
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--danger); display: block; margin-bottom: 15px;"></i>
+                <p><strong>Bạn có chắc chắn muốn xóa cuộc trò chuyện này?</strong></p>
+                <p class="text-muted small">Hành động này sẽ xóa lịch sử trò chuyện và người này khỏi danh sách người lạ của bạn.<br>Người kia sẽ không bị ảnh hưởng.</p>
+            </div>`,
+            async () => {
+                const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+                await set(ref(db, `users/${myUid}/cleared_chats/${chatId}`), Date.now());
+                await remove(ref(db, `friend_status/${myUid}/${uid}`));
+                if(activeChatId && activeChatId.includes(uid)) goHome();
+                showToast("Thành công", "Đã xóa cuộc trò chuyện!", "success");
+            }
+        );
+    }
+    
+    // Refresh danh sách
+    syncLists();
+};
 // ===== SYNC LISTS =====
 function syncLists() {
     cleanupGlobalListeners();
@@ -2658,7 +2938,7 @@ function syncLists() {
         document.getElementById('friend-list').innerHTML = "";
         document.getElementById('stranger-list').innerHTML = "";
 
-        // ===== HIỂN THỊ CÁC RELATION ĐÃ CÓ =====
+        // ===== HIỂN THỊ CÁC RELATION ĐÃ CÓ (TRỪ 'stranger') =====
         Object.keys(relations).forEach((uid) => {
             const status = relations[uid];
             
@@ -2666,7 +2946,10 @@ function syncLists() {
             if (status === 'stranger') return;
             
             get(ref(db, `users/${uid}`)).then((u) => {
-                if (!u.exists()) return;
+                if (!u.exists()) {
+                    remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
+                    return;
+                }
                 const data = u.val();
                 
                 const oldEl = document.getElementById(`item-${uid}`);
@@ -2693,11 +2976,6 @@ function syncLists() {
                     counts.strangers++;
                     acts = `<button class="btn-icon bg-primary" onclick="event.stopPropagation();updateStatus('${uid}','unblock')">Mở</button>`;
                 }
-                else if(status === 'deleted_stranger') {
-                    counts.strangers++;
-                    acts = `<button class="btn-icon bg-success" onclick="event.stopPropagation();updateStatus('${uid}','add_friend_stranger')">➕</button>
-                           <button class="btn-icon bg-danger" onclick="event.stopPropagation();remove(ref(db, 'friend_status/${currentUser.uid}/${uid}'));syncLists();">🗑</button>`;
-                }
                 
                 const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
                 const avatar = getAvatarDataFromUser(data);
@@ -2723,7 +3001,7 @@ function syncLists() {
                     document.getElementById('outgoing-list').appendChild(div);
                 } else if (status === 'accepted') {
                     document.getElementById('friend-list').appendChild(div);
-                } else if (status === 'blocked' || status === 'deleted_stranger') {
+                } else if (status === 'blocked') {
                     document.getElementById('stranger-list').appendChild(div);
                 }
                 
@@ -2732,7 +3010,6 @@ function syncLists() {
         });
 
         // ===== XỬ LÝ NGƯỜI LẠ: HIỂN THỊ TẤT CẢ 'stranger' =====
-        // Lọc ra những người có status là 'stranger'
         const strangerList = [];
         Object.keys(relations).forEach((uid) => {
             if (relations[uid] === 'stranger') {
@@ -2740,30 +3017,26 @@ function syncLists() {
             }
         });
         
-        // Hiển thị từng người lạ
         strangerList.forEach((uid) => {
-            // Kiểm tra xem đã có trong danh sách chưa (tránh trùng)
             if (document.getElementById(`item-${uid}`)) return;
             
             get(ref(db, `users/${uid}`)).then((u) => {
                 if (!u.exists()) {
-                    // Nếu user không tồn tại, xóa friend_status
                     remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
                     return;
                 }
                 
                 const data = u.val();
-                
-                // Kiểm tra xem có tin nhắn nào không trước khi hiển thị
                 const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+                
+                // Kiểm tra có tin nhắn không (bao gồm cả tin nhắn cũ)
                 get(ref(db, `messages/${chatId}`)).then((msgSnap) => {
                     if (!msgSnap.exists()) {
-                        // Nếu không có tin nhắn, xóa friend_status
-                        remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
+                        // Nếu không có tin nhắn, không hiển thị
                         return;
                     }
                     
-                    // Kiểm tra xem có tin nhắn hợp lệ không
+                    // Kiểm tra xem có tin nhắn hợp lệ không (không bị xóa)
                     get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`)).then((clearSnap) => {
                         const clearTime = clearSnap.val() || 0;
                         let hasVisibleMsg = false;
@@ -2780,7 +3053,6 @@ function syncLists() {
                             return;
                         }
                         
-                        // ===== HIỂN THỊ NGƯỜI LẠ =====
                         counts.strangers++;
                         
                         const div = document.createElement('div'); 
@@ -2810,7 +3082,6 @@ function syncLists() {
                         div.onclick = () => { closeSidebar(); openChatFunction(uid, data.name, div); };
                         document.getElementById('stranger-list').appendChild(div);
                         
-                        // Cập nhật badge
                         updateBadgeCounts(counts);
                     });
                 });
@@ -3453,6 +3724,79 @@ window.sendMessage = async () => {
             document.getElementById('sidebarToggleBtn').onclick = (e) => { e.stopPropagation(); toggleSidebar(); };
             window.addEventListener('resize', () => { if(window.innerWidth > 790) window.closeSidebar(); });
         }, 100);
+    </script>
+    <script>
+// ===== HÀM MỞ MODAL TỐI ƯU CHO CẢ DESKTOP VÀ MOBILE =====
+function openModalOptimized(modalId, options = {}) {
+    const modalEl = document.getElementById(modalId);
+    if (!modalEl) return null;
+    
+    // Đóng tất cả modal đang mở TRƯỚC KHI mở modal mới
+    closeAllModals();
+    
+    // Đợi modal cũ đóng hoàn toàn (phù hợp với transition 0.4s)
+    setTimeout(() => {
+        // Cấu hình modal
+        const config = {
+            backdrop: 'static',
+            keyboard: true,
+            ...options
+        };
+        
+        // Nếu modal đã có instance thì hủy
+        if (bootstrap.Modal.getInstance(modalEl)) {
+            bootstrap.Modal.getInstance(modalEl).dispose();
+        }
+        
+        const modal = new bootstrap.Modal(modalEl, config);
+        activeModalInstance = modal;
+        
+        // Xử lý sự kiện đóng
+        modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+            modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+            if (activeModalInstance === modal) activeModalInstance = null;
+        }, { once: true });
+        
+        // Xử lý sự kiện hiển thị
+        modalEl.addEventListener('shown.bs.modal', function handleShown() {
+            modalEl.removeEventListener('shown.bs.modal', handleShown);
+        }, { once: true });
+        
+        modal.show();
+    }, 350); // Đợi 350ms để modal cũ đóng hoàn toàn (transition 0.4s + 50ms)
+}
+
+// ===== HÀM ĐÓNG TẤT CẢ MODAL =====
+function closeAllModals() {
+    if (activeModalInstance) {
+        activeModalInstance.hide();
+        activeModalInstance = null;
+    }
+    
+    // Đóng tất cả modal có thể đang mở
+    const modalElements = document.querySelectorAll('.modal.show');
+    modalElements.forEach(el => {
+        const modal = bootstrap.Modal.getInstance(el);
+        if (modal) {
+            modal.hide();
+        }
+    });
+    
+    // Xóa backdrop sau khi modal đóng (đợi transition)
+    setTimeout(() => {
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+        backdrops.forEach(el => {
+            if (el.parentNode) {
+                el.parentNode.removeChild(el);
+            }
+        });
+        
+        // Reset body overflow
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+    }, 400);
+}
     </script>
 </body>
 </html>
