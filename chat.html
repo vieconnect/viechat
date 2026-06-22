@@ -1329,32 +1329,34 @@
                     <!-- Nội dung phải -->
                     <div class="privacy-content">
                         <!-- Tài khoản -->
-                        <div class="content-section active" id="section-profile">
-                            <div class="section-header">👤 Tài khoản</div>
-                            <div class="section-desc">Quản lý thông tin cá nhân của bạn.</div>
-                            
-                            <div class="form-group">
-                                <label>Tên hiển thị</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="privInputName" placeholder="Nhập tên hiển thị">
-                                    <button class="btn btn-primary" onclick="saveDisplayName()">Cập nhật</button>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Giới tính</label>
-                                <select class="form-select" id="privInputGender">
-                                    <option value="Nam">Nam</option>
-                                    <option value="Nữ">Nữ</option>
-                                    <option value="Khác">Khác</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Ngày sinh</label>
-                                <input type="date" class="form-control" id="privInputBirthday">
-                            </div>
-                        </div>
+                        <!-- Tài khoản -->
+<div class="content-section active" id="section-profile">
+    <div class="section-header">👤 Tài khoản</div>
+    <div class="section-desc">Quản lý thông tin cá nhân của bạn.</div>
+    
+    <div class="form-group">
+        <label>Tên hiển thị</label>
+        <input type="text" class="form-control" id="privInputName" placeholder="Nhập tên hiển thị">
+    </div>
+    
+    <div class="form-group">
+        <label>Giới tính</label>
+        <select class="form-select" id="privInputGender">
+            <option value="Nam">Nam</option>
+            <option value="Nữ">Nữ</option>
+            <option value="Khác">Khác</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label>Ngày sinh</label>
+        <input type="date" class="form-control" id="privInputBirthday">
+    </div>
+    
+    <button class="btn btn-primary mt-2" onclick="saveAllProfileInfo()" style="float: right;">
+        <i class="fas fa-save me-1"></i> Lưu thông tin cá nhân
+    </button>
+</div>
                         
                         <!-- Bảo mật -->
                         <div class="content-section" id="section-security">
@@ -2474,53 +2476,122 @@
             }, 150);
         };
 
-        // ===== SHOW PRIVACY MODAL =====
-        window.showPrivacyModal = async () => {
-            const snap = await get(ref(db, `users/${currentUser.uid}`));
-            if(snap.exists()){
-                const d = snap.val();
-                document.getElementById('privInputName').value = d.name || '';
-                document.getElementById('privInputGender').value = d.gender || "Nam";
-                document.getElementById('privInputBirthday').value = d.birthday || "2000-01-01";
-                document.getElementById('privSwitchShowGender').checked = d.showGender !== false;
-                document.getElementById('privSwitchShowBirthday').checked = d.showBirthday !== false;
-                document.getElementById('privSwitchAllowSearch').checked = d.allowSearch !== false;
-                document.getElementById('privSwitchAllowFriend').checked = d.allowFriendRequest !== false;
-                document.getElementById('privSwitchAllowStrangerChat').checked = d.allowStrangerChat !== false;
-                
-                // Reset password fields
-                document.getElementById('privOldPassword').value = '';
-                document.getElementById('privNewPassword').value = '';
-                document.getElementById('privConfirmPassword').value = '';
-                document.getElementById('privDeleteConfirmCode').value = '';
-                
-                // Reset password strength UI
-                updatePasswordStrengthUI('', 'privStrengthFill', 'privStrengthLabel', 'priv');
-                
-                const modalEl = document.getElementById('privacySettingsModal');
-                closeAllModals();
-                setTimeout(() => {
-                    privacySettingsModalObj = new bootstrap.Modal(modalEl);
-                    activeModalInstance = privacySettingsModalObj;
-                    modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
-                        modalEl.removeEventListener('hidden.bs.modal', handleHidden);
-                        activeModalInstance = null;
-                    }, { once: true });
-                    privacySettingsModalObj.show();
-                }, 150);
-            }
+window.showPrivacyModal = async () => {
+    const snap = await get(ref(db, `users/${currentUser.uid}`));
+    if(snap.exists()){
+        const d = snap.val();
+        document.getElementById('privInputName').value = d.name || '';
+        document.getElementById('privInputGender').value = d.gender || "Nam";
+        document.getElementById('privInputBirthday').value = d.birthday || "2000-01-01";
+        
+        document.getElementById('privSwitchShowGender').checked = d.showGender !== false;
+        document.getElementById('privSwitchShowBirthday').checked = d.showBirthday !== false;
+        document.getElementById('privSwitchAllowSearch').checked = d.allowSearch !== false;
+        document.getElementById('privSwitchAllowFriend').checked = d.allowFriendRequest !== false;
+        document.getElementById('privSwitchAllowStrangerChat').checked = d.allowStrangerChat !== false;
+        
+        // Reset password fields
+        document.getElementById('privOldPassword').value = '';
+        document.getElementById('privNewPassword').value = '';
+        document.getElementById('privConfirmPassword').value = '';
+        document.getElementById('privDeleteConfirmCode').value = '';
+        
+        // Reset password strength UI
+        updatePasswordStrengthUI('', 'privStrengthFill', 'privStrengthLabel', 'priv');
+        
+        const modalEl = document.getElementById('privacySettingsModal');
+        closeAllModals();
+        setTimeout(() => {
+            privacySettingsModalObj = new bootstrap.Modal(modalEl);
+            activeModalInstance = privacySettingsModalObj;
+            modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                activeModalInstance = null;
+            }, { once: true });
+            privacySettingsModalObj.show();
+        }, 150);
+    }
+};
+
+        // ===== SAVE ALL PROFILE INFORMATION =====
+    window.saveAllProfileInfo = async () => {
+    if (!currentUser) {
+        showToast("Lỗi", "Bạn chưa đăng nhập. Vui lòng đăng nhập và thực hiện lại thao tác này", "error");
+        return;
+    }
+    
+    const name = document.getElementById('privInputName').value.trim();
+    const gender = document.getElementById('privInputGender').value;
+    const birthday = document.getElementById('privInputBirthday').value;
+    
+    // Kiểm tra tên không được để trống
+    if (!name) {
+        showToast("Lỗi", "Tên hiển thị không được để trống.", "error");
+        document.getElementById('privInputName').focus();
+        return;
+    }
+    
+    // Kiểm tra ngày sinh hợp lệ
+    if (!birthday) {
+        showToast("Lỗi", "Vui lòng chọn ngày sinh.", "error");
+        document.getElementById('privInputBirthday').focus();
+        return;
+    }
+    
+    try {
+        const updateData = {
+            name: name,
+            gender: gender,
+            birthday: birthday
         };
+        
+        await update(ref(db, `users/${currentUser.uid}`), updateData);
+        
+        // Cập nhật UI tên hiển thị
+        const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+        if (userSnap.exists()) {
+            const data = userSnap.val();
+            document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
+            
+            // Cập nhật avatar placeholder nếu không có avatar
+            const avatar = getAvatarDataFromUser(data);
+            if (!avatar) {
+                const placeholder = document.getElementById('my-avatar-placeholder');
+                placeholder.textContent = (data.name || 'U').charAt(0).toUpperCase();
+            }
+        }
+        
+        // Kiểm tra tuổi sau khi cập nhật
+        if (birthday) {
+            if (!isUnderAge(birthday)) {
+                if (ageWarningModalObj) {
+                    ageWarningModalObj.hide();
+                    ageWarningModalObj = null;
+                }
+                ageWarningShown = false;
+            } else {
+                showAgeWarning();
+            }
+        }
+        
+        showToast("Thành công", "Đã cập nhật thông tin cá nhân thành công!", "success");
+        
+    } catch (error) {
+        console.error('Lỗi lưu thông tin:', error);
+        showToast("Lỗi", "Không thể lưu thông tin. Vui lòng thử lại.", "error");
+    }
+};
 
         // ===== SAVE DISPLAY NAME =====
-        window.saveDisplayName = async () => {
-            const name = document.getElementById('privInputName').value.trim();
-            if (!name) {
-                showToast("Lỗi", "Tên hiển thị không được để trống.", "error");
-                return;
-            }
-            await update(ref(db, `users/${currentUser.uid}`), { name: name });
-            showToast("Thành công", "Đã cập nhật tên hiển thị.", "success");
-        };
+        // window.saveDisplayName = async () => {
+        //     const name = document.getElementById('privInputName').value.trim();
+        //     if (!name) {
+        //         showToast("Lỗi", "Tên hiển thị không được để trống.", "error");
+        //         return;
+        //     }
+        //     await update(ref(db, `users/${currentUser.uid}`), { name: name });
+        //     showToast("Thành công", "Đã cập nhật tên hiển thị.", "success");
+        // };
 
         // ===== CHANGE PASSWORD FROM PRIVACY =====
         window.changePasswordFromPrivacy = async () => {
@@ -2564,30 +2635,27 @@
             }
         };
 
-        // ===== SAVE PRIVACY SETTINGS =====
-        window.savePrivacySettings = async () => {
-            const newBirthday = document.getElementById('privInputBirthday').value;
-            const upd = {
-                gender: document.getElementById('privInputGender').value,
-                birthday: newBirthday,
-                showGender: document.getElementById('privSwitchShowGender').checked,
-                showBirthday: document.getElementById('privSwitchShowBirthday').checked,
-                allowSearch: document.getElementById('privSwitchAllowSearch').checked,
-                allowFriendRequest: document.getElementById('privSwitchAllowFriend').checked,
-                allowStrangerChat: document.getElementById('privSwitchAllowStrangerChat').checked,
-            };
-            await update(ref(db, `users/${currentUser.uid}`), upd);
-            
-            if (newBirthday && !isUnderAge(newBirthday)) {
-                if (ageWarningModalObj) {
-                    ageWarningModalObj.hide();
-                    ageWarningModalObj = null;
-                }
-                ageWarningShown = false;
-            }
-            
-            showToast("Thành công", "Đã cập nhật cài đặt quyền riêng tư.", "success");
-        };
+window.savePrivacySettings = async () => {
+    const newBirthday = document.getElementById('privInputBirthday').value;
+    const upd = {
+        showGender: document.getElementById('privSwitchShowGender').checked,
+        showBirthday: document.getElementById('privSwitchShowBirthday').checked,
+        allowSearch: document.getElementById('privSwitchAllowSearch').checked,
+        allowFriendRequest: document.getElementById('privSwitchAllowFriend').checked,
+        allowStrangerChat: document.getElementById('privSwitchAllowStrangerChat').checked,
+    };
+    await update(ref(db, `users/${currentUser.uid}`), upd);
+    
+    if (newBirthday && !isUnderAge(newBirthday)) {
+        if (ageWarningModalObj) {
+            ageWarningModalObj.hide();
+            ageWarningModalObj = null;
+        }
+        ageWarningShown = false;
+    }
+    
+    showToast("Thành công", "Đã cập nhật cài đặt quyền riêng tư.", "success");
+};
 
         // ===== DELETE ACCOUNT FROM PRIVACY =====
         window.deleteAccountFromPrivacy = async () => {
