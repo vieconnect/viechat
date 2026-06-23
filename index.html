@@ -916,7 +916,7 @@
                     </div>
 
                     <div class="password-wrapper">
-                        <input type="password" id="signup-password" placeholder="Mật khẩu (6+ ký tự)" autocomplete="new-password">
+                        <input type="password" id="signup-password" placeholder="Mật khẩu (8+ ký tự)" autocomplete="new-password">
                         <button type="button" class="password-toggle" onclick="togglePassword('signup-password', this)">
                             <i class="fas fa-eye"></i>
                         </button>
@@ -1273,7 +1273,7 @@
             console.log('⏰ Forgot CAPTCHA expired');
         };
 
-        // ===== RESET RECAPTCHA CHO 1 FORM CỤ THỂ =====
+        // ===== RESET RECAPTCHA CHO 1 FORM CỤ THỂ (CHỈ DÙNG KHI CẦN THIẾT) =====
         function resetRecaptchaForForm(formType) {
             const wrapperMap = {
                 login: 'loginRecaptchaWrapper',
@@ -1289,13 +1289,10 @@
                 const recaptchaEl = wrapper.querySelector('.g-recaptcha');
                 if (recaptchaEl) {
                     try {
-                        // Lấy widget ID và reset
                         const widgetId = grecaptcha.getResponse(recaptchaEl);
-                        // Nếu có token thì reset
                         if (widgetId) {
                             grecaptcha.reset(widgetId);
                         } else {
-                            // Thử reset bằng cách lấy widget từ element
                             const widgets = grecaptcha.getWidgets ? grecaptcha.getWidgets() : [];
                             if (widgets.length > 0) {
                                 grecaptcha.reset(widgets[0]);
@@ -1307,7 +1304,6 @@
                 }
             }
             
-            // Reset state
             captchaStates[formType].valid = false;
             captchaStates[formType].token = null;
             updateAllButtonStates();
@@ -1429,8 +1425,8 @@
                 await signInWithEmailAndPassword(auth, email, pass);
             } catch (e) {
                 hideLoading();
-                // Reset reCAPTCHA khi có lỗi
-                resetRecaptchaForForm('login');
+                // KHÔNG reset reCAPTCHA khi có lỗi - giữ nguyên trạng thái captcha đã được xác thực
+                // Chỉ reset khi người dùng chủ động muốn hoặc khi captcha hết hạn
                 showToast('Lỗi', getFirebaseErrorMessage(e.code), 'error');
             }
         };
@@ -1519,7 +1515,7 @@
             } catch (e) {
                 isSigningUp = false;
                 hideLoading();
-                resetRecaptchaForForm('signup');
+                // KHÔNG reset reCAPTCHA khi có lỗi - giữ nguyên trạng thái
                 showToast('Thông báo', getFirebaseErrorMessage(e.code), 'error');
             }
         };
@@ -1546,7 +1542,7 @@
                 setTimeout(() => switchForm('login'), 1500);
             } catch (e) {
                 hideLoading();
-                resetRecaptchaForForm('forgot');
+                // KHÔNG reset reCAPTCHA khi có lỗi - giữ nguyên trạng thái
                 showToast('Thông báo', getFirebaseErrorMessage(e.code), 'error');
             }
         };
@@ -1600,8 +1596,7 @@
             currentForm = target;
             isTransitioning = false;
             
-            // KHÔNG reset reCAPTCHA khi chuyển form, chỉ cập nhật button state
-            // Button state sẽ dựa trên captchaStates của từng form
+            // KHÔNG reset reCAPTCHA khi chuyển form - giữ nguyên trạng thái của từng form
             updateAllButtonStates();
             
             // Log trạng thái hiện tại
