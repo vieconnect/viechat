@@ -6,10 +6,12 @@
     <title>VieChat - Đăng Nhập</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google reCAPTCHA v2 -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         :root { --primary: #0084ff; --bg: #f0f2f5; --text: #1c1e21; --light-gray: #e4e6eb; --danger: #f02849; --success: #42b72a; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); height: 100vh; width: 100vw; overflow: hidden; color: var(--text); }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); min-height: 100vh; height: 100vh; overflow: hidden; color: var(--text); }
         
         /* ===== RESET BOOTSTRAP CHECKBOX ===== */
         .terms-checkbox input[type="checkbox"] {
@@ -59,6 +61,7 @@
             color: white;
             position: relative;
             overflow: hidden;
+            min-height: 100%;
         }
         .auth-left::before {
             content: '';
@@ -151,10 +154,14 @@
             padding: 40px 48px;
             background: white;
             position: relative;
+            height: 100%;
+            overflow-y: auto;
         }
         .auth-right .form-container {
             width: 100%;
             position: relative;
+            max-height: 100%;
+            overflow-y: visible;
         }
         .auth-right .form-title {
             font-size: 28px;
@@ -700,32 +707,64 @@
         .password-requirements .req-item.unmet {
             color: #999;
         }
-        
+
+        /* ===== RECAPTCHA ===== */
+        .recaptcha-wrapper {
+            margin: 6px 0 14px 0;
+            display: flex;
+            justify-content: center;
+            min-height: 78px;
+        }
+        .recaptcha-wrapper .g-recaptcha {
+            transform: scale(0.9);
+            transform-origin: center center;
+        }
+        .recaptcha-loading {
+            text-align: center;
+            color: #999;
+            font-size: 13px;
+            padding: 12px 0;
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 992px) {
             .auth-left { padding: 40px; }
             .auth-right { width: 380px; min-width: 380px; padding: 32px 36px; }
         }
-        @media (max-width: 768px) {
+        
+        @media (max-width: 820px) {
             #auth-screen { flex-direction: column; overflow-y: auto; }
+            body { overflow-y: auto; height: auto; min-height: 100vh; }
+            
             .auth-left { 
                 flex: none; 
                 padding: 30px 24px;
                 min-height: 200px;
                 align-items: center;
                 text-align: center;
+                height: auto;
             }
             .auth-left .brand { font-size: 32px; }
             .auth-left .features { display: none; }
             .auth-left .update-banner { margin-top: 16px; font-size: 12px; }
+            
             .auth-right { 
                 width: 100%; 
                 min-width: unset; 
                 padding: 24px 20px; 
                 flex: 1;
+                height: auto;
+                min-height: 60vh;
+                max-height: none;
+                overflow-y: visible;
                 border-radius: 20px 20px 0 0;
                 margin-top: -20px;
                 background: white;
                 box-shadow: 0 -10px 40px rgba(0,0,0,0.08);
+            }
+            .auth-right .form-container {
+                max-height: none;
+                overflow-y: visible;
             }
             .auth-right .form-title { font-size: 24px; }
             .auth-right input, .auth-right select {
@@ -739,6 +778,9 @@
                 padding: 10px 8px;
                 z-index: 10;
             }
+            .recaptcha-wrapper .g-recaptcha {
+                transform: scale(0.85);
+            }
             .toast-container-custom { top: 10px; max-width: calc(100% - 20px); }
             .lock-modal { padding: 30px 20px; }
             .switch-link a, .forgot-link a {
@@ -746,12 +788,39 @@
                 display: inline-block;
             }
         }
+        
         @media (max-width: 480px) {
-            .auth-left { padding: 20px 16px; min-height: 160px; }
+            .auth-left { padding: 20px 16px; min-height: 140px; }
             .auth-left .brand { font-size: 26px; }
             .auth-left .slogan { font-size: 14px; margin-bottom: 12px; }
-            .auth-right { padding: 20px 16px; }
+            .auth-right { padding: 20px 16px; min-height: 50vh; }
             .auth-right input, .auth-right select { padding: 10px 36px 10px 12px; font-size: 16px !important; }
+            .recaptcha-wrapper .g-recaptcha {
+                transform: scale(0.75);
+            }
+        }
+
+        @media (max-width: 380px) {
+            .auth-right { padding: 16px 12px; }
+            .auth-right .form-title { font-size: 20px; }
+            .recaptcha-wrapper .g-recaptcha {
+                transform: scale(0.65);
+            }
+        }
+
+        /* ===== SCROLLBAR CUSTOM ===== */
+        .auth-right::-webkit-scrollbar {
+            width: 4px;
+        }
+        .auth-right::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .auth-right::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+        .auth-right::-webkit-scrollbar-thumb:hover {
+            background: #aaa;
         }
     </style>
 </head>
@@ -789,7 +858,7 @@
         </div>
 
         <!-- RIGHT PANEL -->
-        <div class="auth-right">
+        <div class="auth-right" id="authRight">
             <div class="form-container" id="formContainer">
                 <!-- FORM ĐĂNG NHẬP -->
                 <div id="login-form" class="form-panel active">
@@ -807,6 +876,11 @@
                     
                     <div class="forgot-link">
                         <a href="#" onclick="switchForm('forgot')">Quên mật khẩu?</a>
+                    </div>
+                    
+                    <!-- reCAPTCHA Login -->
+                    <div class="recaptcha-wrapper" id="loginRecaptchaWrapper">
+                        <div class="g-recaptcha" data-sitekey="6LcN_C8tAAAAAINsuiXAi6OMZoZOaomTREdiVumS" data-callback="onLoginCaptchaSuccess" data-expired-callback="onLoginCaptchaExpired"></div>
                     </div>
                     
                     <button onclick="handleLogin()" class="btn-login" id="loginBtn">
@@ -894,6 +968,11 @@
                         </label>
                     </div>
                     
+                    <!-- reCAPTCHA Signup -->
+                    <div class="recaptcha-wrapper" id="signupRecaptchaWrapper">
+                        <div class="g-recaptcha" data-sitekey="6LcN_C8tAAAAAINsuiXAi6OMZoZOaomTREdiVumS" data-callback="onSignupCaptchaSuccess" data-expired-callback="onSignupCaptchaExpired"></div>
+                    </div>
+                    
                     <button onclick="handleSignup()" class="btn-signup" id="signupBtn">
                         Đăng ký tài khoản
                     </button>
@@ -909,6 +988,11 @@
                     <div class="form-sub">Nhập email để nhận liên kết đặt lại mật khẩu</div>
                     
                     <input type="email" id="resetEmailInput" placeholder="Email của bạn" autocomplete="email">
+                    
+                    <!-- reCAPTCHA Forgot -->
+                    <div class="recaptcha-wrapper" id="forgotRecaptchaWrapper">
+                        <div class="g-recaptcha" data-sitekey="6LcN_C8tAAAAAINsuiXAi6OMZoZOaomTREdiVumS" data-callback="onForgotCaptchaSuccess" data-expired-callback="onForgotCaptchaExpired"></div>
+                    </div>
                     
                     <button onclick="handleForgotPassword()" class="btn-warning-custom" id="forgotBtn">
                         Gửi yêu cầu
@@ -988,6 +1072,13 @@
         let isTransitioning = false;
         let lockModalVisible = false;
 
+        // ===== reCAPTCHA STATE - Lưu trạng thái cho từng form =====
+        const captchaStates = {
+            login: { valid: false, token: null },
+            signup: { valid: false, token: null },
+            forgot: { valid: false, token: null }
+        };
+
         // ===== TOAST =====
         function showToast(title, message, type = 'info', duration = 4000) {
             const container = document.getElementById('toastContainer');
@@ -1022,32 +1113,30 @@
             }, duration);
         }
 
-// ===== LOCK MODAL =====
-window.showLockModal = (lockInfo) => {
-    if (!lockInfo) lockInfo = {};
-    document.getElementById('lockInfoId').textContent = lockInfo.id || "---";
-    document.getElementById('lockInfoReason').textContent = lockInfo.reason || "Vi phạm điều khoản sử dụng";
-    document.getElementById('lockInfoStart').textContent = lockInfo.start || "---";
-    document.getElementById('lockInfoEnd').textContent = lockInfo.end || "Vĩnh viễn";
-    
-    const overlay = document.getElementById('lockModalOverlay');
-    overlay.classList.add('show');
-    lockModalVisible = true;
-    document.body.style.overflow = 'hidden';
-    
-    // Đảm bảo loading overlay đã ẩn
-    hideLoading();
-};
+        // ===== LOCK MODAL =====
+        window.showLockModal = (lockInfo) => {
+            if (!lockInfo) lockInfo = {};
+            document.getElementById('lockInfoId').textContent = lockInfo.id || "---";
+            document.getElementById('lockInfoReason').textContent = lockInfo.reason || "Vi phạm điều khoản sử dụng";
+            document.getElementById('lockInfoStart').textContent = lockInfo.start || "---";
+            document.getElementById('lockInfoEnd').textContent = lockInfo.end || "Vĩnh viễn";
+            
+            const overlay = document.getElementById('lockModalOverlay');
+            overlay.classList.add('show');
+            lockModalVisible = true;
+            document.body.style.overflow = 'hidden';
+            hideLoading();
+        };
 
-window.closeLockModal = () => {
-    document.getElementById('lockModalOverlay').classList.remove('show');
-    lockModalVisible = false;
-    document.body.style.overflow = '';
-};
+        window.closeLockModal = () => {
+            document.getElementById('lockModalOverlay').classList.remove('show');
+            lockModalVisible = false;
+            document.body.style.overflow = '';
+        };
 
-window.openAppeal = () => {
-    window.open('https://forms.gle/BkAcSN3WhEUM3fZ6A', '_blank');
-};
+        window.openAppeal = () => {
+            window.open('https://forms.gle/BkAcSN3WhEUM3fZ6A', '_blank');
+        };
 
         // ===== TOGGLE PASSWORD =====
         window.togglePassword = (inputId, button) => {
@@ -1088,6 +1177,12 @@ window.openAppeal = () => {
                 el.style.pointerEvents = disabled ? 'none' : 'auto';
                 el.style.opacity = disabled ? '0.5' : '1';
             });
+            
+            const recaptchaWrappers = document.querySelectorAll('.recaptcha-wrapper');
+            recaptchaWrappers.forEach(wrapper => {
+                wrapper.style.opacity = disabled ? '0.5' : '1';
+                wrapper.style.pointerEvents = disabled ? 'none' : 'auto';
+            });
         }
 
         // ===== SHOW/HIDE LOADING =====
@@ -1098,13 +1193,125 @@ window.openAppeal = () => {
             disableAllForms(true);
         }
 
-function hideLoading() {
-    const overlay = document.getElementById('formLoadingOverlay');
-    if (overlay) {
-        overlay.classList.remove('show');
-    }
-    disableAllForms(false);
-}
+        function hideLoading() {
+            const overlay = document.getElementById('formLoadingOverlay');
+            if (overlay) {
+                overlay.classList.remove('show');
+            }
+            disableAllForms(false);
+            updateAllButtonStates();
+        }
+
+        // ===== UPDATE BUTTON STATES DỰA TRÊN CAPTCHA STATE =====
+        function updateAllButtonStates() {
+            updateLoginButtonState();
+            updateSignupButtonState();
+            updateForgotButtonState();
+        }
+
+        function updateLoginButtonState() {
+            const btn = document.getElementById('loginBtn');
+            if (btn) {
+                btn.disabled = !captchaStates.login.valid;
+            }
+        }
+
+        function updateSignupButtonState() {
+            const btn = document.getElementById('signupBtn');
+            if (btn) {
+                btn.disabled = !captchaStates.signup.valid;
+            }
+        }
+
+        function updateForgotButtonState() {
+            const btn = document.getElementById('forgotBtn');
+            if (btn) {
+                btn.disabled = !captchaStates.forgot.valid;
+            }
+        }
+
+        // ===== reCAPTCHA CALLBACKS =====
+        // Login
+        window.onLoginCaptchaSuccess = function(token) {
+            captchaStates.login.valid = true;
+            captchaStates.login.token = token;
+            updateLoginButtonState();
+            console.log('✅ Login CAPTCHA verified');
+        };
+        window.onLoginCaptchaExpired = function() {
+            captchaStates.login.valid = false;
+            captchaStates.login.token = null;
+            updateLoginButtonState();
+            console.log('⏰ Login CAPTCHA expired');
+        };
+
+        // Signup
+        window.onSignupCaptchaSuccess = function(token) {
+            captchaStates.signup.valid = true;
+            captchaStates.signup.token = token;
+            updateSignupButtonState();
+            console.log('✅ Signup CAPTCHA verified');
+        };
+        window.onSignupCaptchaExpired = function() {
+            captchaStates.signup.valid = false;
+            captchaStates.signup.token = null;
+            updateSignupButtonState();
+            console.log('⏰ Signup CAPTCHA expired');
+        };
+
+        // Forgot
+        window.onForgotCaptchaSuccess = function(token) {
+            captchaStates.forgot.valid = true;
+            captchaStates.forgot.token = token;
+            updateForgotButtonState();
+            console.log('✅ Forgot CAPTCHA verified');
+        };
+        window.onForgotCaptchaExpired = function() {
+            captchaStates.forgot.valid = false;
+            captchaStates.forgot.token = null;
+            updateForgotButtonState();
+            console.log('⏰ Forgot CAPTCHA expired');
+        };
+
+        // ===== RESET RECAPTCHA CHO 1 FORM CỤ THỂ =====
+        function resetRecaptchaForForm(formType) {
+            const wrapperMap = {
+                login: 'loginRecaptchaWrapper',
+                signup: 'signupRecaptchaWrapper',
+                forgot: 'forgotRecaptchaWrapper'
+            };
+            
+            const wrapperId = wrapperMap[formType];
+            if (!wrapperId) return;
+            
+            const wrapper = document.getElementById(wrapperId);
+            if (wrapper && grecaptcha) {
+                const recaptchaEl = wrapper.querySelector('.g-recaptcha');
+                if (recaptchaEl) {
+                    try {
+                        // Lấy widget ID và reset
+                        const widgetId = grecaptcha.getResponse(recaptchaEl);
+                        // Nếu có token thì reset
+                        if (widgetId) {
+                            grecaptcha.reset(widgetId);
+                        } else {
+                            // Thử reset bằng cách lấy widget từ element
+                            const widgets = grecaptcha.getWidgets ? grecaptcha.getWidgets() : [];
+                            if (widgets.length > 0) {
+                                grecaptcha.reset(widgets[0]);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Không thể reset reCAPTCHA:', e);
+                    }
+                }
+            }
+            
+            // Reset state
+            captchaStates[formType].valid = false;
+            captchaStates[formType].token = null;
+            updateAllButtonStates();
+        }
 
         // ===== PASSWORD STRENGTH CHECKER =====
         function checkPasswordStrength(password) {
@@ -1171,7 +1378,6 @@ function hideLoading() {
             label.textContent = result.label;
             label.style.color = result.color;
             
-            // Update requirement items
             const reqMap = {
                 length: document.getElementById('reqLength'),
                 uppercase: document.getElementById('reqUppercase'),
@@ -1204,6 +1410,11 @@ function hideLoading() {
 
         // ===== HANDLE LOGIN =====
         window.handleLogin = async () => {
+            if (!captchaStates.login.valid) {
+                showToast('Thông báo', 'Vui lòng xác thực reCAPTCHA.', 'warning');
+                return;
+            }
+            
             const email = document.getElementById('email').value.trim();
             const pass = document.getElementById('password').value;
             
@@ -1218,12 +1429,19 @@ function hideLoading() {
                 await signInWithEmailAndPassword(auth, email, pass);
             } catch (e) {
                 hideLoading();
+                // Reset reCAPTCHA khi có lỗi
+                resetRecaptchaForForm('login');
                 showToast('Lỗi', getFirebaseErrorMessage(e.code), 'error');
             }
         };
 
         // ===== HANDLE SIGNUP =====
         window.handleSignup = async () => {
+            if (!captchaStates.signup.valid) {
+                showToast('Thông báo', 'Vui lòng xác thực reCAPTCHA.', 'warning');
+                return;
+            }
+            
             const email = document.getElementById('signup-email').value.trim();
             const pass = document.getElementById('signup-password').value;
             const name = document.getElementById('signup-name').value.trim();
@@ -1248,7 +1466,6 @@ function hideLoading() {
                 return;
             }
             
-            // Kiểm tra độ mạnh mật khẩu
             const strengthResult = checkPasswordStrength(pass);
             if (!strengthResult.isValid) {
                 showToast('Mật khẩu yếu', 'Vui lòng tạo mật khẩu mạnh hơn với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.', 'error');
@@ -1302,12 +1519,18 @@ function hideLoading() {
             } catch (e) {
                 isSigningUp = false;
                 hideLoading();
+                resetRecaptchaForForm('signup');
                 showToast('Thông báo', getFirebaseErrorMessage(e.code), 'error');
             }
         };
 
         // ===== HANDLE FORGOT PASSWORD =====
         window.handleForgotPassword = async () => {
+            if (!captchaStates.forgot.valid) {
+                showToast('Thông báo', 'Vui lòng xác thực reCAPTCHA.', 'warning');
+                return;
+            }
+            
             const email = document.getElementById('resetEmailInput').value.trim();
             if (!email) {
                 showToast('Lỗi', 'Vui lòng nhập email.', 'error');
@@ -1323,6 +1546,7 @@ function hideLoading() {
                 setTimeout(() => switchForm('login'), 1500);
             } catch (e) {
                 hideLoading();
+                resetRecaptchaForForm('forgot');
                 showToast('Thông báo', getFirebaseErrorMessage(e.code), 'error');
             }
         };
@@ -1376,11 +1600,23 @@ function hideLoading() {
             currentForm = target;
             isTransitioning = false;
             
+            // KHÔNG reset reCAPTCHA khi chuyển form, chỉ cập nhật button state
+            // Button state sẽ dựa trên captchaStates của từng form
+            updateAllButtonStates();
+            
+            // Log trạng thái hiện tại
+            console.log(`🔄 Chuyển sang form: ${target}`);
+            console.log('📊 CAPTCHA states:', {
+                login: captchaStates.login.valid,
+                signup: captchaStates.signup.valid,
+                forgot: captchaStates.forgot.valid
+            });
+            
             const firstInput = targetPanel.querySelector('input:not([type="hidden"]):not([type="checkbox"])');
             if (firstInput) {
                 setTimeout(() => {
                     firstInput.focus();
-                    if (window.innerWidth <= 768) {
+                    if (window.innerWidth <= 820) {
                         firstInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 }, 300);
@@ -1389,19 +1625,19 @@ function hideLoading() {
 
         // ===== KEYPRESS =====
         document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') handleLogin();
+            if (e.key === 'Enter' && captchaStates.login.valid) handleLogin();
         });
         document.getElementById('email').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') handleLogin();
+            if (e.key === 'Enter' && captchaStates.login.valid) handleLogin();
         });
         document.getElementById('signup-password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') handleSignup();
+            if (e.key === 'Enter' && captchaStates.signup.valid) handleSignup();
         });
         document.getElementById('signup-email').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') handleSignup();
+            if (e.key === 'Enter' && captchaStates.signup.valid) handleSignup();
         });
         document.getElementById('resetEmailInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') handleForgotPassword();
+            if (e.key === 'Enter' && captchaStates.forgot.valid) handleForgotPassword();
         });
 
         // ===== PASSWORD STRENGTH REAL-TIME =====
@@ -1409,38 +1645,42 @@ function hideLoading() {
             updatePasswordStrengthUI(this.value);
         });
 
-// ===== AUTH STATE =====
-onAuthStateChanged(auth, async (user) => {
-    if (user && !isSigningUp) {
-        // Ẩn loading overlay nếu đang hiển thị
-        hideLoading();
-        
-        try {
-            const snap = await get(ref(db, `users/${user.uid}`));
-            if (!snap.exists()) {
-                await signOut(auth);
-                showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ. Vui lòng đăng ký lại.', 'warning');
-                return;
+        // ===== AUTH STATE =====
+        onAuthStateChanged(auth, async (user) => {
+            if (user && !isSigningUp) {
+                hideLoading();
+                
+                try {
+                    const snap = await get(ref(db, `users/${user.uid}`));
+                    if (!snap.exists()) {
+                        await signOut(auth);
+                        showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ. Vui lòng đăng ký lại.', 'warning');
+                        return;
+                    }
+                    
+                    const userData = snap.val();
+                    if (userData.isLocked === true || userData.isLocked === "true") {
+                        showLockModal(userData.lockInfo);
+                        await signOut(auth);
+                        return;
+                    }
+                    window.location.href = "chat.html";
+                } catch (error) {
+                    console.error('Lỗi kiểm tra tài khoản:', error);
+                    window.location.href = "chat.html";
+                }
+            } else if (!user) {
+                hideLoading();
+                // Reset tất cả captcha state khi logout
+                captchaStates.login.valid = false;
+                captchaStates.login.token = null;
+                captchaStates.signup.valid = false;
+                captchaStates.signup.token = null;
+                captchaStates.forgot.valid = false;
+                captchaStates.forgot.token = null;
+                updateAllButtonStates();
             }
-            
-            const userData = snap.val();
-            if (userData.isLocked === true || userData.isLocked === "true") {
-                // Hiển thị modal khóa tài khoản
-                showLockModal(userData.lockInfo);
-                // Đăng xuất người dùng
-                await signOut(auth);
-                return;
-            }
-            window.location.href = "chat.html";
-        } catch (error) {
-            console.error('Lỗi kiểm tra tài khoản:', error);
-            window.location.href = "chat.html";
-        }
-    } else if (!user) {
-        // Không có user, đảm bảo ẩn loading
-        hideLoading();
-    }
-});
+        });
 
         // ===== INIT =====
         document.addEventListener('DOMContentLoaded', function() {
@@ -1454,9 +1694,12 @@ onAuthStateChanged(auth, async (user) => {
             forgotForm.style.display = 'none';
             currentForm = 'login';
             
+            // Khởi tạo button states
+            updateAllButtonStates();
+            
             setTimeout(() => {
                 document.getElementById('email').focus();
-            }, 300);
+            }, 500);
         });
 
         // ===== CLOSE LOCK MODAL ON ESC =====
