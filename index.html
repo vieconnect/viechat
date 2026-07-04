@@ -7,10 +7,22 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #1a73e8; --bg: #ffffff; --text: #202124; --gray: #5f6368; --border: #dadce0; }
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            font-family: 'Google Sans', 'Segoe UI', Roboto, Arial, sans-serif; 
+        :root {
+            --primary: #1a73e8;
+            --bg: #ffffff;
+            --text: #202124;
+            --gray: #5f6368;
+            --border: #dadce0;
+            --transition-speed: 0.4s;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: 'Google Sans', 'Segoe UI', Roboto, Arial, sans-serif;
             background: #f1f3f4;
             min-height: 100vh;
             display: flex;
@@ -19,124 +31,60 @@
             color: var(--text);
             padding: 12px;
         }
-        
+
         /* ===== CONTAINER CHÍNH ===== */
         #auth-screen {
-            width: 900px;
+            width: 440px;
             max-width: 100%;
             background: var(--bg);
             border-radius: 12px;
-            display: flex;
             overflow: hidden;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
-            min-height: 560px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            padding: 32px 32px 24px;
+            min-height: 480px;
             max-height: 95vh;
-        }
-        
-        /* ===== LEFT PANEL ===== */
-        .auth-left {
-            width: 45%;
-            background: linear-gradient(135deg, #1a73e8, #0d47a1);
-            padding: 48px 36px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            color: white;
-            position: relative;
-            overflow: hidden;
         }
-        .auth-left::before {
-            content: '';
-            position: absolute;
-            top: -30%;
-            right: -30%;
-            width: 80%;
-            height: 150%;
-            background: rgba(255,255,255,0.05);
-            border-radius: 50%;
-        }
-        .auth-left .brand-icon {
-            font-size: 42px;
-            margin-bottom: 12px;
-            z-index: 1;
-        }
-        .auth-left .brand-title {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            z-index: 1;
-            letter-spacing: 1px;
-        }
-        .auth-left .brand-sub {
-            font-size: 15px;
-            opacity: 0.85;
-            margin-bottom: 28px;
-            z-index: 1;
-            font-weight: 400;
-            line-height: 1.5;
-        }
-        .auth-left .features {
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .auth-left .features .item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 13px;
-            opacity: 0.9;
-            font-weight: 300;
-        }
-        .auth-left .features .item i {
-            font-size: 16px;
-            width: 30px;
-            height: 30px;
-            background: rgba(255,255,255,0.12);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* ===== RIGHT PANEL - FORM ===== */
-        .auth-right {
-            width: 55%;
-            padding: 28px 32px 24px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            background: white;
+
+        /* ===== SCROLLABLE CONTENT ===== */
+        .auth-scrollable {
+            flex: 1;
             overflow-y: auto;
-            position: relative;
+            padding-right: 4px;
+            margin-right: -4px;
         }
-        
-        .auth-right::-webkit-scrollbar {
+        .auth-scrollable::-webkit-scrollbar {
             width: 4px;
         }
-        .auth-right::-webkit-scrollbar-track {
+        .auth-scrollable::-webkit-scrollbar-track {
             background: transparent;
         }
-        .auth-right::-webkit-scrollbar-thumb {
+        .auth-scrollable::-webkit-scrollbar-thumb {
             background: #ddd;
             border-radius: 4px;
         }
-        
+        .auth-scrollable::-webkit-scrollbar-thumb:hover {
+            background: #bbb;
+        }
+
         /* ===== HEADER ===== */
         .form-header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
         }
         .form-header .logo-icon {
-            font-size: 28px;
+            font-size: 32px;
             color: var(--primary);
             display: block;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
         .form-header .logo-text {
-            font-size: 22px;
-            font-weight: 500;
+            font-size: 24px;
+            font-weight: 600;
             color: var(--text);
             letter-spacing: -0.5px;
         }
@@ -144,14 +92,17 @@
             font-size: 14px;
             color: var(--gray);
             font-weight: 400;
+            margin-top: 2px;
         }
-        
+
         /* ===== FORM ===== */
         .form-container {
             width: 100%;
             position: relative;
+            flex: 1;
+            min-height: 300px;
         }
-        
+
         .form-title {
             font-size: 20px;
             font-weight: 500;
@@ -166,7 +117,41 @@
             text-align: left;
             font-weight: 400;
         }
-        
+
+        /* ===== FORM PANEL VỚI HIỆU ỨNG CHUYỂN TIẾP ===== */
+        .form-panel {
+            display: none;
+            animation: panelSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .form-panel.active {
+            display: block;
+        }
+        .form-panel.slide-out {
+            animation: panelSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes panelSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+        }
+        @keyframes panelSlideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-30px) scale(0.98);
+            }
+        }
+
         /* ===== INPUT STYLE ===== */
         .input-group-custom {
             margin-bottom: 10px;
@@ -212,7 +197,7 @@
             border-color: var(--primary);
             box-shadow: 0 1px 2px rgba(26, 115, 232, 0.15);
         }
-        
+
         .password-wrapper {
             position: relative;
             width: 100%;
@@ -237,7 +222,7 @@
         .password-toggle:hover {
             color: var(--text);
         }
-        
+
         /* ===== PASSWORD STRENGTH ===== */
         .password-strength {
             margin: -4px 0 8px 0;
@@ -296,7 +281,7 @@
         .password-requirements .req-item.unmet {
             color: #999;
         }
-        
+
         /* ===== FORGOT LINK ===== */
         .forgot-link {
             text-align: right;
@@ -312,23 +297,7 @@
         .forgot-link a:hover {
             text-decoration: underline;
         }
-        
-        /* ===== GUEST MODE ===== */
-        .guest-mode {
-            font-size: 13px;
-            color: var(--gray);
-            margin: 14px 0 18px 0;
-            line-height: 1.6;
-        }
-        .guest-mode a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .guest-mode a:hover {
-            text-decoration: underline;
-        }
-        
+
         /* ===== BUTTONS ===== */
         .btn-group-bottom {
             display: flex;
@@ -336,6 +305,7 @@
             align-items: center;
             margin-top: 4px;
             gap: 12px;
+            flex-wrap: wrap;
         }
         .btn-create {
             padding: 8px 12px;
@@ -352,7 +322,7 @@
         .btn-create:hover {
             background: rgba(26, 115, 232, 0.08);
         }
-        
+
         .btn-next {
             padding: 10px 24px;
             font-size: 14px;
@@ -375,7 +345,7 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
-        
+
         .btn-back {
             padding: 8px 16px;
             font-size: 13px;
@@ -393,24 +363,22 @@
         .btn-back:hover {
             background: rgba(26, 115, 232, 0.08);
         }
-        
-        /* ===== FORM PANEL ===== */
-        .form-panel {
+
+        /* ===== USER INFO ===== */
+        .user-info-wrapper {
+            text-align: center;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 12px;
             display: none;
-            animation: panelFadeIn 0.3s ease;
         }
-        .form-panel.active {
+        .user-info-wrapper.visible {
             display: block;
         }
-        @keyframes panelFadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* ===== USER AVATAR ===== */
         .user-avatar {
-            width: 60px;
-            height: 60px;
+            width: 56px;
+            height: 56px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -418,8 +386,9 @@
             font-size: 22px;
             font-weight: 500;
             color: white;
-            margin: 0 auto 10px;
+            margin: 0 auto 8px;
             background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            flex-shrink: 0;
         }
         .user-avatar img {
             width: 100%;
@@ -428,19 +397,15 @@
             object-fit: cover;
         }
         .user-name-display {
-            text-align: center;
             font-size: 15px;
             font-weight: 500;
             color: var(--text);
-            margin-bottom: 2px;
         }
         .user-email-display {
-            text-align: center;
             font-size: 13px;
             color: var(--gray);
-            margin-bottom: 14px;
         }
-        
+
         /* ===== LOADING ===== */
         .form-loading-overlay {
             display: none;
@@ -469,13 +434,15 @@
             animation: spin 0.8s linear infinite;
         }
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
         .form-loading-overlay .loader-text {
             font-size: 14px;
             color: var(--gray);
         }
-        
+
         /* ===== TOAST ===== */
         .toast-container-custom {
             position: fixed;
@@ -493,7 +460,7 @@
             background: #323232;
             border-radius: 4px;
             padding: 12px 18px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -502,12 +469,25 @@
             max-width: 380px;
             color: white;
         }
-        .toast-custom.toast-success { background: #2e7d32; }
-        .toast-custom.toast-error { background: #c62828; }
-        .toast-custom.toast-warning { background: #e65100; }
-        .toast-custom.toast-info { background: #0d47a1; }
-        .toast-custom .toast-icon { font-size: 16px; flex-shrink: 0; }
-        .toast-custom .toast-body { flex: 1; }
+        .toast-custom.toast-success {
+            background: #2e7d32;
+        }
+        .toast-custom.toast-error {
+            background: #c62828;
+        }
+        .toast-custom.toast-warning {
+            background: #e65100;
+        }
+        .toast-custom.toast-info {
+            background: #0d47a1;
+        }
+        .toast-custom .toast-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .toast-custom .toast-body {
+            flex: 1;
+        }
         .toast-custom .toast-body .toast-title {
             font-weight: 500;
             font-size: 13px;
@@ -521,24 +501,32 @@
             background: none;
             border: none;
             font-size: 16px;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255, 255, 255, 0.7);
             cursor: pointer;
             padding: 0 4px;
         }
-        .toast-custom .toast-close:hover { color: white; }
+        .toast-custom .toast-close:hover {
+            color: white;
+        }
         .toast-custom.toast-hide {
             transform: translateX(120%);
             opacity: 0;
         }
         @keyframes toastSlideInRight {
-            from { transform: translateX(60px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from {
+                transform: translateX(60px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
         .toast-custom.toast-hide {
             transform: translateX(60px);
             opacity: 0;
         }
-        
+
         /* ===== FOOTER ===== */
         .auth-footer {
             display: flex;
@@ -546,8 +534,9 @@
             margin-top: 20px;
             padding-top: 12px;
             border-top: 1px solid var(--border);
-            justify-content: flex-start;
+            justify-content: center;
             flex-wrap: wrap;
+            flex-shrink: 0;
         }
         .auth-footer a {
             font-size: 12px;
@@ -558,99 +547,63 @@
         .auth-footer a:hover {
             text-decoration: underline;
         }
-        
-        /* ===== RESPONSIVE ===== */
-        /* Tablet */
-        @media (max-width: 820px) {
-            #auth-screen {
-                flex-direction: column;
-                border-radius: 12px;
-                min-height: auto;
-                max-height: 98vh;
-                width: 100%;
-                max-width: 480px;
-            }
-            .auth-left {
-                width: 100%;
-                padding: 20px 24px;
-                min-height: 120px;
-            }
-            .auth-left .brand-icon { font-size: 28px; }
-            .auth-left .brand-title { font-size: 20px; }
-            .auth-left .brand-sub { font-size: 13px; margin-bottom: 12px; }
-            .auth-left .features .item { font-size: 12px; }
-            .auth-left .features .item i { width: 24px; height: 24px; font-size: 12px; }
-            .auth-left .features .item span { font-size: 12px; }
-            
-            .auth-right {
-                width: 100%;
-                padding: 20px 20px 18px;
-                max-height: 70vh;
-                overflow-y: auto;
-            }
-            .form-header .logo-text { font-size: 20px; }
-            .row-2col {
-                flex-direction: column;
-                gap: 0;
-            }
-            .form-title { font-size: 18px; }
-            .form-sub { font-size: 13px; margin-bottom: 14px; }
+
+        /* ===== MODAL LOCK ACCOUNT ===== */
+        .lock-info-item {
+            display: flex;
+            padding: 8px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
         }
-        
-        /* Mobile */
+        .lock-info-item:last-child {
+            border-bottom: none;
+        }
+        .lock-info-item .label {
+            font-weight: 600;
+            min-width: 80px;
+            color: var(--gray);
+        }
+        .lock-info-item .value {
+            color: var(--text);
+            word-break: break-all;
+        }
+        .lock-icon-warning {
+            font-size: 48px;
+            color: #c62828;
+            margin-bottom: 12px;
+        }
+
+        /* ===== RESPONSIVE ===== */
         @media (max-width: 520px) {
-            body { padding: 6px; }
+            body {
+                padding: 6px;
+            }
             #auth-screen {
                 border-radius: 8px;
-                width: 100%;
+                padding: 20px 16px 16px;
+                min-height: 400px;
                 max-height: 99vh;
             }
-            .auth-left {
-                padding: 14px 16px;
-                min-height: 80px;
-            }
-            .auth-left .brand-icon { 
-                font-size: 22px; 
-                margin-bottom: 4px;
-            }
-            .auth-left .brand-title { 
-                font-size: 16px; 
-                margin-bottom: 2px;
-            }
-            .auth-left .brand-sub { 
-                font-size: 11px; 
-                margin-bottom: 8px;
-                line-height: 1.3;
-            }
-            .auth-left .features { 
-                display: none; 
-            }
-            
-            .auth-right {
-                padding: 14px 14px 12px;
-                max-height: 65vh;
-            }
             .form-header {
-                margin-bottom: 12px;
+                margin-bottom: 16px;
+                padding-bottom: 12px;
             }
-            .form-header .logo-icon { 
-                font-size: 20px; 
+            .form-header .logo-icon {
+                font-size: 24px;
             }
-            .form-header .logo-text { 
-                font-size: 16px; 
+            .form-header .logo-text {
+                font-size: 20px;
             }
-            .form-header .logo-sub { 
-                font-size: 11px; 
+            .form-header .logo-sub {
+                font-size: 12px;
             }
-            .form-title { 
-                font-size: 16px; 
-                margin-bottom: 2px;
+            .form-title {
+                font-size: 18px;
             }
-            .form-sub { 
-                font-size: 12px; 
-                margin-bottom: 12px;
+            .form-sub {
+                font-size: 13px;
+                margin-bottom: 14px;
             }
-            
             .input-group-custom {
                 margin-bottom: 8px;
             }
@@ -664,7 +617,6 @@
                 padding-right: 30px;
                 background-position: right 8px center;
             }
-            
             .password-toggle {
                 font-size: 16px;
                 padding: 4px;
@@ -673,16 +625,15 @@
             .password-wrapper input {
                 padding-right: 36px !important;
             }
-            
             .password-strength {
                 margin: -2px 0 6px 0;
             }
-            .password-strength .strength-label { 
-                font-size: 10px; 
+            .password-strength .strength-label {
+                font-size: 10px;
                 min-width: 50px;
             }
-            .password-requirements { 
-                font-size: 10px; 
+            .password-requirements {
+                font-size: 10px;
                 margin: -2px 0 6px 0;
             }
             .password-requirements .req-item {
@@ -693,34 +644,32 @@
                 font-size: 10px;
                 width: 14px;
             }
-            
             .btn-group-bottom {
                 flex-direction: column-reverse;
                 gap: 6px;
                 align-items: stretch;
                 margin-top: 2px;
             }
-            .btn-next { 
-                width: 100%; 
+            .btn-next {
+                width: 100%;
                 justify-content: center;
                 padding: 10px;
                 font-size: 13px;
                 min-width: unset;
             }
-            .btn-create { 
-                text-align: center; 
+            .btn-create {
+                text-align: center;
                 padding: 6px;
                 font-size: 12px;
             }
-            .btn-back { 
-                text-align: center; 
+            .btn-back {
+                text-align: center;
                 justify-content: center;
                 padding: 6px 12px;
                 font-size: 12px;
             }
-            
-            .guest-mode { 
-                font-size: 11px; 
+            .guest-mode {
+                font-size: 11px;
                 margin: 10px 0 12px 0;
                 line-height: 1.5;
             }
@@ -730,9 +679,8 @@
             .forgot-link a {
                 font-size: 12px;
             }
-            
-            .auth-footer { 
-                gap: 12px; 
+            .auth-footer {
+                gap: 12px;
                 margin-top: 14px;
                 padding-top: 10px;
                 justify-content: center;
@@ -740,35 +688,37 @@
             .auth-footer a {
                 font-size: 10px;
             }
-            
             .user-avatar {
                 width: 48px;
                 height: 48px;
                 font-size: 18px;
-                margin: 0 auto 8px;
+                margin: 0 auto 6px;
             }
             .user-name-display {
-                font-size: 13px;
+                font-size: 14px;
             }
             .user-email-display {
                 font-size: 12px;
-                margin-bottom: 10px;
             }
-            
             .toast-container-custom {
                 top: 8px;
                 right: 8px;
                 max-width: calc(100% - 16px);
             }
-            .toast-custom { 
-                padding: 8px 12px; 
+            .toast-custom {
+                padding: 8px 12px;
                 font-size: 12px;
                 border-radius: 4px;
             }
-            .toast-custom .toast-icon { font-size: 14px; }
-            .toast-custom .toast-body .toast-title { font-size: 12px; }
-            .toast-custom .toast-body .toast-message { font-size: 11px; }
-            
+            .toast-custom .toast-icon {
+                font-size: 14px;
+            }
+            .toast-custom .toast-body .toast-title {
+                font-size: 12px;
+            }
+            .toast-custom .toast-body .toast-message {
+                font-size: 11px;
+            }
             .form-loading-overlay .loader {
                 width: 28px;
                 height: 28px;
@@ -776,7 +726,6 @@
             .form-loading-overlay .loader-text {
                 font-size: 12px;
             }
-            
             .terms-checkbox {
                 font-size: 11px;
                 margin: 2px 0 8px;
@@ -785,36 +734,46 @@
                 width: 14px;
                 height: 14px;
             }
-            
             .forgot-link {
                 text-align: center;
             }
+            .lock-info-item {
+                font-size: 13px;
+                padding: 6px 8px;
+            }
+            .lock-info-item .label {
+                min-width: 60px;
+            }
+            .lock-icon-warning {
+                font-size: 36px;
+            }
         }
-        
-        /* Extra small */
+
         @media (max-width: 380px) {
-            body { padding: 4px; }
+            body {
+                padding: 4px;
+            }
             #auth-screen {
                 border-radius: 6px;
+                padding: 14px 12px 12px;
+                min-height: 360px;
             }
-            .auth-left {
-                padding: 10px 12px;
-                min-height: 60px;
+            .form-header .logo-icon {
+                font-size: 20px;
             }
-            .auth-left .brand-icon { font-size: 18px; }
-            .auth-left .brand-title { font-size: 14px; }
-            .auth-left .brand-sub { font-size: 10px; margin-bottom: 4px; }
-            
-            .auth-right {
-                padding: 10px 10px 8px;
-                max-height: 60vh;
+            .form-header .logo-text {
+                font-size: 17px;
             }
-            .form-header .logo-icon { font-size: 18px; }
-            .form-header .logo-text { font-size: 14px; }
-            .form-header .logo-sub { font-size: 10px; }
-            .form-title { font-size: 14px; }
-            .form-sub { font-size: 11px; margin-bottom: 10px; }
-            
+            .form-header .logo-sub {
+                font-size: 11px;
+            }
+            .form-title {
+                font-size: 16px;
+            }
+            .form-sub {
+                font-size: 12px;
+                margin-bottom: 12px;
+            }
             .input-group-custom input,
             .input-group-custom select {
                 font-size: 14px !important;
@@ -825,7 +784,6 @@
                 background-position: right 6px center;
                 background-size: 10px;
             }
-            
             .btn-next {
                 padding: 8px;
                 font-size: 12px;
@@ -837,7 +795,6 @@
                 font-size: 11px;
                 padding: 4px 10px;
             }
-            
             .password-requirements .req-item {
                 font-size: 9px;
             }
@@ -845,14 +802,12 @@
                 font-size: 9px;
                 min-width: 40px;
             }
-            
             .auth-footer a {
                 font-size: 9px;
             }
             .guest-mode {
                 font-size: 10px;
             }
-            
             .user-avatar {
                 width: 40px;
                 height: 40px;
@@ -864,58 +819,56 @@
             .user-email-display {
                 font-size: 11px;
             }
-            
             .toast-custom {
                 padding: 6px 10px;
                 font-size: 11px;
             }
-            .toast-custom .toast-icon { font-size: 12px; }
-            .toast-custom .toast-body .toast-title { font-size: 11px; }
-            .toast-custom .toast-body .toast-message { font-size: 10px; }
+            .toast-custom .toast-icon {
+                font-size: 12px;
+            }
+            .toast-custom .toast-body .toast-title {
+                font-size: 11px;
+            }
+            .toast-custom .toast-body .toast-message {
+                font-size: 10px;
+            }
+            .lock-info-item {
+                font-size: 12px;
+                padding: 4px 6px;
+            }
+            .lock-info-item .label {
+                min-width: 50px;
+            }
+            .lock-icon-warning {
+                font-size: 28px;
+            }
         }
     </style>
 </head>
 <body>
     <div id="auth-screen">
-        <!-- LEFT PANEL - THÔNG TIN -->
-        <div class="auth-left">
-            <div class="brand-icon">
+        <!-- HEADER -->
+        <div class="form-header">
+            <div class="logo-icon">
                 <i class="fas fa-comment-dots"></i>
             </div>
-            <div class="brand-title">VieChat</div>
-            <div class="brand-sub">Kết nối xã hội - Vững bước tương lai</div>
-            <div class="features">
-                <div class="item">
-                    <i class="fas fa-shield-alt"></i>
-                    <span>Bảo mật mã hóa đầu cuối</span>
-                </div>
-                <div class="item">
-                    <i class="fas fa-bolt"></i>
-                    <span>Kết nối nhanh chóng, ổn định</span>
-                </div>
-                <div class="item">
-                    <i class="fas fa-users"></i>
-                    <span>Cộng đồng người dùng đông đảo</span>
-                </div>
-                <div class="item">
-                    <i class="fas fa-mobile-alt"></i>
-                    <span>Hỗ trợ đa nền tảng</span>
-                </div>
-            </div>
+            <div class="logo-text">VieChat</div>
+            <div class="logo-sub">Kết nối xã hội - Vững bước tương lai</div>
         </div>
 
-        <!-- RIGHT PANEL - FORM -->
-        <div class="auth-right" id="authRight">
+        <!-- SCROLLABLE CONTENT -->
+        <div class="auth-scrollable" id="authScrollable">
+            <!-- FORM CONTAINER -->
             <div class="form-container" id="formContainer">
                 <!-- STEP 1: NHẬP EMAIL -->
                 <div id="step-email" class="form-panel active">
                     <div class="form-title">Đăng nhập</div>
                     <div class="form-sub">Sử dụng Tài khoản VieChat của bạn</div>
-                    
+
                     <div class="input-group-custom">
                         <input type="email" id="emailInput" placeholder="Email hoặc số điện thoại" autocomplete="email">
                     </div>
-                    
+
                     <div class="btn-group-bottom">
                         <button class="btn-create" onclick="switchForm('signup')">Tạo tài khoản</button>
                         <button class="btn-next" id="btnEmailNext" onclick="handleEmailStep()">
@@ -923,11 +876,16 @@
                         </button>
                     </div>
                 </div>
-                
+
                 <!-- STEP 2: NHẬP MẬT KHẨU -->
                 <div id="step-password" class="form-panel">
-                    <div id="userInfoContainer"></div>
-                    
+                    <!-- User Info - được hiển thị khi có dữ liệu -->
+                    <div class="user-info-wrapper" id="userInfoWrapper">
+                        <div class="user-avatar" id="userAvatar">T</div>
+                        <div class="user-name-display" id="userNameDisplay">Xin chào, Người dùng</div>
+                        <div class="user-email-display" id="userEmailDisplay">email@example.com</div>
+                    </div>
+
                     <div class="input-group-custom">
                         <div class="password-wrapper">
                             <input type="password" id="passwordInput" placeholder="Nhập mật khẩu" autocomplete="current-password">
@@ -936,11 +894,11 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <div class="forgot-link">
                         <a href="#" onclick="switchForm('forgot')">Bạn quên mật khẩu?</a>
                     </div>
-                    
+
                     <div class="btn-group-bottom">
                         <button class="btn-back" onclick="goBackToEmail()">
                             <i class="fas fa-arrow-left"></i> Quay lại
@@ -955,15 +913,15 @@
                 <div id="signup-form" class="form-panel">
                     <div class="form-title">Tạo tài khoản</div>
                     <div class="form-sub">Đăng ký tài khoản VieChat</div>
-                    
+
                     <div class="input-group-custom">
                         <input type="text" id="signup-name" placeholder="Họ và tên" autocomplete="name">
                     </div>
-                    
+
                     <div class="input-group-custom">
                         <input type="email" id="signup-email" placeholder="Email" autocomplete="email">
                     </div>
-                    
+
                     <div style="display: flex; gap: 10px;">
                         <div class="input-group-custom" style="flex: 1;">
                             <select id="signup-gender">
@@ -985,7 +943,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- Password Strength Indicator -->
                     <div class="password-strength" id="passwordStrength">
                         <div class="strength-bar">
@@ -993,7 +951,7 @@
                         </div>
                         <span class="strength-label" id="strengthLabel">Yếu</span>
                     </div>
-                    
+
                     <!-- Password Requirements -->
                     <div class="password-requirements" id="passwordRequirements">
                         <div class="req-item unmet" id="reqLength">
@@ -1017,7 +975,7 @@
                             <span>Chứa ký tự đặc biệt (!@#$%^&*)</span>
                         </div>
                     </div>
-                    
+
                     <div class="input-group-custom">
                         <div class="password-wrapper">
                             <input type="password" id="signup-confirm" placeholder="Xác nhận mật khẩu" autocomplete="new-password">
@@ -1026,14 +984,14 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <div style="display:flex;align-items:flex-start;gap:8px;margin:4px 0 10px;font-size:12px;color:var(--gray);">
                         <input type="checkbox" id="terms-checkbox" style="margin-top:2px;accent-color:var(--primary);width:16px;height:16px;flex-shrink:0;">
                         <label for="terms-checkbox" style="cursor:pointer;font-weight:normal;margin:0;line-height:1.4;">
                             Bằng việc đăng ký tài khoản, bạn đồng ý với <a href="./dieu-khoan-su-dung.html" style="color:var(--primary);text-decoration:none;" target="_blank">Điều khoản sử dụng</a> của VieChat
                         </label>
                     </div>
-                    
+
                     <div class="btn-group-bottom">
                         <button class="btn-back" onclick="switchForm('login')">
                             <i class="fas fa-arrow-left"></i> Quay lại
@@ -1048,11 +1006,11 @@
                 <div id="forgot-form" class="form-panel">
                     <div class="form-title">Quên mật khẩu</div>
                     <div class="form-sub">Nhập email để nhận liên kết đặt lại mật khẩu</div>
-                    
+
                     <div class="input-group-custom">
                         <input type="email" id="resetEmailInput" placeholder="Email của bạn" autocomplete="email">
                     </div>
-                    
+
                     <div class="btn-group-bottom">
                         <button class="btn-back" onclick="switchForm('login')">
                             <i class="fas fa-arrow-left"></i> Quay lại
@@ -1069,13 +1027,13 @@
                     <div class="loader-text" id="loadingText">Đang xử lý...</div>
                 </div>
             </div>
-            
-            <!-- FOOTER -->
-            <div class="auth-footer">
-                <a href="https://viechat.tawk.help/" target="_blank">Trợ giúp</a>
-                <a href="./dieu-khoan-su-dung.html" target="_blank">Điều khoản</a>
-                <a href="#" data-bs-toggle="modal" data-bs-target="#infoModal">Thông tin phần mềm</a>
-            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="auth-footer">
+            <a href="https://viechat.tawk.help/" target="_blank">Trợ giúp</a>
+            <a href="./dieu-khoan-su-dung.html" target="_blank">Điều khoản</a>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#infoModal">Thông tin phần mềm</a>
         </div>
     </div>
 
@@ -1104,10 +1062,39 @@
         </div>
     </div>
 
+    <!-- MODAL TÀI KHOẢN BỊ KHÓA -->
+    <div class="modal fade" id="lockModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                    <h5 class="modal-title text-danger">
+                        <i class="fas fa-lock me-2"></i>Đăng nhập bị hạn chế
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <div class="lock-icon-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <p class="text-muted mb-3">Chúng tôi đã tạm dừng quyền truy cập tài khoản của bạn do phát hiện một số vi phạm. <a href="https://viechat.tawk.help/article/dang-nhap-bi-han-che" target="_blank" rel="noopener noreferrer">Tìm hiểu thêm</a></p>
+                    </div>
+                    <div id="lockInfoContent" style="background: #f8f9fa; border-radius: 8px; overflow: hidden;">
+                        <!-- Nội dung sẽ được điền bởi JavaScript -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="lockModalCloseBtn">Đã hiểu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST CONTAINER -->
     <div class="toast-container-custom" id="toastContainer"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js">
+    </script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -1132,31 +1119,32 @@
         let foundUserData = null;
         let foundUserUid = null;
         let isSigningUp = false;
+        let lockModalInstance = null;
 
         // ===== TOAST =====
         function showToast(title, message, type = 'info', duration = 4000) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast-custom toast-${type}`;
-            
+
             const icons = {
                 success: 'fa-check-circle',
                 error: 'fa-times-circle',
                 warning: 'fa-exclamation-triangle',
                 info: 'fa-info-circle'
             };
-            
+
             toast.innerHTML = `
-                <div class="toast-icon"><i class="fas ${icons[type] || icons.info}"></i></div>
-                <div class="toast-body">
-                    <div class="toast-title">${title}</div>
-                    <div class="toast-message">${message}</div>
-                </div>
-                <button class="toast-close" onclick="this.closest('.toast-custom').remove()">&times;</button>
-            `;
-            
+                    <div class="toast-icon"><i class="fas ${icons[type] || icons.info}"></i></div>
+                    <div class="toast-body">
+                        <div class="toast-title">${title}</div>
+                        <div class="toast-message">${message}</div>
+                    </div>
+                    <button class="toast-close" onclick="this.closest('.toast-custom').remove()">&times;</button>
+                `;
+
             container.appendChild(toast);
-            
+
             setTimeout(() => {
                 if (toast.parentNode) {
                     toast.classList.add('toast-hide');
@@ -1167,11 +1155,91 @@
             }, duration);
         }
 
+function resetToLoginForm() {
+    // Reset dữ liệu user
+    foundUserData = null;
+    foundUserUid = null;
+    
+    // Xóa input password
+    const passwordInput = document.getElementById('passwordInput');
+    if (passwordInput) passwordInput.value = '';
+    
+    // Ẩn user info
+    const wrapper = document.getElementById('userInfoWrapper');
+    if (wrapper) wrapper.classList.remove('visible');
+    
+    // Reset avatar về mặc định
+    const avatarEl = document.getElementById('userAvatar');
+    if (avatarEl) avatarEl.innerHTML = 'T';
+    
+    const nameDisplay = document.getElementById('userNameDisplay');
+    if (nameDisplay) nameDisplay.textContent = 'Xin chào, Người dùng';
+    
+    const emailDisplay = document.getElementById('userEmailDisplay');
+    if (emailDisplay) emailDisplay.textContent = 'email@example.com';
+    
+    // Chuyển về form login (email)
+    switchFormDirect('login');
+    
+    // Focus vào input email
+    setTimeout(() => {
+        const emailInput = document.getElementById('emailInput');
+        if (emailInput) emailInput.focus();
+    }, 300);
+}
+
+// ===== SỬA LẠI HÀM showLockModal =====
+function showLockModal(lockInfo) {
+    const container = document.getElementById('lockInfoContent');
+    if (!container) return;
+    
+    // Đổ dữ liệu vào modal
+    const fields = [
+        { label: 'Mã khóa', key: 'id' },
+        { label: 'Lý do', key: 'reason' },
+        { label: 'Bắt đầu', key: 'start' },
+        { label: 'Kết thúc', key: 'end' }
+    ];
+
+    let html = '';
+    fields.forEach(field => {
+        html += `<div class="lock-info-item"><span class="label">${field.label}</span><span class="value">${lockInfo[field.key] || '---'}</span></div>`;
+    });
+    container.innerHTML = html;
+
+    const modalElement = document.getElementById('lockModal');
+    
+    // Sử dụng instance có sẵn thay vì cloneNode
+    if (!lockModalInstance) {
+        lockModalInstance = new bootstrap.Modal(modalElement, {
+            backdrop: 'static',
+            keyboard: false
+        });
+    }
+
+    // Đảm bảo chỉ gắn sự kiện 1 lần
+    const handleHidden = function() {
+        // Chỉ dọn dẹp các thuộc tính CSS của body
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        // Gọi hàm reset
+        resetToLoginForm();
+        
+        // Gỡ bỏ chính sự kiện này để tránh trùng lặp nếu mở lại modal
+        modalElement.removeEventListener('hidden.bs.modal', handleHidden);
+    };
+
+    modalElement.addEventListener('hidden.bs.modal', handleHidden);
+    lockModalInstance.show();
+}
+
         // ===== TOGGLE PASSWORD =====
         window.togglePassword = (inputId, button) => {
             const input = document.getElementById(inputId);
             if (!input || input.disabled) return;
-            
+
             const icon = button.querySelector('i');
             if (input.type === 'password') {
                 input.type = 'text';
@@ -1186,41 +1254,139 @@
         function showLoading(message = 'Đang xử lý...') {
             document.getElementById('loadingText').textContent = message;
             document.getElementById('formLoadingOverlay').classList.add('show');
-            document.querySelectorAll('#auth-right input, #auth-right button').forEach(el => el.disabled = true);
+            document.querySelectorAll('#auth-screen input, #auth-screen button').forEach(el => el.disabled = true);
         }
 
         function hideLoading() {
             document.getElementById('formLoadingOverlay').classList.remove('show');
-            document.querySelectorAll('#auth-right input, #auth-right button').forEach(el => el.disabled = false);
+            document.querySelectorAll('#auth-screen input, #auth-screen button').forEach(el => el.disabled = false);
         }
+
+        // ===== SWITCH FORM TRỰC TIẾP =====
+        function switchFormDirect(target) {
+            const formMap = {
+                'login': 'step-email',
+                'password': 'step-password',
+                'signup': 'signup-form',
+                'forgot': 'forgot-form'
+            };
+
+            const targetId = formMap[target];
+            const currentId = formMap[currentForm];
+
+            if (!targetId || targetId === currentId) return;
+
+            const currentPanel = document.getElementById(currentId);
+            if (currentPanel) {
+                currentPanel.classList.remove('active');
+                currentPanel.style.display = 'none';
+            }
+
+            const targetPanel = document.getElementById(targetId);
+            if (targetPanel) {
+                targetPanel.style.display = 'block';
+                void targetPanel.offsetWidth;
+                targetPanel.classList.add('active');
+            }
+
+            currentForm = target;
+
+            const firstInput = targetPanel ? targetPanel.querySelector('input:not([type="hidden"])') : null;
+            if (firstInput) {
+                setTimeout(() => firstInput.focus(), 200);
+            }
+
+            const scrollable = document.getElementById('authScrollable');
+            if (scrollable) {
+                scrollable.scrollTop = 0;
+            }
+        }
+
+        // ===== SWITCH FORM CÓ HIỆU ỨNG =====
+        window.switchForm = (target) => {
+            if (isTransitioning) return;
+
+            const overlay = document.getElementById('formLoadingOverlay');
+            if (overlay.classList.contains('show')) return;
+
+            if (target === 'login' && currentForm === 'password') {
+                resetToLoginForm();
+                return;
+            }
+
+            const formMap = {
+                'login': 'step-email',
+                'password': 'step-password',
+                'signup': 'signup-form',
+                'forgot': 'forgot-form'
+            };
+
+            const targetId = formMap[target];
+            const currentId = formMap[currentForm];
+
+            if (!targetId || targetId === currentId) return;
+
+            isTransitioning = true;
+
+            const currentPanel = document.getElementById(currentId);
+            const targetPanel = document.getElementById(targetId);
+
+            if (currentPanel) {
+                currentPanel.classList.add('slide-out');
+                setTimeout(() => {
+                    currentPanel.classList.remove('active', 'slide-out');
+                    currentPanel.style.display = 'none';
+                }, 300);
+            }
+
+            setTimeout(() => {
+                if (targetPanel) {
+                    targetPanel.style.display = 'block';
+                    void targetPanel.offsetWidth;
+                    targetPanel.classList.add('active');
+                }
+                currentForm = target;
+                isTransitioning = false;
+
+                const firstInput = targetPanel ? targetPanel.querySelector('input:not([type="hidden"])') : null;
+                if (firstInput) {
+                    setTimeout(() => firstInput.focus(), 100);
+                }
+
+                const scrollable = document.getElementById('authScrollable');
+                if (scrollable) {
+                    scrollable.scrollTop = 0;
+                }
+            }, 350);
+        };
 
         // ===== STEP 1: HANDLE EMAIL =====
         window.handleEmailStep = async () => {
             const email = document.getElementById('emailInput').value.trim();
-            
+
             if (!email) {
                 showToast('Thông báo', 'Vui lòng nhập email của bạn.', 'warning');
                 document.getElementById('emailInput').focus();
                 return;
             }
-            
+
             if (!email.includes('@') || !email.includes('.')) {
                 showToast('Lỗi', 'Email không hợp lệ. Vui lòng kiểm tra lại.', 'error');
                 document.getElementById('emailInput').focus();
                 return;
             }
-            
+
             showLoading('Đang kiểm tra thông tin...');
-            
+
             try {
                 const usersRef = ref(db, 'users');
                 const q = query(usersRef, orderByChild('email'), equalTo(email.toLowerCase()));
                 const snap = await get(q);
-                
+
                 let found = false;
                 let userData = null;
                 let userUid = null;
-                
+
                 if (snap.exists()) {
                     const users = snap.val();
                     for (const [uid, data] of Object.entries(users)) {
@@ -1232,7 +1398,7 @@
                         }
                     }
                 }
-                
+
                 if (!found) {
                     hideLoading();
                     showToast('Không tìm thấy', 'Không tìm thấy tài khoản với email này. Vui lòng kiểm tra lại hoặc tạo tài khoản mới.', 'error');
@@ -1240,25 +1406,19 @@
                     document.getElementById('emailInput').select();
                     return;
                 }
-                
+
                 foundUserData = userData;
                 foundUserUid = userUid;
-                
+
                 renderUserInfo(userData);
                 
-                document.getElementById('step-email').classList.remove('active');
-                document.getElementById('step-email').style.display = 'none';
-                document.getElementById('step-password').style.display = 'block';
-                document.getElementById('step-password').classList.add('active');
-                currentForm = 'password';
+                hideLoading();
+                switchFormDirect('password');
                 
-                document.getElementById('passwordInput').value = '';
                 setTimeout(() => {
                     document.getElementById('passwordInput').focus();
-                }, 300);
-                
-                hideLoading();
-                
+                }, 400);
+
             } catch (error) {
                 hideLoading();
                 console.error('Lỗi tìm kiếm user:', error);
@@ -1266,62 +1426,98 @@
             }
         };
 
-        // ===== RENDER USER INFO =====
-        function renderUserInfo(userData) {
-            const container = document.getElementById('userInfoContainer');
-            const name = userData.name || 'Người dùng';
-            const email = userData.email || '';
-            const avatar = userData.avatar || null;
-            
-            let avatarHtml = '';
-            if (avatar && avatar.startsWith('data:image')) {
-                avatarHtml = `<img src="${avatar}" alt="${name}">`;
-            } else {
-                avatarHtml = name.charAt(0).toUpperCase();
-            }
-            
-            container.innerHTML = `
-                <div class="user-avatar">${avatarHtml}</div>
-                <div class="user-name-display">Xin chào, ${name}</div>
-                <div class="user-email-display">${email}</div>
-            `;
-        }
+function renderUserInfo(userData) {
+    if (!userData) {
+        console.warn('userData is null or undefined');
+        return;
+    }
+    
+    const wrapper = document.getElementById('userInfoWrapper');
+    const avatarEl = document.getElementById('userAvatar');
+    const nameEl = document.getElementById('userNameDisplay');
+    const emailEl = document.getElementById('userEmailDisplay');
+    
+    // Kiểm tra dữ liệu
+    const name = (userData.name && userData.name.trim()) || 'Người dùng';
+    const email = (userData.email && userData.email.trim()) || '';
+    const avatar = userData.avatar || null;
+    
+    // Cập nhật avatar
+    if (avatar && avatar.startsWith('data:image')) {
+        avatarEl.innerHTML = `<img src="${avatar}" alt="${name}">`;
+    } else {
+        avatarEl.innerHTML = name.charAt(0).toUpperCase();
+    }
+    
+    // Cập nhật tên và email
+    nameEl.textContent = `Xin chào, ${name}`;
+    emailEl.textContent = email || 'email@example.com';
+    
+    // Hiển thị wrapper
+    if (wrapper) wrapper.classList.add('visible');
+}
 
         // ===== GO BACK TO EMAIL =====
         window.goBackToEmail = () => {
-            document.getElementById('step-password').classList.remove('active');
-            document.getElementById('step-password').style.display = 'none';
-            document.getElementById('step-email').style.display = 'block';
-            document.getElementById('step-email').classList.add('active');
-            currentForm = 'login';
-            foundUserData = null;
-            foundUserUid = null;
-            document.getElementById('emailInput').focus();
+            resetToLoginForm();
         };
 
         // ===== STEP 2: HANDLE PASSWORD =====
         window.handlePasswordStep = async () => {
             const password = document.getElementById('passwordInput').value;
-            
+
             if (!password) {
                 showToast('Thông báo', 'Vui lòng nhập mật khẩu.', 'warning');
                 document.getElementById('passwordInput').focus();
                 return;
             }
-            
+
             if (password.length < 6) {
                 showToast('Thông báo', 'Mật khẩu phải có ít nhất 6 ký tự.', 'warning');
                 document.getElementById('passwordInput').focus();
                 return;
             }
-            
+
             showLoading('Đang đăng nhập...');
-            
+
             try {
                 const email = foundUserData.email;
-                await signInWithEmailAndPassword(auth, email, password);
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                
+                const snap = await get(ref(db, `users/${userCredential.user.uid}`));
+                if (snap.exists()) {
+                    const userData = snap.val();
+                    if (userData.isLocked === true || userData.isLocked === "true") {
+                        await signOut(auth);
+                        hideLoading();
+                        const lockInfo = userData.lockInfo || { id: '---', reason: '---', start: '---', end: '---' };
+                        showLockModal(lockInfo);
+                        return;
+                    }
+                }
+                
+                hideLoading();
+                
             } catch (error) {
                 hideLoading();
+                
+                if (error.code === 'auth/user-disabled') {
+                    try {
+                        const snap = await get(ref(db, `users/${foundUserUid}`));
+                        if (snap.exists()) {
+                            const userData = snap.val();
+                            const lockInfo = userData.lockInfo || { id: '---', reason: '---', start: '---', end: '---' };
+                            showLockModal(lockInfo);
+                            return;
+                        }
+                    } catch (e) {
+                        console.error('Lỗi lấy thông tin khóa:', e);
+                    }
+                    showToast('Tài khoản bị khóa', 'Tài khoản của bạn đã bị vô hiệu hóa.', 'error');
+                    return;
+                }
+                
                 let message = 'Email hoặc mật khẩu không đúng.';
                 if (error.code === 'auth/user-not-found') {
                     message = 'Không tìm thấy tài khoản với email này.';
@@ -1347,14 +1543,14 @@
                 digit: /[0-9]/.test(password),
                 special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
             };
-            
+
             const metCount = Object.values(checks).filter(Boolean).length;
-            
+
             let strength = 'weak';
             let label = 'Yếu';
             let color = '#f02849';
             let width = 20;
-            
+
             if (metCount >= 5) {
                 strength = 'strong';
                 label = 'Mạnh';
@@ -1381,7 +1577,7 @@
                 color = '#f02849';
                 width = 10;
             }
-            
+
             return {
                 strength,
                 label,
@@ -1397,12 +1593,12 @@
             const fill = document.getElementById('strengthFill');
             const label = document.getElementById('strengthLabel');
             const result = checkPasswordStrength(password);
-            
+
             fill.style.width = result.width + '%';
             fill.style.backgroundColor = result.color;
             label.textContent = result.label;
             label.style.color = result.color;
-            
+
             const reqMap = {
                 length: document.getElementById('reqLength'),
                 uppercase: document.getElementById('reqUppercase'),
@@ -1410,14 +1606,15 @@
                 digit: document.getElementById('reqDigit'),
                 special: document.getElementById('reqSpecial')
             };
-            
+
             Object.keys(reqMap).forEach(key => {
                 const el = reqMap[key];
                 const met = result.checks[key];
                 el.className = `req-item ${met ? 'met' : 'unmet'}`;
-                el.querySelector('.req-icon').innerHTML = met ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-circle"></i>';
+                el.querySelector('.req-icon').innerHTML = met ? '<i class="fas fa-check-circle"></i>' :
+                    '<i class="fas fa-circle"></i>';
             });
-            
+
             return result;
         }
 
@@ -1441,54 +1638,53 @@
             const confirm = document.getElementById('signup-confirm').value;
             const gender = document.getElementById('signup-gender').value;
             const birthday = document.getElementById('signup-birthday').value;
-            
+
             if (!name || !email || !password || !confirm) {
                 showToast('Thông báo', 'Vui lòng điền đầy đủ thông tin.', 'warning');
                 return;
             }
-            
+
             if (!email.includes('@') || !email.includes('.')) {
                 showToast('Lỗi', 'Email không hợp lệ.', 'error');
                 return;
             }
-            
-            // ===== KIỂM TRA ĐỘ TUỔI =====
+
             if (!birthday) {
                 showToast('Thông báo', 'Vui lòng chọn ngày sinh.', 'warning');
                 document.getElementById('signup-birthday').focus();
                 return;
             }
-            
+
             const age = checkAge(birthday);
             if (age < 12) {
                 showToast('Yêu cầu độ tuổi', 'Bạn cần phải trên 12 tuổi để sử dụng dịch vụ.', 'error');
                 document.getElementById('signup-birthday').focus();
                 return;
             }
-            
-            // Kiểm tra độ mạnh mật khẩu
+
             const strengthResult = checkPasswordStrength(password);
             if (!strengthResult.isValid) {
-                showToast('Mật khẩu yếu', 'Vui lòng tạo mật khẩu mạnh hơn với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.', 'error');
+                showToast('Mật khẩu yếu', 'Vui lòng tạo mật khẩu mạnh hơn với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.',
+                    'error');
                 return;
             }
-            
+
             if (password !== confirm) {
                 showToast('Lỗi', 'Mật khẩu xác nhận không khớp.', 'error');
                 return;
             }
-            
+
             if (!document.getElementById('terms-checkbox').checked) {
                 showToast('Thông báo', 'Vui lòng đồng ý với Điều khoản sử dụng.', 'warning');
                 return;
             }
-            
+
             showLoading('Đang tạo tài khoản...');
-            
+
             try {
                 isSigningUp = true;
                 const res = await createUserWithEmailAndPassword(auth, email, password);
-                
+
                 await set(ref(db, `users/${res.user.uid}`), {
                     email: email.toLowerCase(),
                     name: name,
@@ -1508,7 +1704,7 @@
                         end: "---",
                     }
                 });
-                
+
                 isSigningUp = false;
                 hideLoading();
                 showToast('Thành công', 'Đăng ký tài khoản thành công!', 'success');
@@ -1526,15 +1722,15 @@
         // ===== HANDLE FORGOT PASSWORD =====
         window.handleForgotPassword = async () => {
             const email = document.getElementById('resetEmailInput').value.trim();
-            
+
             if (!email) {
                 showToast('Thông báo', 'Vui lòng nhập email của bạn.', 'warning');
                 document.getElementById('resetEmailInput').focus();
                 return;
             }
-            
+
             showLoading('Đang gửi yêu cầu...');
-            
+
             try {
                 await sendPasswordResetEmail(auth, email);
                 hideLoading();
@@ -1564,69 +1760,19 @@
             return messages[errorCode] || messages.default;
         }
 
-        // ===== SWITCH FORM =====
-        window.switchForm = (target) => {
-            if (isTransitioning) return;
-            
-            const overlay = document.getElementById('formLoadingOverlay');
-            if (overlay.classList.contains('show')) return;
-            
-            if (target === 'login' && currentForm === 'password') {
-                foundUserData = null;
-                foundUserUid = null;
-                document.getElementById('passwordInput').value = '';
-            }
-            
-            const formMap = {
-                'login': 'step-email',
-                'password': 'step-password',
-                'signup': 'signup-form',
-                'forgot': 'forgot-form'
-            };
-            
-            const targetId = formMap[target];
-            const currentId = formMap[currentForm];
-            
-            if (!targetId || targetId === currentId) return;
-            
-            isTransitioning = true;
-            
-            const currentPanel = document.getElementById(currentId);
-            const targetPanel = document.getElementById(targetId);
-            
-            if (currentPanel) {
-                currentPanel.classList.remove('active');
-                currentPanel.style.display = 'none';
-            }
-            
-            if (targetPanel) {
-                targetPanel.style.display = 'block';
-                void targetPanel.offsetWidth;
-                targetPanel.classList.add('active');
-            }
-            
-            currentForm = target;
-            isTransitioning = false;
-            
-            const firstInput = targetPanel ? targetPanel.querySelector('input:not([type="hidden"])') : null;
-            if (firstInput) {
-                setTimeout(() => firstInput.focus(), 300);
-            }
-        };
-
         // ===== KEYPRESS =====
         document.getElementById('emailInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') handleEmailStep();
         });
-        
+
         document.getElementById('passwordInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') handlePasswordStep();
         });
-        
+
         document.getElementById('resetEmailInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') handleForgotPassword();
         });
-        
+
         // ===== PASSWORD STRENGTH REAL-TIME =====
         document.getElementById('signup-password').addEventListener('input', function() {
             updatePasswordStrengthUI(this.value);
@@ -1642,11 +1788,12 @@
                         showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ.', 'warning');
                         return;
                     }
-                    
+
                     const userData = snap.val();
                     if (userData.isLocked === true || userData.isLocked === "true") {
                         await signOut(auth);
-                        showToast('Tài khoản bị khóa', 'Tài khoản của bạn đã bị khóa.', 'error');
+                        const lockInfo = userData.lockInfo || { id: '---', reason: '---', start: '---', end: '---' };
+                        showLockModal(lockInfo);
                         return;
                     }
                     window.location.href = "chat.html";
@@ -1663,14 +1810,14 @@
             const stepPassword = document.getElementById('step-password');
             const signupForm = document.getElementById('signup-form');
             const forgotForm = document.getElementById('forgot-form');
-            
+
             stepEmail.style.display = 'block';
             stepEmail.classList.add('active');
             stepPassword.style.display = 'none';
             signupForm.style.display = 'none';
             forgotForm.style.display = 'none';
             currentForm = 'login';
-            
+
             setTimeout(() => {
                 document.getElementById('emailInput').focus();
             }, 500);
