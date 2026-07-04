@@ -1321,6 +1321,9 @@
                         <button class="menu-item-privacy" data-section="privacy" onclick="switchPrivacySection('privacy')">
                             <i class="fas fa-lock"></i> Quyền riêng tư
                         </button>
+                            <button class="menu-item-privacy" data-section="activation" onclick="switchPrivacySection('activation')">
+        <i class="fas fa-check-circle"></i> Kích hoạt
+    </button>
                         <button class="menu-item-privacy" data-section="danger" onclick="switchPrivacySection('danger')" style="color:var(--danger);">
                             <i class="fas fa-exclamation-triangle"></i> Nguy hiểm
                         </button>
@@ -1470,6 +1473,33 @@
                             
                             <button class="btn btn-primary" onclick="savePrivacySettings()" style="float: right;">💾 Lưu cài đặt</button>
                         </div>
+
+<!-- THÊM TAB KÍCH HOẠT MỚI -->
+<div class="content-section" id="section-activation">
+    <div class="section-header">✅ Kích hoạt tài khoản</div>
+    <div class="section-desc">Nhập mã kích hoạt để xác minh tài khoản của bạn.</div>
+    
+    <!-- CHỈ 1 THÔNG BÁO DUY NHẤT -->
+    <div id="activationStatus" style="margin-bottom: 16px;"></div>
+    
+    <!-- Form nhập mã (chỉ hiển thị khi chưa kích hoạt) -->
+    <div id="activationInputGroup" class="form-group">
+        <label>Mã kích hoạt</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="activationCodeInput" placeholder="Nhập mã kích hoạt có 8 chữ số" style="border-radius: 10px 0 0 10px;">
+            <button class="btn btn-success" onclick="activateAccount()" style="border-radius: 0 10px 10px 0;">
+                <i class="fas fa-check me-1"></i> Kích hoạt
+            </button>
+        </div>
+    </div>
+    <i class="text-secondary">Bạn sẽ nhận được tích xanh sau khi kích hoạt tài khoản</i>
+    <!-- Nút hủy kích hoạt (chỉ hiển thị khi đã kích hoạt) -->
+    <div id="activationActions" style="display: none; margin-top: 12px;">
+        <button class="btn btn-danger w-100" onclick="deactivateAccount()">
+            <i class="fas fa-times me-1"></i> Hủy kích hoạt
+        </button>
+    </div>
+</div>
                         
                         <!-- Nguy hiểm -->
                         <div class="content-section" id="section-danger">
@@ -3789,6 +3819,189 @@ window.sendMessage = async () => {
             document.getElementById('sidebarToggleBtn').onclick = (e) => { e.stopPropagation(); toggleSidebar(); };
             window.addEventListener('resize', () => { if(window.innerWidth > 790) window.closeSidebar(); });
         }, 100);
+
+        // ===== TAB KÍCH HOẠT =====
+// Thêm tab activation vào sidebar
+
+// ===== HÀM KIỂM TRA TRẠNG THÁI KÍCH HOẠT =====
+async function checkActivationStatus() {
+    if (!currentUser) return;
+    
+    const snap = await get(ref(db, `users/${currentUser.uid}`));
+    if (!snap.exists()) return;
+    
+    const data = snap.val();
+    const isActivated = data.haveGreenTick === true;
+    
+    const statusDiv = document.getElementById('activationStatus');
+    const inputGroup = document.getElementById('activationInputGroup');
+    const actionsDiv = document.getElementById('activationActions');
+    
+    if (isActivated) {
+        statusDiv.innerHTML = `
+            <div class="alert alert-success d-flex align-items-center" role="alert" style="border-radius: 10px;">
+                <i class="fas fa-check-circle me-2" style="font-size: 20px; color: var(--success);"></i>
+                <div>
+                    <strong>✅ Đã kích hoạt tài khoản</strong>
+                    <div class="small">Tài khoản của bạn đã được xác minh bởi VieChat Verified</div>
+                </div>
+            </div>
+        `;
+        inputGroup.style.display = 'none';
+        actionsDiv.style.display = 'block';
+    } else {
+        statusDiv.innerHTML = `
+            <div class="alert alert-secondary d-flex align-items-center" role="alert" style="border-radius: 10px;">
+                <i class="fas fa-info-circle me-2" style="font-size: 20px; color: #6c757d;"></i>
+                <div>
+                    <strong>Chưa kích hoạt</strong>
+                    <div class="small">Nhập mã kích hoạt bên dưới để xác minh tài khoản.</div>
+                </div>
+            </div>
+        `;
+        inputGroup.style.display = 'block';
+        actionsDiv.style.display = 'none';
+    }
+}
+
+/// ===== KÍCH HOẠT TÀI KHOẢN =====
+window.activateAccount = async () => {
+    const codeInput = document.getElementById('activationCodeInput');
+    const code = codeInput.value.trim();
+    
+    if (!code) {
+        showToast('Lỗi', 'Vui lòng nhập mã kích hoạt.', 'error');
+        return;
+    }
+    
+    try {
+        // Lấy toàn bộ danh sách code từ database
+        const codeSnap = await get(ref(db, 'code'));
+        
+        if (!codeSnap.exists()) {
+            showToast('Lỗi', 'Mã kích hoạt không hợp lệ hoặc đã được sử dụng', 'error');
+            return;
+        }
+        
+        const allCodes = codeSnap.val();
+        let foundKey = null;
+        let foundValue = null;
+        
+        // Duyệt qua tất cả code để tìm mã khớp
+        for (const [key, value] of Object.entries(allCodes)) {
+            // So sánh giá trị (string hoặc number) với mã nhập vào
+            if (String(value) === code) {
+                foundKey = key;
+                foundValue = value;
+                break;
+            }
+        }
+        
+        if (!foundKey) {
+            showToast('Lỗi', 'Mã kích hoạt không hợp lệ hoặc đã được sử dụng.', 'error');
+            return;
+        }
+        
+        // Cập nhật haveGreenTick = true cho user
+        await update(ref(db, `users/${currentUser.uid}`), {
+            haveGreenTick: true,
+            activatedAt: serverTimestamp(),
+            activationCode: code
+        });
+        
+        // Xóa key đã nhập khỏi database
+        await remove(ref(db, `code/${foundKey}`));
+        
+        // Cập nhật UI
+        await checkActivationStatus();
+        
+        // Cập nhật tên hiển thị với tích xanh
+        const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+        if (userSnap.exists()) {
+            const data = userSnap.val();
+            document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || 'Người dùng', true);
+        }
+        
+        codeInput.value = '';
+        showToast('Thành công', 'Tài khoản của bạn đã được kích hoạt thành công!', 'success');
+        
+        // Đóng modal sau khi kích hoạt thành công
+        setTimeout(() => {
+            if (privacySettingsModalObj) {
+                privacySettingsModalObj.hide();
+                activeModalInstance = null;
+            }
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Lỗi kích hoạt:', error);
+        showToast('Lỗi', 'Không thể kích hoạt tài khoản. Vui lòng thử lại.', 'error');
+    }
+};
+
+// ===== HỦY KÍCH HOẠT =====
+window.deactivateAccount = async () => {
+    showConfirm(
+        `<div class="text-center">
+            <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--danger); display: block; margin-bottom: 15px;"></i>
+            <p><strong>Bạn có chắc chắn muốn hủy kích hoạt?</strong></p>
+            <p class="text-muted">Nếu hủy kích hoạt thì bạn sẽ không thể dùng mã cũ để kích hoạt nữa.</p>
+            <p class="text-danger small">⚠️ Hành động này không thể hoàn tác!</p>
+        </div>`,
+        async () => {
+            try {
+                // Lấy thông tin user để lấy mã kích hoạt cũ (nếu có)
+                const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+                if (userSnap.exists()) {
+                    const userData = userSnap.val();
+                    const oldCode = userData.activationCode || null;
+                    
+                    // Nếu có mã cũ, xóa luôn để không thể dùng lại
+                    if (oldCode) {
+                        await remove(ref(db, `code/${oldCode}`)).catch(() => {});
+                    }
+                }
+                
+                // Cập nhật haveGreenTick = false và xóa thông tin kích hoạt
+                await update(ref(db, `users/${currentUser.uid}`), {
+                    haveGreenTick: false,
+                    activatedAt: null,
+                    activationCode: null
+                });
+                
+                // Cập nhật UI
+                await checkActivationStatus();
+                
+                // Cập nhật tên hiển thị (bỏ tích xanh)
+                const updatedSnap = await get(ref(db, `users/${currentUser.uid}`));
+                if (updatedSnap.exists()) {
+                    const data = updatedSnap.val();
+                    document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || 'Người dùng', false);
+                }
+                
+                showToast('Thông báo', 'Đã hủy kích hoạt tài khoản.', 'warning');
+                
+            } catch (error) {
+                console.error('Lỗi hủy kích hoạt:', error);
+                showToast('Lỗi', 'Không thể hủy kích hoạt. Vui lòng thử lại.', 'error');
+            }
+        }
+    );
+};
+
+// ===== GỌI KIỂM TRA TRẠNG THÁI KHI MỞ MODAL =====
+// Lưu lại hàm showPrivacyModal gốc để gọi sau
+const originalShowPrivacyModal = window.showPrivacyModal;
+
+window.showPrivacyModal = async () => {
+    // Gọi hàm gốc
+    await originalShowPrivacyModal();
+    
+    // Sau khi modal hiển thị, kiểm tra trạng thái kích hoạt
+    setTimeout(() => {
+        checkActivationStatus();
+    }, 300);
+};
     </script>
     <script>
 // ===== HÀM MỞ MODAL TỐI ƯU CHO CẢ DESKTOP VÀ MOBILE =====
