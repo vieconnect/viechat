@@ -1045,6 +1045,53 @@
         transform: translateY(0);
     }
 }
+
+/* ===== SWIPE TO REPLY STYLES - CHỈ MŨI TÊN ===== */
+.swipe-reply-indicator {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--primary);
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    opacity: 0;
+}
+
+.swipe-reply-indicator.show {
+    display: flex;
+    opacity: 1;
+}
+
+.msg-wrapper.received .swipe-reply-indicator {
+    left: 8px;
+}
+
+.msg-wrapper.sent .swipe-reply-indicator {
+    right: 8px;
+}
+
+.msg-wrapper.received.swipe-reply-active .msg-bubble {
+    border-top-left-radius: 4px !important;
+    background: #e3f0ff !important;
+    border-left: 3px solid var(--primary);
+}
+
+.msg-wrapper.sent.swipe-reply-active .msg-bubble {
+    border-top-right-radius: 4px !important;
+    background: #0056b3 !important;
+    border-right: 3px solid #66b3ff;
+}
+
+@media (max-width: 790px) {
+    .swipe-reply-indicator {
+        font-size: 18px;
+    }
+}
     </style>
 </head>
 <body>
@@ -1664,6 +1711,14 @@
         let ageWarningModalObj = null;
         let ageWarningShown = false;
 
+        // ===== SWIPE TO REPLY VARIABLES =====
+        let swipeStartX = 0;
+        let swipeStartY = 0;
+        let swipeCurrentX = 0;
+        let swipeTargetMsg = null;
+        let swipeIsActive = false;
+        let swipeThreshold = 50;
+
         // ===== TOAST SYSTEM =====
         function showToast(title, message, type = 'info', duration = 4000) {
             const container = document.getElementById('toastContainer');
@@ -1835,7 +1890,8 @@
                 const revokeBtn = document.getElementById('sheet-revoke');
                 const deleteBtn = document.getElementById('sheet-delete-for-me');
                 
-                replyBtn.style.display = isOwn ? 'none' : 'flex';
+                // LUÔN HIỂN THỊ "Trả lời" cho cả tin nhắn của mình và đối phương
+                replyBtn.style.display = 'flex';
                 revokeBtn.style.display = isOwn ? 'flex' : 'none';
                 deleteBtn.textContent = isOwn ? 'Xóa' : 'Xóa phía tôi';
                 
@@ -1852,7 +1908,8 @@
                 const revokeBtn = document.getElementById('menu-revoke');
                 const deleteBtn = document.getElementById('menu-delete-for-me');
                 
-                replyBtn.style.display = isOwn ? 'none' : 'flex';
+                // LUÔN HIỂN THỊ "Trả lời" cho cả tin nhắn của mình và đối phương
+                replyBtn.style.display = 'flex';
                 revokeBtn.style.display = isOwn ? 'flex' : 'none';
                 deleteBtn.textContent = isOwn ? 'Xóa' : 'Xóa phía tôi';
                 
@@ -3226,6 +3283,16 @@ function syncLists() {
                 const wrapper = document.createElement('div');
                 const isOwn = msg.sender === currentUser.uid;
                 wrapper.className = `msg-wrapper ${isOwn ? 'sent' : 'received'}`;
+                wrapper.dataset.msgId = msg.id;
+                wrapper.dataset.sender = msg.sender;
+                wrapper.dataset.text = msg.text || '';
+                wrapper.dataset.senderName = msg.senderName || 'Người dùng';
+                if (msg.file) {
+                    wrapper.dataset.file = JSON.stringify(msg.file);
+                }
+                if (msg.revoked) {
+                    wrapper.dataset.revoked = 'true';
+                }
                 
                 let content = '';
                 let replyContent = '';
@@ -3268,6 +3335,13 @@ function syncLists() {
                     avatarHtml = renderUserAvatar(msg.sender, userData, 36);
                 }
                 
+                // ===== SWIPE INDICATOR - CHỈ MŨI TÊN =====
+                const swipeIndicator = `
+                    <div class="swipe-reply-indicator">
+                        <i class="fas fa-reply"></i>
+                    </div>
+                `;
+                
                 if (msg.revoked === true) {
                     const bubbleContent = `
                         <div class="msg-content">
@@ -3280,7 +3354,9 @@ function syncLists() {
                     wrapper.innerHTML = bubbleContent;
                 } else {
                     const bubbleContent = `
+                        ${!isOwn ? swipeIndicator : ''}
                         <div class="msg-content">
+                            ${isOwn ? swipeIndicator : ''}
                             ${avatarHtml}
                             <div class="msg-bubble-wrapper">
                                 <div class="msg-bubble">${replyContent + content}</div>
@@ -3290,40 +3366,141 @@ function syncLists() {
                     wrapper.innerHTML = bubbleContent;
                 }
                 
-                wrapper.dataset.msgId = msg.id;
-                wrapper.dataset.sender = msg.sender;
-                wrapper.dataset.text = msg.text || '';
-                wrapper.dataset.senderName = msg.senderName || 'Người dùng';
-                if (msg.file) {
-                    wrapper.dataset.file = JSON.stringify(msg.file);
-                }
-                
-                if (msg.revoked !== true && !isMobile) {
-                    const dotsBtn = document.createElement('button');
-                    dotsBtn.className = 'msg-options-btn';
-                    dotsBtn.innerHTML = '<i class="fas fa-ellipsis-v"></i>';
-                    dotsBtn.title = 'Tùy chọn';
-                    dotsBtn.dataset.msgId = msg.id;
-                    dotsBtn.dataset.sender = msg.sender;
-                    dotsBtn.dataset.text = msg.text || '';
-                    dotsBtn.dataset.senderName = msg.senderName || 'Người dùng';
-                    if (msg.file) {
-                        dotsBtn.dataset.file = JSON.stringify(msg.file);
+                // ===== SWIPE TO REPLY HANDLERS - CHO PHÉP VUỐT CẢ TIN CỦA MÌNH =====
+                if (msg.revoked !== true) {
+                    wrapper.addEventListener('touchstart', function(e) {
+                        const touch = e.touches[0];
+                        swipeStartX = touch.clientX;
+                        swipeStartY = touch.clientY;
+                        swipeCurrentX = swipeStartX;
+                        swipeTargetMsg = this;
+                        swipeIsActive = false;
+                        
+                        // Clear long press timer
+                        if (longPressTimer) {
+                            clearTimeout(longPressTimer);
+                            longPressTimer = null;
+                        }
+                    }, { passive: true });
+                    
+                    wrapper.addEventListener('touchmove', function(e) {
+                        if (!swipeTargetMsg || msg.revoked) return;
+                        const touch = e.touches[0];
+                        const deltaX = touch.clientX - swipeStartX;
+                        const deltaY = touch.clientY - swipeStartY;
+                        
+                        // Check if horizontal swipe (more horizontal than vertical)
+                        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+                            swipeIsActive = true;
+                            swipeCurrentX = touch.clientX;
+                            
+                            const wrapperEl = swipeTargetMsg;
+                            const isOwnMsg = wrapperEl.classList.contains('sent');
+                            const indicator = wrapperEl.querySelector('.swipe-reply-indicator');
+                            
+                            if (indicator) {
+                                // CHO PHÉP VUỐT CẢ 2 CHIỀU:
+                                // - Tin nhận (received): vuốt phải (deltaX > 0)
+                                // - Tin gửi (sent): vuốt trái (deltaX < 0)
+                                let progress = 0;
+                                if (!isOwnMsg) {
+                                    progress = Math.min(deltaX / swipeThreshold, 1);
+                                } else {
+                                    progress = Math.min(-deltaX / swipeThreshold, 1);
+                                }
+                                
+                                if (progress > 0.05) {
+                                    indicator.classList.add('show');
+                                    indicator.style.opacity = Math.min(progress * 1.5, 1);
+                                    wrapperEl.classList.add('swipe-reply-active');
+                                    
+                                    // Move the indicator
+                                    if (!isOwnMsg) {
+                                        indicator.style.transform = `translateX(${Math.min(deltaX, swipeThreshold)}px)`;
+                                    } else {
+                                        indicator.style.transform = `translateX(${Math.max(deltaX, -swipeThreshold)}px)`;
+                                    }
+                                } else {
+                                    indicator.classList.remove('show');
+                                    indicator.style.opacity = '0';
+                                    wrapperEl.classList.remove('swipe-reply-active');
+                                }
+                            }
+                        }
+                    }, { passive: true });
+                    
+                    wrapper.addEventListener('touchend', function(e) {
+                        if (swipeTargetMsg && swipeIsActive) {
+                            const wrapperEl = swipeTargetMsg;
+                            const isOwnMsg = wrapperEl.classList.contains('sent');
+                            const indicator = wrapperEl.querySelector('.swipe-reply-indicator');
+                            const deltaX = swipeCurrentX - swipeStartX;
+                            
+                            let shouldReply = false;
+                            if (!isOwnMsg) {
+                                // Tin nhận: vuốt phải
+                                shouldReply = deltaX > swipeThreshold * 0.6;
+                            } else {
+                                // Tin gửi: vuốt trái
+                                shouldReply = -deltaX > swipeThreshold * 0.6;
+                            }
+                            
+                            if (shouldReply && !msg.revoked) {
+                                const msgId = wrapperEl.dataset.msgId;
+                                const sender = wrapperEl.dataset.sender;
+                                const text = wrapperEl.dataset.text;
+                                const file = wrapperEl.dataset.file ? JSON.parse(wrapperEl.dataset.file) : null;
+                                const senderName = wrapperEl.dataset.senderName || 'Người dùng';
+                                
+                                // CHO PHÉP REPLY TIN CỦA CHÍNH MÌNH
+                                window.replyToMessage(msgId, sender, text, file, senderName);
+                            }
+                            
+                            // Reset swipe state
+                            if (indicator) {
+                                indicator.classList.remove('show');
+                                indicator.style.opacity = '0';
+                                indicator.style.transform = '';
+                            }
+                            wrapperEl.classList.remove('swipe-reply-active');
+                        }
+                        
+                        swipeTargetMsg = null;
+                        swipeIsActive = false;
+                        swipeStartX = 0;
+                        swipeStartY = 0;
+                        swipeCurrentX = 0;
+                    }, { passive: true });
+                    
+                    // ===== DOTS BUTTON =====
+                    if (!isMobile) {
+                        const dotsBtn = document.createElement('button');
+                        dotsBtn.className = 'msg-options-btn';
+                        dotsBtn.innerHTML = '<i class="fas fa-ellipsis-v"></i>';
+                        dotsBtn.title = 'Tùy chọn';
+                        dotsBtn.dataset.msgId = msg.id;
+                        dotsBtn.dataset.sender = msg.sender;
+                        dotsBtn.dataset.text = msg.text || '';
+                        dotsBtn.dataset.senderName = msg.senderName || 'Người dùng';
+                        if (msg.file) {
+                            dotsBtn.dataset.file = JSON.stringify(msg.file);
+                        }
+                        
+                        dotsBtn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const msgId = this.dataset.msgId;
+                            const sender = this.dataset.sender;
+                            const text = this.dataset.text;
+                            const file = this.dataset.file ? JSON.parse(this.dataset.file) : null;
+                            const senderName = this.dataset.senderName;
+                            showContextMenuFromDots(e, msgId, sender, text, file, senderName, isOwn);
+                        });
+                        
+                        wrapper.appendChild(dotsBtn);
                     }
-                    
-                    dotsBtn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const msgId = this.dataset.msgId;
-                        const sender = this.dataset.sender;
-                        const text = this.dataset.text;
-                        const file = this.dataset.file ? JSON.parse(this.dataset.file) : null;
-                        const senderName = this.dataset.senderName;
-                        showContextMenuFromDots(e, msgId, sender, text, file, senderName, isOwn);
-                    });
-                    
-                    wrapper.appendChild(dotsBtn);
                 }
                 
+                // ===== RIGHT CLICK =====
                 wrapper.addEventListener('contextmenu', function(e) {
                     if (msg.revoked) return;
                     e.preventDefault();
@@ -3338,6 +3515,7 @@ function syncLists() {
                     showContextMenuFromDots(fakeEvent, msg.id, msg.sender, msg.text || '', msg.file || null, senderName, isOwn);
                 });
                 
+                // ===== LONG PRESS =====
                 wrapper.addEventListener('touchstart', function(e) {
                     if (msg.revoked) return;
                     longPressTimer = setTimeout(() => {
@@ -3353,7 +3531,7 @@ function syncLists() {
                         };
                         showContextMenuFromDots(fakeEvent, msg.id, msg.sender, msg.text || '', msg.file || null, senderName, isOwn);
                     }, 500);
-                });
+                }, { passive: true });
                 wrapper.addEventListener('touchend', function() {
                     clearTimeout(longPressTimer);
                 });
