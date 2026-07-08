@@ -1408,75 +1408,75 @@
     </button>
 </div>
                         
-                        <!-- Bảo mật -->
-                        <div class="content-section" id="section-security">
-                            <div class="section-header">🔒 Bảo mật</div>
-                            <div class="section-desc">Thay đổi mật khẩu để bảo vệ tài khoản của bạn.</div>
-                            
-                            <div class="form-group">
-                                <label>Mật khẩu cũ</label>
-                                <div class="password-wrapper">
-                                    <input type="password" class="form-control" id="privOldPassword" placeholder="Nhập mật khẩu cũ">
-                                    <button type="button" class="password-toggle" onclick="togglePassword('privOldPassword', this)">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Mật khẩu mới</label>
-                                <div class="password-wrapper">
-                                    <input type="password" class="form-control" id="privNewPassword" placeholder="Nhập mật khẩu mới (6+ ký tự)">
-                                    <button type="button" class="password-toggle" onclick="togglePassword('privNewPassword', this)">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- Password Strength Indicator -->
-                            <div class="password-strength" id="privPasswordStrength">
-                                <div class="strength-bar">
-                                    <div class="strength-fill" id="privStrengthFill"></div>
-                                </div>
-                                <span class="strength-label" id="privStrengthLabel">Yếu</span>
-                            </div>
-                            
-                            <!-- Password Requirements -->
-                            <div class="password-requirements" id="privPasswordRequirements">
-                                <div class="req-item unmet" id="privReqLength">
-                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
-                                    <span>Ít nhất 8 ký tự</span>
-                                </div>
-                                <div class="req-item unmet" id="privReqUppercase">
-                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
-                                    <span>Chứa chữ hoa (A-Z)</span>
-                                </div>
-                                <div class="req-item unmet" id="privReqLowercase">
-                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
-                                    <span>Chứa chữ thường (a-z)</span>
-                                </div>
-                                <div class="req-item unmet" id="privReqDigit">
-                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
-                                    <span>Chứa số (0-9)</span>
-                                </div>
-                                <div class="req-item unmet" id="privReqSpecial">
-                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
-                                    <span>Chứa ký tự đặc biệt (!@#$%^&*)</span>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Xác nhận mật khẩu mới</label>
-                                <div class="password-wrapper">
-                                    <input type="password" class="form-control" id="privConfirmPassword" placeholder="Xác nhận mật khẩu mới">
-                                    <button type="button" class="password-toggle" onclick="togglePassword('privConfirmPassword', this)">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <button class="btn btn-primary" onclick="changePasswordFromPrivacy()">🔄 Đổi mật khẩu</button>
-                        </div>
+<!-- Bảo mật -->
+<div class="content-section" id="section-security">
+    <div class="section-header">🔒 Bảo mật</div>
+    <div class="section-desc">Thay đổi mật khẩu để bảo vệ tài khoản của bạn.</div>
+    
+    <div class="form-group" id="privOldPasswordGroup">
+        <label>Mật khẩu cũ</label>
+        <div class="password-wrapper">
+            <input type="password" class="form-control" id="privOldPassword" placeholder="Nhập mật khẩu cũ">
+            <button type="button" class="password-toggle" onclick="togglePassword('privOldPassword', this)">
+                <i class="fas fa-eye"></i>
+            </button>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label>Mật khẩu mới</label>
+        <div class="password-wrapper">
+            <input type="password" class="form-control" id="privNewPassword" placeholder="Nhập mật khẩu mới (6+ ký tự)">
+            <button type="button" class="password-toggle" onclick="togglePassword('privNewPassword', this)">
+                <i class="fas fa-eye"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Password Strength Indicator -->
+    <div class="password-strength" id="privPasswordStrength">
+        <div class="strength-bar">
+            <div class="strength-fill" id="privStrengthFill"></div>
+        </div>
+        <span class="strength-label" id="privStrengthLabel">Yếu</span>
+    </div>
+    
+    <!-- Password Requirements -->
+    <div class="password-requirements" id="privPasswordRequirements">
+        <div class="req-item unmet" id="privReqLength">
+            <span class="req-icon"><i class="fas fa-circle"></i></span>
+            <span>Ít nhất 8 ký tự</span>
+        </div>
+        <div class="req-item unmet" id="privReqUppercase">
+            <span class="req-icon"><i class="fas fa-circle"></i></span>
+            <span>Chứa chữ hoa (A-Z)</span>
+        </div>
+        <div class="req-item unmet" id="privReqLowercase">
+            <span class="req-icon"><i class="fas fa-circle"></i></span>
+            <span>Chứa chữ thường (a-z)</span>
+        </div>
+        <div class="req-item unmet" id="privReqDigit">
+            <span class="req-icon"><i class="fas fa-circle"></i></span>
+            <span>Chứa số (0-9)</span>
+        </div>
+        <div class="req-item unmet" id="privReqSpecial">
+            <span class="req-icon"><i class="fas fa-circle"></i></span>
+            <span>Chứa ký tự đặc biệt (!@#$%^&*)</span>
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label>Xác nhận mật khẩu mới</label>
+        <div class="password-wrapper">
+            <input type="password" class="form-control" id="privConfirmPassword" placeholder="Xác nhận mật khẩu mới">
+            <button type="button" class="password-toggle" onclick="togglePassword('privConfirmPassword', this)">
+                <i class="fas fa-eye"></i>
+            </button>
+        </div>
+    </div>
+    
+    <button class="btn btn-primary" onclick="changePasswordFromPrivacy()">🔄 Đổi mật khẩu</button>
+</div>
                         
                         <!-- Quyền riêng tư -->
                         <div class="content-section" id="section-privacy">
@@ -2043,15 +2043,22 @@
             return null;
         }
 
-        function renderUserAvatar(uid, userData, size = 36) {
-            const avatar = getAvatarDataFromUser(userData);
-            const name = userData?.name || 'Người dùng';
-            if (avatar) {
-                return `<img src="${avatar}" class="msg-avatar" style="width:${size}px; height:${size}px;" onclick="event.stopPropagation(); openUserInfoModal('${uid}')" title="${escapeHtml(name)}" loading="lazy">`;
-            } else {
-                return `<div class="msg-avatar-placeholder" style="width:${size}px; height:${size}px; font-size:${size/2}px;" onclick="event.stopPropagation(); openUserInfoModal('${uid}')" title="${escapeHtml(name)}">${name.charAt(0).toUpperCase()}</div>`;
-            }
-        }
+// Cập nhật hàm renderUserAvatar trong chat.html
+function renderUserAvatar(uid, userData, size = 36) {
+    let avatar = getAvatarDataFromUser(userData);
+    const name = userData?.name || 'Người dùng';
+    
+    // Nếu không có avatar trong DB và uid là current user, thử lấy từ auth
+    if (!avatar && uid === currentUser?.uid && currentUser?.photoURL) {
+        avatar = currentUser.photoURL;
+    }
+    
+    if (avatar && avatar.startsWith('data:image')) {
+        return `<img src="${avatar}" class="msg-avatar" style="width:${size}px; height:${size}px;" onclick="event.stopPropagation(); openUserInfoModal('${uid}')" title="${escapeHtml(name)}" loading="lazy">`;
+    } else {
+        return `<div class="msg-avatar-placeholder" style="width:${size}px; height:${size}px; font-size:${size/2}px;" onclick="event.stopPropagation(); openUserInfoModal('${uid}')" title="${escapeHtml(name)}">${name.charAt(0).toUpperCase()}</div>`;
+    }
+}
 
         // ===== AVATAR UPLOAD MODAL =====
         window.openAvatarUploadModal = () => {
@@ -2317,90 +2324,240 @@
             `;
         }
 
-        // ===== USER INFO MODAL =====
-        window.openUserInfoModal = async (uid) => {
-            if (!uid) return;
-            
-            const snap = await get(ref(db, `users/${uid}`));
-            if (!snap.exists()) {
-                showToast("Lỗi", "Không thể tải thông tin người dùng.", "error");
-                return;
+ // ===== USER INFO MODAL =====
+window.openUserInfoModal = async (uid) => {
+    if (!uid) return;
+    
+    try {
+        // Lấy thông tin user từ database
+        const snap = await get(ref(db, `users/${uid}`));
+        if (!snap.exists()) {
+            showToast("Lỗi", "Không thể tải thông tin người dùng.", "error");
+            return;
+        }
+        const targetData = snap.val();
+        
+        // ===== XỬ LÝ AVATAR =====
+        let avatar = getAvatarDataFromUser(targetData);
+        
+        // Nếu không có avatar trong DB, thử lấy từ social (cho current user)
+        if (!avatar && uid === currentUser?.uid && currentUser?.photoURL) {
+            try {
+                // Thử lấy ảnh từ social URL
+                const response = await fetch(currentUser.photoURL);
+                const blob = await response.blob();
+                const reader = new FileReader();
+                avatar = await new Promise((resolve) => {
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+                // Lưu vào database để dùng sau
+                if (avatar) {
+                    await update(ref(db, `users/${uid}`), { avatar: avatar });
+                }
+            } catch (e) {
+                console.warn('Không thể tải avatar từ social:', e);
+                avatar = null;
             }
-            const targetData = snap.val();
-            
-            const avatar = getAvatarDataFromUser(targetData);
-            if (avatar) {
-                document.getElementById('modalUserAvatar').src = avatar;
-                document.getElementById('modalUserAvatar').style.display = 'block';
-                document.getElementById('modalUserAvatarPlaceholder').style.display = 'none';
-            } else {
-                document.getElementById('modalUserAvatar').style.display = 'none';
-                const placeholder = document.getElementById('modalUserAvatarPlaceholder');
-                placeholder.textContent = (targetData.name || 'U').charAt(0).toUpperCase();
-                placeholder.style.display = 'flex';
-            }
-            
-            let nameHtml = escapeHtml(targetData.name || "Người dùng");
-            if (targetData.haveGreenTick === true) {
-                nameHtml += ` <i class="fas fa-check-circle verified-icon" style="color: #1da1f2; font-size: 16px;" title="Tài khoản đã được xác minh"></i>`;
-            }
-            document.getElementById('modalUserTxtName').innerHTML = nameHtml;
-            document.getElementById('modalUserTxtEmail').innerText = targetData.email || "";
-            
-            if (targetData.haveGreenTick === true) {
-                document.getElementById('modalUserVerifiedBadge').style.display = 'inline-flex';
-            } else {
-                document.getElementById('modalUserVerifiedBadge').style.display = 'none';
-            }
-            
-            let isHiddenInfo = false;
-            if (targetData.showGender !== false) {
-                document.getElementById('modalUserTxtGender').innerText = targetData.gender || "Chưa cập nhật";
-            } else {
-                document.getElementById('modalUserTxtGender').innerText = "••••••••"; isHiddenInfo = true;
-            }
-            if (targetData.showBirthday !== false) {
-                document.getElementById('modalUserTxtBirthday').innerText = targetData.birthday || "Chưa cập nhật";
-            } else {
-                document.getElementById('modalUserTxtBirthday').innerText = "••/••/••••"; isHiddenInfo = true;
-            }
-            document.getElementById('modalUserPrivacyAlert').style.display = isHiddenInfo ? 'block' : 'none';
-            
+        }
+        
+        // ===== HIỂN THỊ AVATAR =====
+        const modalAvatar = document.getElementById('modalUserAvatar');
+        const modalPlaceholder = document.getElementById('modalUserAvatarPlaceholder');
+        
+        if (avatar && (avatar.startsWith('data:image') || avatar.startsWith('http'))) {
+            modalAvatar.src = avatar;
+            modalAvatar.style.display = 'block';
+            modalPlaceholder.style.display = 'none';
+        } else {
+            modalAvatar.style.display = 'none';
+            const placeholder = document.getElementById('modalUserAvatarPlaceholder');
+            placeholder.textContent = (targetData.name || 'U').charAt(0).toUpperCase();
+            placeholder.style.display = 'flex';
+        }
+        
+        // ===== HIỂN THỊ TÊN =====
+        let nameHtml = escapeHtml(targetData.name || "Người dùng");
+        if (targetData.haveGreenTick === true) {
+            nameHtml += ` <i class="fas fa-check-circle verified-icon" style="color: #1da1f2; font-size: 16px;" title="Tài khoản đã được xác minh"></i>`;
+        }
+        document.getElementById('modalUserTxtName').innerHTML = nameHtml;
+        
+        // ===== HIỂN THỊ EMAIL =====
+        document.getElementById('modalUserTxtEmail').innerText = targetData.email || "";
+        
+        // ===== HIỂN THỊ BADGE XÁC MINH =====
+        if (targetData.haveGreenTick === true) {
+            document.getElementById('modalUserVerifiedBadge').style.display = 'inline-flex';
+        } else {
+            document.getElementById('modalUserVerifiedBadge').style.display = 'none';
+        }
+        
+        // ===== HIỂN THỊ GIỚI TÍNH VÀ NGÀY SINH =====
+        let isHiddenInfo = false;
+        if (targetData.showGender !== false) {
+            document.getElementById('modalUserTxtGender').innerText = targetData.gender || "Chưa cập nhật";
+        } else {
+            document.getElementById('modalUserTxtGender').innerText = "••••••••";
+            isHiddenInfo = true;
+        }
+        
+        if (targetData.showBirthday !== false) {
+            document.getElementById('modalUserTxtBirthday').innerText = targetData.birthday || "Chưa cập nhật";
+        } else {
+            document.getElementById('modalUserTxtBirthday').innerText = "••/••/••••";
+            isHiddenInfo = true;
+        }
+        document.getElementById('modalUserPrivacyAlert').style.display = isHiddenInfo ? 'block' : 'none';
+        
+        // ===== KIỂM TRA TRẠNG THÁI KẾT BẠN =====
+        let status = null;
+        let theirStatus = null;
+        let targetName = targetData.name || 'Người dùng';
+        
+        try {
             const statusSnap = await get(ref(db, `friend_status/${currentUser.uid}/${uid}`));
-            const currentStatus = statusSnap.val();
+            status = statusSnap.val();
             
-            let actionAreaHtml = "";
-            if (currentStatus === "accepted") {
-                actionAreaHtml += `<button class="btn btn-primary px-4" onclick="directMessageFromModal('${uid}','${targetData.name.replace(/'/g, "\\'")}')">Nhắn tin ngay</button>`;
+            const theirStatusSnap = await get(ref(db, `friend_status/${uid}/${currentUser.uid}`));
+            theirStatus = theirStatusSnap.val();
+        } catch (e) {
+            console.warn('Lỗi lấy trạng thái kết bạn:', e);
+        }
+        
+        // ===== TẠO CÁC NÚT HÀNH ĐỘNG =====
+        let actionAreaHtml = "";
+        
+        // Kiểm tra nếu là chính mình
+        if (uid === currentUser.uid) {
+            actionAreaHtml = `<button class="btn btn-secondary px-4" disabled>👤 Đây là bạn</button>`;
+        } 
+        // Kiểm tra bị chặn
+        else if (status === 'blocked' || theirStatus === 'blocked') {
+            if (status === 'blocked') {
+                actionAreaHtml = `<button class="btn btn-warning" onclick="updateStatus('${uid}','unblock')">🔓 Bỏ chặn</button>`;
             } else {
-                if (targetData.allowFriendRequest !== false) {
-                    if (currentStatus === "outgoing") {
-                        actionAreaHtml += `<button class="btn btn-secondary" disabled>Đang chờ chấp nhận</button>`;
-                    } else if (currentStatus === "incoming") {
-                        actionAreaHtml += `<button class="btn btn-success" onclick="updateStatus('${uid}','accepted'); closeModalObj();">Chấp nhận kết bạn</button>`;
-                    } else {
-                        actionAreaHtml += `<button class="btn btn-success" onclick="sendFriendRequestFromModal('${uid}')">Kết bạn</button>`;
+                actionAreaHtml = `<button class="btn btn-secondary" disabled>🚫 Đã bị chặn</button>`;
+            }
+        }
+        // Đã là bạn bè
+        else if (status === "accepted" && theirStatus === "accepted") {
+            actionAreaHtml = `
+                <button class="btn btn-primary px-4" onclick="directMessageFromModal('${uid}','${targetName.replace(/'/g, "\\'")}')">
+                    <i class="fas fa-comment"></i> Nhắn tin ngay
+                </button>
+                <button class="btn btn-outline-danger" onclick="updateStatus('${uid}','remove')">
+                    <i class="fas fa-user-minus"></i> Xóa bạn
+                </button>
+            `;
+        }
+        // Đã gửi lời mời kết bạn
+        else if (status === "outgoing") {
+            actionAreaHtml = `
+                <button class="btn btn-secondary" disabled>
+                    <i class="fas fa-clock"></i> Đang chờ chấp nhận
+                </button>
+                <button class="btn btn-danger" onclick="updateStatus('${uid}','cancel')">
+                    <i class="fas fa-times"></i> Hủy
+                </button>
+            `;
+        }
+        // Nhận được lời mời kết bạn
+        else if (status === "incoming") {
+            actionAreaHtml = `
+                <button class="btn btn-success" onclick="updateStatus('${uid}','accepted'); closeModalObj();">
+                    <i class="fas fa-check"></i> Chấp nhận kết bạn
+                </button>
+                <button class="btn btn-danger" onclick="updateStatus('${uid}','reject'); closeModalObj();">
+                    <i class="fas fa-times"></i> Từ chối
+                </button>
+            `;
+        }
+        // Người lạ (chưa có quan hệ)
+        else {
+            // Nút kết bạn (nếu cho phép)
+            if (targetData.allowFriendRequest !== false) {
+                actionAreaHtml += `
+                    <button class="btn btn-success" onclick="sendFriendRequestFromModal('${uid}')">
+                        <i class="fas fa-user-plus"></i> Kết bạn
+                    </button>
+                `;
+            }
+            
+            // Nút nhắn tin (nếu cho phép người lạ nhắn tin hoặc đã có tin nhắn trước đó)
+            let canChat = targetData.allowStrangerChat !== false;
+            
+            // Kiểm tra xem đã có tin nhắn trước đó chưa
+            if (!canChat) {
+                const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+                const msgSnap = await get(ref(db, `messages/${chatId}`));
+                if (msgSnap.exists()) {
+                    // Kiểm tra xem có tin nhắn hợp lệ không
+                    const clearSnap = await get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`));
+                    const clearTime = clearSnap.val() || 0;
+                    let hasValidMsg = false;
+                    msgSnap.forEach((m) => {
+                        const msg = m.val();
+                        if (msg.timestamp > clearTime && !(msg.deletedBy && msg.deletedBy[currentUser.uid])) {
+                            hasValidMsg = true;
+                        }
+                    });
+                    if (hasValidMsg) {
+                        canChat = true;
                     }
                 }
-                if (targetData.allowStrangerChat !== false) {
-                    actionAreaHtml += ` <button class="btn btn-outline-primary" onclick="directMessageFromModal('${uid}','${targetData.name.replace(/'/g, "\\'")}')">Nhắn tin ngay</button>`;
-                }
             }
             
-            document.getElementById('modalUserActionArea').innerHTML = actionAreaHtml;
+            if (canChat) {
+                actionAreaHtml += `
+                    <button class="btn btn-outline-primary" onclick="directMessageFromModal('${uid}','${targetName.replace(/'/g, "\\'")}')">
+                        <i class="fas fa-comment"></i> Nhắn tin ngay
+                    </button>
+                `;
+            }
             
-            closeAllModals();
-            const modalEl = document.getElementById('userInfoModal');
-            setTimeout(() => {
-                userInfoModalObj = new bootstrap.Modal(modalEl);
-                activeModalInstance = userInfoModalObj;
-                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
-                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
-                    activeModalInstance = null;
-                }, { once: true });
-                userInfoModalObj.show();
-            }, 150);
-        };
+            // Nút chặn
+            if (actionAreaHtml) {
+                actionAreaHtml += `
+                    <button class="btn btn-outline-danger" onclick="updateStatus('${uid}','blocked')">
+                        <i class="fas fa-ban"></i> Chặn
+                    </button>
+                `;
+            } else {
+                actionAreaHtml = `<button class="btn btn-secondary" disabled>Không thể tương tác</button>`;
+            }
+        }
+        
+        document.getElementById('modalUserActionArea').innerHTML = actionAreaHtml;
+        
+        // ===== MỞ MODAL =====
+        closeAllModals();
+        const modalEl = document.getElementById('userInfoModal');
+        setTimeout(() => {
+            userInfoModalObj = new bootstrap.Modal(modalEl);
+            activeModalInstance = userInfoModalObj;
+            modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                activeModalInstance = null;
+                userInfoModalObj = null;
+            }, { once: true });
+            userInfoModalObj.show();
+        }, 150);
+        
+    } catch (error) {
+        console.error('Lỗi mở modal thông tin user:', error);
+        showToast("Lỗi", "Không thể tải thông tin. Vui lòng thử lại.", "error");
+    }
+};
+
+// ===== HÀM ĐÓNG MODAL =====
+window.closeModalObj = () => { 
+    if(userInfoModalObj) {
+        userInfoModalObj.hide();
+        activeModalInstance = null;
+        userInfoModalObj = null;
+    }
+};
 
         // ===== CLOSE MODAL =====
         function closeAllModals() {
@@ -2474,48 +2631,67 @@
             return escapeHtml(name);
         }
 
-        // ===== AUTH STATE =====
-        onAuthStateChanged(auth, (user) => {
-            if (!user) { 
-                cleanupChatListeners(); 
-                cleanupGlobalListeners();
-                currentUser = null; 
-                window.location.href = "index.html"; 
-            } else {
-                currentUser = user;
-                onValue(ref(db, `users/${user.uid}`), (snap) => {
-                    const data = snap.val();
-                    if(data) {
-                        if(data.isLocked === true || data.isLocked === "true") { 
-                            signOut(auth); 
-                            return; 
-                        }
-                        
-                        const displayEmail = data.email || user.email || 'Chưa có email';
-                        document.getElementById('my-email').innerText = displayEmail;
-                        document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
-                        
-                        const avatar = getAvatarDataFromUser(data);
-                        updateAvatarUI(avatar);
-                        
-                        if (!avatar) {
-                            const placeholder = document.getElementById('my-avatar-placeholder');
-                            const name = data.name || 'Người dùng';
-                            placeholder.textContent = name.charAt(0).toUpperCase();
-                        }
-                        
-                        if (data.birthday && isUnderAge(data.birthday) && !ageWarningShown) {
-                            setTimeout(() => {
-                                showAgeWarning();
-                            }, 1000);
-                        }
-                        
-                        syncLists(); 
-                        setupOutsideClick();
-                    }
-                });
+// Thêm vào phần onAuthStateChanged trong chat.html
+onAuthStateChanged(auth, (user) => {
+    if (!user) { 
+        cleanupChatListeners(); 
+        cleanupGlobalListeners();
+        currentUser = null; 
+        window.location.href = "index.html"; 
+    } else {
+        currentUser = user;
+        onValue(ref(db, `users/${user.uid}`), (snap) => {
+            const data = snap.val();
+            if(data) {
+                if(data.isLocked === true || data.isLocked === "true") { 
+                    signOut(auth); 
+                    return; 
+                }
+                
+                const displayEmail = data.email || user.email || 'Chưa có email';
+                document.getElementById('my-email').innerText = displayEmail;
+                document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
+                
+                // Kiểm tra và cập nhật avatar
+                let avatar = getAvatarDataFromUser(data);
+                
+                // Nếu không có avatar trong DB nhưng user có photoURL từ social
+                if (!avatar && user.photoURL) {
+                    // Lưu avatar từ social vào DB
+                    fetch(user.photoURL)
+                        .then(res => res.blob())
+                        .then(blob => {
+                            const reader = new FileReader();
+                            reader.onload = async () => {
+                                const avatarData = reader.result;
+                                await update(ref(db, `users/${user.uid}`), { avatar: avatarData });
+                                updateAvatarUI(avatarData);
+                            };
+                            reader.readAsDataURL(blob);
+                        })
+                        .catch(e => console.warn('Không thể tải avatar từ social:', e));
+                }
+                
+                updateAvatarUI(avatar);
+                
+                if (!avatar) {
+                    const placeholder = document.getElementById('my-avatar-placeholder');
+                    const name = data.name || 'Người dùng';
+                    placeholder.textContent = name.charAt(0).toUpperCase();
+                }
+                
+                if (data.birthday && isUnderAge(data.birthday) && !ageWarningShown) {
+                    setTimeout(() => {
+                        showAgeWarning();
+                    }, 1000);
+                }
+                
+                syncLists(); 
+                setupOutsideClick();
             }
         });
+    }
+});
 
         // ===== SHOW CONFIRM =====
         window.showConfirm = (message, onOk) => {
@@ -2559,6 +2735,7 @@
             }, 150);
         };
 
+// Thêm vào phần showPrivacyModal để kiểm tra provider
 window.showPrivacyModal = async () => {
     const snap = await get(ref(db, `users/${currentUser.uid}`));
     if(snap.exists()){
@@ -2572,6 +2749,18 @@ window.showPrivacyModal = async () => {
         document.getElementById('privSwitchAllowSearch').checked = d.allowSearch !== false;
         document.getElementById('privSwitchAllowFriend').checked = d.allowFriendRequest !== false;
         document.getElementById('privSwitchAllowStrangerChat').checked = d.allowStrangerChat !== false;
+        
+        // Kiểm tra provider để ẩn/hiện input mật khẩu cũ
+        const providers = d.providers || [];
+        const hasPasswordProvider = providers.includes('password');
+        const oldPasswordGroup = document.getElementById('privOldPasswordGroup');
+        if (oldPasswordGroup) {
+            if (hasPasswordProvider) {
+                oldPasswordGroup.style.display = 'block';
+            } else {
+                oldPasswordGroup.style.display = 'none';
+            }
+        }
         
         // Reset password fields
         document.getElementById('privOldPassword').value = '';
@@ -2676,47 +2865,88 @@ window.showPrivacyModal = async () => {
         //     showToast("Thành công", "Đã cập nhật tên hiển thị.", "success");
         // };
 
-        // ===== CHANGE PASSWORD FROM PRIVACY =====
-        window.changePasswordFromPrivacy = async () => {
-            const oldPw = document.getElementById('privOldPassword').value;
-            const newPw = document.getElementById('privNewPassword').value;
-            const confPw = document.getElementById('privConfirmPassword').value;
+// ===== CHANGE PASSWORD FROM PRIVACY =====
+window.changePasswordFromPrivacy = async () => {
+    const newPw = document.getElementById('privNewPassword').value;
+    const confPw = document.getElementById('privConfirmPassword').value;
+    
+    if (!newPw || !confPw) {
+        showToast("Lỗi", "Vui lòng nhập đầy đủ mật khẩu mới và xác nhận.", "error");
+        return;
+    }
+    
+    // Kiểm tra độ mạnh mật khẩu mới
+    const strengthResult = checkPasswordStrength(newPw);
+    if (!strengthResult.isValid) {
+        showToast("Mật khẩu yếu", "Vui lòng tạo mật khẩu mạnh hơn với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.", "error");
+        return;
+    }
+    
+    if (newPw !== confPw) {
+        showToast("Lỗi", "Xác nhận mật khẩu mới không khớp.", "error");
+        return;
+    }
+    
+    if (newPw.length < 6) {
+        showToast("Lỗi", "Mật khẩu mới phải từ 6 ký tự trở lên.", "error");
+        return;
+    }
+    
+    // Kiểm tra user có provider là password hay không
+    const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+    let hasPasswordProvider = false;
+    if (userSnap.exists()) {
+        const userData = userSnap.val();
+        const providers = userData.providers || [];
+        hasPasswordProvider = providers.includes('password');
+    }
+    
+    if (hasPasswordProvider) {
+        // Nếu có provider password, yêu cầu nhập mật khẩu cũ
+        const oldPw = document.getElementById('privOldPassword').value;
+        if (!oldPw) {
+            showToast("Lỗi", "Vui lòng nhập mật khẩu cũ để xác thực.", "error");
+            document.getElementById('privOldPassword').focus();
+            return;
+        }
+        
+        try {
+            const credential = EmailAuthProvider.credential(currentUser.email, oldPw);
+            await reauthenticateWithCredential(auth.currentUser, credential);
+            await updatePassword(auth.currentUser, newPw);
             
-            if (!oldPw || !newPw || !confPw) {
-                showToast("Lỗi", "Vui lòng nhập đầy đủ các trường mật khẩu.", "error");
-                return;
+            document.getElementById('privOldPassword').value = '';
+            document.getElementById('privNewPassword').value = '';
+            document.getElementById('privConfirmPassword').value = '';
+            updatePasswordStrengthUI('', 'privStrengthFill', 'privStrengthLabel', 'priv');
+            showToast("Thành công", "Đã thay đổi mật khẩu thành công.", "success");
+        } catch (error) {
+            if (error.code === 'auth/wrong-password') {
+                showToast("Lỗi", "Mật khẩu cũ không chính xác. Vui lòng thử lại.", "error");
+            } else {
+                showToast("Lỗi", "Không thể đổi mật khẩu. Vui lòng thử lại.", "error");
             }
+        }
+    } else {
+        // Tài khoản social - chỉ cần nhập mật khẩu mới và xác nhận
+        try {
+            await updatePassword(auth.currentUser, newPw);
             
-            // Kiểm tra độ mạnh mật khẩu mới
-            const strengthResult = checkPasswordStrength(newPw);
-            if (!strengthResult.isValid) {
-                showToast("Mật khẩu yếu", "Vui lòng tạo mật khẩu mạnh hơn với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.", "error");
-                return;
-            }
+            // Cập nhật providers để thêm 'password'
+            await update(ref(db, `users/${currentUser.uid}`), {
+                providers: ['password']
+            });
             
-            if (newPw !== confPw) {
-                showToast("Lỗi", "Xác nhận mật khẩu mới không khớp.", "error");
-                return;
-            }
-            
-            if (newPw.length < 6) {
-                showToast("Lỗi", "Mật khẩu mới phải từ 6 ký tự trở lên.", "error");
-                return;
-            }
-            
-            try {
-                const credential = EmailAuthProvider.credential(currentUser.email, oldPw);
-                await reauthenticateWithCredential(auth.currentUser, credential);
-                await updatePassword(auth.currentUser, newPw);
-                document.getElementById('privOldPassword').value = '';
-                document.getElementById('privNewPassword').value = '';
-                document.getElementById('privConfirmPassword').value = '';
-                updatePasswordStrengthUI('', 'privStrengthFill', 'privStrengthLabel', 'priv');
-                showToast("Thành công", "Đã thay đổi mật khẩu thành công.", "success");
-            } catch (error) {
-                showToast("Lỗi", "Mật khẩu cũ không chính xác hoặc có lỗi xảy ra.", "error");
-            }
-        };
+            document.getElementById('privNewPassword').value = '';
+            document.getElementById('privConfirmPassword').value = '';
+            updatePasswordStrengthUI('', 'privStrengthFill', 'privStrengthLabel', 'priv');
+            showToast("Thành công", "Đã thêm mật khẩu và đổi mật khẩu thành công!", "success");
+        } catch (error) {
+            console.error('Lỗi đổi mật khẩu social:', error);
+            showToast("Lỗi", "Không thể đổi mật khẩu. Vui lòng thử lại.", "error");
+        }
+    }
+};
 
 window.savePrivacySettings = async () => {
     const newBirthday = document.getElementById('privInputBirthday').value;
@@ -4179,6 +4409,33 @@ window.showPrivacyModal = async () => {
         checkActivationStatus();
     }, 300);
 };
+
+// Thêm vào đầu file chat.html, sau khi import firebase
+async function saveSocialAvatar(user) {
+    if (!user || !user.photoURL) return null;
+    
+    try {
+        // Kiểm tra xem đã có avatar trong DB chưa
+        const snap = await get(ref(db, `users/${user.uid}/avatar`));
+        if (snap.exists()) return snap.val();
+        
+        // Tải ảnh từ social
+        const response = await fetch(user.photoURL);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        const avatarData = await new Promise((resolve) => {
+            reader.onload = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+        
+        // Lưu vào DB
+        await update(ref(db, `users/${user.uid}`), { avatar: avatarData });
+        return avatarData;
+    } catch (e) {
+        console.warn('Không thể lưu avatar từ social:', e);
+        return null;
+    }
+}
     </script>
     <script>
 // ===== HÀM MỞ MODAL TỐI ƯU CHO CẢ DESKTOP VÀ MOBILE =====
