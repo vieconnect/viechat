@@ -385,13 +385,6 @@
         .social-btn.google-btn:hover {
             background: #fef0ee;
         }
-        .social-btn.facebook-btn {
-            color: #1877f2;
-            border-color: #1877f2;
-        }
-        .social-btn.facebook-btn:hover {
-            background: #eef3fc;
-        }
         .social-btn i {
             font-size: 20px;
         }
@@ -1068,13 +1061,10 @@
                         <span class="line"></span>
                     </div>
 
-                    <!-- SOCIAL BUTTONS -->
+                    <!-- SOCIAL BUTTONS - CHỈ GIỮ GOOGLE -->
                     <div class="social-buttons">
                         <button class="social-btn google-btn" id="googleLoginBtn" onclick="handleGoogleLogin()">
                             <i class="fab fa-google"></i> Google
-                        </button>
-                        <button class="social-btn facebook-btn" id="facebookLoginBtn" onclick="handleFacebookLogin()">
-                            <i class="fab fa-facebook-f"></i> Facebook
                         </button>
                     </div>
                 </div>
@@ -1337,7 +1327,8 @@
     </script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        // BỎ IMPORT FacebookAuthProvider
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, signInWithPopup, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, query, orderByChild, equalTo, get, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -1429,7 +1420,7 @@
 
             // Điền sẵn email nhưng KHÔNG DISABLE để người dùng có thể chỉnh sửa
             document.getElementById('complete-email').value = user.email || '';
-            document.getElementById('complete-email').disabled = false; // <-- CHO PHÉP CHỈNH SỬA
+            document.getElementById('complete-email').disabled = false;
             document.getElementById('complete-name').value = displayName;
 
             // Chuyển đến form hoàn thiện
@@ -1527,7 +1518,6 @@
                 let avatarData = null;
                 if (pendingSocialUser.photoURL) {
                     try {
-                        // Tải ảnh từ URL và chuyển thành base64
                         const response = await fetch(pendingSocialUser.photoURL);
                         const blob = await response.blob();
                         const reader = new FileReader();
@@ -1561,7 +1551,6 @@
                     }
                 };
 
-                // Thêm avatar nếu có
                 if (avatarData) {
                     userData.avatar = avatarData;
                 }
@@ -1585,19 +1574,16 @@
             }
         };
 
-        // ===== SOCIAL LOGIN =====
+        // ===== SOCIAL LOGIN - CHỈ GIỮ GOOGLE =====
         window.handleGoogleLogin = async () => {
             const provider = new GoogleAuthProvider();
             await handleSocialLogin(provider, 'google');
         };
 
-        window.handleFacebookLogin = async () => {
-            const provider = new FacebookAuthProvider();
-            await handleSocialLogin(provider, 'facebook');
-        };
+        // XÓA HÀM handleFacebookLogin
 
         async function handleSocialLogin(provider, providerName) {
-            const btn = document.getElementById(providerName === 'google' ? 'googleLoginBtn' : 'facebookLoginBtn');
+            const btn = document.getElementById('googleLoginBtn');
             btn.disabled = true;
             showLoading('Đang đăng nhập với ' + providerName + '...');
 
@@ -1605,15 +1591,12 @@
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
                 
-                // Kiểm tra user đã tồn tại trong DB chưa
                 const snap = await get(ref(db, `users/${user.uid}`));
                 
                 if (!snap.exists()) {
-                    // Chưa có tài khoản -> yêu cầu hoàn thiện thông tin
                     hideLoading();
                     btn.disabled = false;
                     showCompleteProfile(user, providerName);
-                    // Đóng loading và chuyển sang form hoàn thiện
                     return;
                 }
 
@@ -1627,7 +1610,6 @@
                     return;
                 }
 
-                // Đã có tài khoản và không bị khóa
                 hideLoading();
                 btn.disabled = false;
                 showToast('Thành công', 'Đăng nhập thành công!', 'success');
@@ -1642,8 +1624,6 @@
                 
                 if (error.code === 'auth/popup-closed-by-user') {
                     showToast('Thông báo', 'Bạn đã đóng cửa sổ đăng nhập.', 'warning');
-                } else if (error.code === 'auth/account-exists-with-different-credential') {
-                    showToast('Lỗi', 'Email này đã được đăng ký với phương thức khác. Vui lòng đăng nhập bằng email và mật khẩu.', 'error');
                 } else {
                     showToast('Lỗi', 'Không thể đăng nhập bằng ' + providerName + '. Vui lòng thử lại.', 'error');
                 }
@@ -1702,7 +1682,6 @@
             
             document.getElementById('emailInput').value = '';
             
-            // Reset complete profile form
             document.getElementById('complete-name').value = '';
             document.getElementById('complete-email').value = '';
             document.getElementById('complete-email').disabled = false;
@@ -2286,7 +2265,6 @@
             if (e.key === 'Enter') handleSignup();
         });
 
-        // Complete profile keypress
         document.getElementById('complete-name').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('complete-email').focus();
@@ -2328,10 +2306,6 @@
                 try {
                     const snap = await get(ref(db, `users/${user.uid}`));
                     if (!snap.exists()) {
-                        // Nếu user đã đăng nhập nhưng chưa có trong DB (có thể từ social login),
-                        // nhưng chúng ta đã xử lý ở handleSocialLogin rồi
-                        // Trường hợp này là user đăng nhập bằng social nhưng chưa hoàn thiện
-                        // Chúng ta sẽ không tự động chuyển hướng mà để form hiện tại xử lý
                         return;
                     }
 
