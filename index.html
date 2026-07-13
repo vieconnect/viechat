@@ -459,6 +459,70 @@
             background: rgba(26, 115, 232, 0.08);
         }
 
+        /* ===== CHOOSE METHOD ===== */
+        .choose-method {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 8px 0 4px;
+        }
+        .method-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text);
+            width: 100%;
+        }
+        .method-btn:hover {
+            border-color: var(--primary);
+            background: #f8f9fa;
+        }
+        .method-btn:active {
+            transform: scale(0.98);
+        }
+        .method-btn .method-icon {
+            font-size: 24px;
+            width: 36px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .method-btn .method-icon.email-icon {
+            color: var(--primary);
+        }
+        .method-btn .method-icon.google-icon {
+            color: #ea4335;
+        }
+        .method-btn .method-label {
+            flex: 1;
+            text-align: left;
+        }
+        .method-btn .method-label .method-name {
+            display: block;
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .method-btn .method-label .method-desc {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--gray);
+            display: block;
+            margin-top: 2px;
+        }
+        .method-btn .method-arrow {
+            color: #bbb;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
         /* ===== USER INFO ===== */
         .user-info-wrapper {
             text-align: center;
@@ -788,6 +852,21 @@
                 font-size: 10px;
                 width: 14px;
             }
+            .method-btn {
+                padding: 12px 14px;
+                font-size: 14px;
+                gap: 12px;
+            }
+            .method-btn .method-icon {
+                font-size: 20px;
+                width: 32px;
+            }
+            .method-btn .method-label .method-name {
+                font-size: 14px;
+            }
+            .method-btn .method-label .method-desc {
+                font-size: 11px;
+            }
             .social-buttons {
                 flex-direction: column;
                 gap: 8px;
@@ -943,6 +1022,21 @@
                 background-position: right 6px center;
                 background-size: 10px;
             }
+            .method-btn {
+                padding: 10px 12px;
+                font-size: 13px;
+                gap: 10px;
+            }
+            .method-btn .method-icon {
+                font-size: 18px;
+                width: 28px;
+            }
+            .method-btn .method-label .method-name {
+                font-size: 13px;
+            }
+            .method-btn .method-label .method-desc {
+                font-size: 10px;
+            }
             .social-btn {
                 padding: 6px 10px;
                 font-size: 12px;
@@ -1038,8 +1132,40 @@
 
             <!-- FORM CONTAINER -->
             <div class="form-container" id="formContainer">
-                <!-- STEP 1: NHẬP EMAIL (ĐĂNG NHẬP) -->
-                <div id="step-email" class="form-panel active">
+                <!-- ===== CHỌN PHƯƠNG THỨC ĐĂNG NHẬP ===== -->
+                <div id="choose-method" class="form-panel active">
+                    <div class="form-title">Chọn phương thức đăng nhập</div>
+                    <div class="form-sub">Chọn cách bạn muốn đăng nhập vào VieChat</div>
+
+                    <div class="choose-method">
+                        <!-- Email -->
+                        <button class="method-btn" onclick="showEmailLogin()">
+                            <span class="method-icon email-icon">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <span class="method-label">
+                                <span class="method-name">Email</span>
+                                <span class="method-desc">Đăng nhập bằng email và mật khẩu</span>
+                            </span>
+                            <span class="method-arrow"><i class="fas fa-chevron-right"></i></span>
+                        </button>
+
+                        <!-- Google -->
+                        <button class="method-btn" onclick="handleGoogleLogin()">
+                            <span class="method-icon google-icon">
+                                <i class="fab fa-google"></i>
+                            </span>
+                            <span class="method-label">
+                                <span class="method-name">Google</span>
+                                <span class="method-desc">Đăng nhập nhanh bằng tài khoản Google</span>
+                            </span>
+                            <span class="method-arrow"><i class="fas fa-chevron-right"></i></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ===== FORM NHẬP EMAIL (ĐĂNG NHẬP) ===== -->
+                <div id="step-email" class="form-panel">
                     <div class="form-title">Đăng nhập</div>
                     <div class="form-sub">Sử dụng Tài khoản VieChat của bạn</div>
 
@@ -1048,28 +1174,16 @@
                     </div>
 
                     <div class="btn-group-bottom">
-                        <div></div>
+                        <button class="btn-back" onclick="goBackToMethod()" style="border-radius: 100px;">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </button>
                         <button class="btn-next" id="btnEmailNext" onclick="handleEmailStep()" style="border-radius: 100px;">
                             Tiếp theo
                         </button>
                     </div>
-
-                    <!-- SOCIAL DIVIDER -->
-                    <div class="social-divider">
-                        <span class="line"></span>
-                        <span class="text">Hoặc đăng nhập với</span>
-                        <span class="line"></span>
-                    </div>
-
-                    <!-- SOCIAL BUTTONS - CHỈ GIỮ GOOGLE -->
-                    <div class="social-buttons">
-                        <button class="social-btn google-btn" id="googleLoginBtn" onclick="handleGoogleLogin()">
-                            <i class="fab fa-google"></i> Google
-                        </button>
-                    </div>
                 </div>
 
-                <!-- STEP 2: NHẬP MẬT KHẨU -->
+                <!-- ===== FORM NHẬP MẬT KHẨU ===== -->
                 <div id="step-password" class="form-panel">
                     <div class="user-info-wrapper" id="userInfoWrapper">
                         <div class="user-avatar" id="userAvatar">T</div>
@@ -1100,7 +1214,7 @@
                     </div>
                 </div>
 
-                <!-- FORM TÀI KHOẢN BỊ KHÓA -->
+                <!-- ===== FORM TÀI KHOẢN BỊ KHÓA ===== -->
                 <div id="lock-form" class="form-panel">
                     <div class="lock-icon-warning">
                         <i class="fas fa-exclamation-triangle"></i>
@@ -1116,7 +1230,7 @@
 
                     <div class="btn-group-bottom">
                         <div class="lock-support-text">
-                            <a href="https://viechat.tawk.help/article/dang-nhap-bi-han-che" class="btn-back" style="color:var(--primary); text-decoration:none; border-radius: 100px;" target="_blank" rel="noopener noreferrer">Tìm hiểu thêm</a>
+                            <a href="https://viechat.tawk.help/article/dang-nhap-bi-han-che" target="_blank" rel="noopener noreferrer">Tìm hiểu thêm</a>
                         </div>
                         <button class="btn-next" onclick="resetToLoginForm()" style="border-radius: 100px; background: #c62828;">
                             Đã hiểu
@@ -1124,7 +1238,7 @@
                     </div>
                 </div>
 
-                <!-- FORM HOÀN THIỆN THÔNG TIN (CHO SOCIAL LOGIN) -->
+                <!-- ===== FORM HOÀN THIỆN THÔNG TIN (CHO SOCIAL LOGIN) ===== -->
                 <div id="complete-profile-form" class="form-panel profile-complete-form">
                     <div class="form-title">Hoàn thiện thông tin</div>
                     <div class="form-sub">Vui lòng cung cấp thêm thông tin để hoàn tất đăng ký</div>
@@ -1171,7 +1285,7 @@
                     </div>
                 </div>
 
-                <!-- FORM ĐĂNG KÝ -->
+                <!-- ===== FORM ĐĂNG KÝ ===== -->
                 <div id="signup-form" class="form-panel">
                     <div class="form-title">Tạo tài khoản</div>
                     <div class="form-sub">Đăng ký tài khoản VieChat</div>
@@ -1260,7 +1374,7 @@
                     </div>
                 </div>
 
-                <!-- FORM QUÊN MẬT KHẨU -->
+                <!-- ===== FORM QUÊN MẬT KHẨU ===== -->
                 <div id="forgot-form" class="form-panel">
                     <div class="form-title">Quên mật khẩu</div>
                     <div class="form-sub">Nhập email để nhận liên kết đặt lại mật khẩu</div>
@@ -1311,7 +1425,8 @@
                         <p><i class="fas fa-building me-2"></i>Nhà phát hành: VieConnect Technology</p>
                         <p><i class="fas fa-calendar-alt me-2"></i>Ngày phát hành: 18/06/2026</p>
                         <p><i class="fas fa-shield-alt me-2"></i>Bảo mật: Mã hóa đầu cuối</p>
-                        <p><i class="fas fa-history me-2"></i>Nhật ký cập nhật: <a href="https://www.facebook.com/profile.php?id=61591956807915" target="_blank">Bấm vào đây</a></span>
+                        <p><i class="fas fa-history me-2"></i>Nhật ký cập nhật: <a href="https://www.facebook.com/profile.php?id=61591956807915" target="_blank">Bấm vào đây</a></p>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Đóng</button>
@@ -1327,7 +1442,6 @@
     </script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        // BỎ IMPORT FacebookAuthProvider
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail, signOut, GoogleAuthProvider, signInWithPopup, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, query, orderByChild, equalTo, get, set, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
@@ -1345,7 +1459,7 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let currentForm = 'login';
+        let currentForm = 'choose';
         let currentTab = 'login';
         let isTransitioning = false;
         let foundUserData = null;
@@ -1405,12 +1519,10 @@
             pendingSocialUser = user;
             pendingSocialProvider = providerName;
 
-            // Hiển thị avatar và thông tin từ social
             const avatarText = document.getElementById('socialAvatarText');
             const displayName = user.displayName || user.email?.split('@')[0] || 'Người dùng';
             avatarText.textContent = displayName.charAt(0).toUpperCase();
 
-            // Nếu có ảnh đại diện từ social
             const avatarContainer = document.getElementById('socialAvatar');
             if (user.photoURL) {
                 avatarContainer.innerHTML = `<img src="${user.photoURL}" alt="Avatar" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
@@ -1418,17 +1530,14 @@
                 avatarContainer.innerHTML = `<span id="socialAvatarText">${displayName.charAt(0).toUpperCase()}</span>`;
             }
 
-            // Điền sẵn email nhưng KHÔNG DISABLE để người dùng có thể chỉnh sửa
             document.getElementById('complete-email').value = user.email || '';
             document.getElementById('complete-email').disabled = false;
             document.getElementById('complete-name').value = displayName;
 
-            // Chuyển đến form hoàn thiện
             switchFormDirect('complete');
         }
 
         window.handleCompleteProfileBack = () => {
-            // Quay lại login, hủy đăng nhập social
             if (pendingSocialUser) {
                 signOut(auth);
                 pendingSocialUser = null;
@@ -1490,7 +1599,6 @@
             try {
                 const uid = pendingSocialUser.uid;
 
-                // Kiểm tra email đã tồn tại chưa (để tránh trùng lặp)
                 const usersRef = ref(db, 'users');
                 const q = query(usersRef, orderByChild('email'), equalTo(email.toLowerCase()));
                 const snap = await get(q);
@@ -1514,7 +1622,6 @@
                     return;
                 }
 
-                // Lấy ảnh đại diện từ social (nếu có)
                 let avatarData = null;
                 if (pendingSocialUser.photoURL) {
                     try {
@@ -1530,7 +1637,29 @@
                     }
                 }
 
-                // Lưu dữ liệu vào database
+                function generateUserId() {
+                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                    let id = '';
+                    for (let i = 0; i < 8; i++) {
+                        id += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+                    return id;
+                }
+
+                let userId = generateUserId();
+                let isDuplicate = true;
+                let attempts = 0;
+                
+                while (isDuplicate && attempts < 20) {
+                    const checkSnap = await get(ref(db, `users_by_id/${userId}`));
+                    if (!checkSnap.exists()) {
+                        isDuplicate = false;
+                    } else {
+                        userId = generateUserId();
+                        attempts++;
+                    }
+                }
+
                 const userData = {
                     email: email.toLowerCase(),
                     name: name,
@@ -1540,9 +1669,12 @@
                     showBirthday: true,
                     allowStrangerChat: true,
                     allowFriendRequest: true,
+                    allowSearch: true,
+                    allowLinkSearch: true,
                     isLocked: false,
                     haveGreenTick: false,
                     providers: [pendingSocialProvider],
+                    userId: userId,
                     lockInfo: {
                         id: "---",
                         reason: "---",
@@ -1556,6 +1688,7 @@
                 }
 
                 await set(ref(db, `users/${uid}`), userData);
+                await set(ref(db, `users_by_id/${userId}`), uid);
 
                 hideLoading();
                 showToast('Thành công', 'Hoàn tất đăng ký tài khoản thành công!', 'success');
@@ -1574,18 +1707,10 @@
             }
         };
 
-        // ===== SOCIAL LOGIN - CHỈ GIỮ GOOGLE =====
+        // ===== SOCIAL LOGIN - GOOGLE =====
         window.handleGoogleLogin = async () => {
             const provider = new GoogleAuthProvider();
-            await handleSocialLogin(provider, 'google');
-        };
-
-        // XÓA HÀM handleFacebookLogin
-
-        async function handleSocialLogin(provider, providerName) {
-            const btn = document.getElementById('googleLoginBtn');
-            btn.disabled = true;
-            showLoading('Đang đăng nhập với ' + providerName + '...');
+            showLoading('Đang đăng nhập với Google...');
 
             try {
                 const result = await signInWithPopup(auth, provider);
@@ -1595,8 +1720,7 @@
                 
                 if (!snap.exists()) {
                     hideLoading();
-                    btn.disabled = false;
-                    showCompleteProfile(user, providerName);
+                    showCompleteProfile(user, 'google');
                     return;
                 }
 
@@ -1606,29 +1730,26 @@
                     hideLoading();
                     const lockInfo = userData.lockInfo || { id: '---', reason: '---', start: '---', end: '---' };
                     showLockForm(lockInfo);
-                    btn.disabled = false;
                     return;
                 }
 
                 hideLoading();
-                btn.disabled = false;
                 showToast('Thành công', 'Đăng nhập thành công!', 'success');
                 setTimeout(() => {
                     window.location.href = "chat.html";
                 }, 500);
                 
             } catch (error) {
-                console.error('Lỗi đăng nhập ' + providerName + ':', error);
+                console.error('Lỗi đăng nhập Google:', error);
                 hideLoading();
-                btn.disabled = false;
                 
                 if (error.code === 'auth/popup-closed-by-user') {
                     showToast('Thông báo', 'Bạn đã đóng cửa sổ đăng nhập.', 'warning');
                 } else {
-                    showToast('Lỗi', 'Không thể đăng nhập bằng ' + providerName + '. Vui lòng thử lại.', 'error');
+                    showToast('Lỗi', 'Không thể đăng nhập bằng Google. Vui lòng thử lại.', 'error');
                 }
             }
-        }
+        };
 
         // ===== SWITCH TAB =====
         window.switchTab = (tab) => {
@@ -1642,7 +1763,11 @@
             currentTab = tab;
 
             if (tab === 'login') {
-                resetToLoginForm();
+                switchFormDirect('choose');
+                document.getElementById('emailInput').value = '';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('resetEmailInput').value = '';
+                document.getElementById('userInfoWrapper').classList.remove('visible');
             } else if (tab === 'signup') {
                 switchFormDirect('signup');
                 document.getElementById('signup-name').value = '';
@@ -1657,6 +1782,44 @@
                     el.className = 'req-item unmet';
                     el.querySelector('.req-icon').innerHTML = '<i class="fas fa-circle"></i>';
                 });
+            }
+        };
+
+        // ===== HIỂN THỊ FORM EMAIL LOGIN =====
+        window.showEmailLogin = () => {
+            switchFormDirect('login');
+            setTimeout(() => {
+                document.getElementById('emailInput').focus();
+            }, 300);
+        };
+
+        // ===== QUAY LẠI MÀN HÌNH CHỌN PHƯƠNG THỨC =====
+        window.goBackToMethod = () => {
+            document.getElementById('emailInput').value = '';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('userInfoWrapper').classList.remove('visible');
+            foundUserData = null;
+            foundUserUid = null;
+            switchFormDirect('choose');
+        };
+
+        // ===== GO BACK TO EMAIL =====
+        window.goBackToEmail = () => {
+            if (currentForm === 'forgot') {
+                document.getElementById('resetEmailInput').value = '';
+                switchFormDirect('login');
+                setTimeout(() => {
+                    document.getElementById('emailInput').focus();
+                }, 300);
+            } else {
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('userInfoWrapper').classList.remove('visible');
+                foundUserData = null;
+                foundUserUid = null;
+                switchFormDirect('login');
+                setTimeout(() => {
+                    document.getElementById('emailInput').focus();
+                }, 300);
             }
         };
 
@@ -1687,7 +1850,7 @@
             document.getElementById('complete-email').disabled = false;
             document.getElementById('complete-terms').checked = false;
             
-            switchFormDirect('login');
+            switchFormDirect('choose');
             
             setTimeout(() => {
                 const emailInput = document.getElementById('emailInput');
@@ -1746,6 +1909,7 @@
         // ===== SWITCH FORM TRỰC TIẾP =====
         function switchFormDirect(target) {
             const formMap = {
+                'choose': 'choose-method',
                 'login': 'step-email',
                 'password': 'step-password',
                 'signup': 'signup-form',
@@ -1784,66 +1948,6 @@
                 scrollable.scrollTop = 0;
             }
         }
-
-        // ===== SWITCH FORM CÓ HIỆU ỨNG =====
-        window.switchForm = (target) => {
-            if (isTransitioning) return;
-
-            const overlay = document.getElementById('formLoadingOverlay');
-            if (overlay.classList.contains('show')) return;
-
-            if (target === 'login' && currentForm === 'password') {
-                resetToLoginForm();
-                return;
-            }
-
-            const formMap = {
-                'login': 'step-email',
-                'password': 'step-password',
-                'signup': 'signup-form',
-                'forgot': 'forgot-form',
-                'lock': 'lock-form',
-                'complete': 'complete-profile-form'
-            };
-
-            const targetId = formMap[target];
-            const currentId = formMap[currentForm];
-
-            if (!targetId || targetId === currentId) return;
-
-            isTransitioning = true;
-
-            const currentPanel = document.getElementById(currentId);
-            const targetPanel = document.getElementById(targetId);
-
-            if (currentPanel) {
-                currentPanel.classList.add('slide-out');
-                setTimeout(() => {
-                    currentPanel.classList.remove('active', 'slide-out');
-                    currentPanel.style.display = 'none';
-                }, 300);
-            }
-
-            setTimeout(() => {
-                if (targetPanel) {
-                    targetPanel.style.display = 'block';
-                    void targetPanel.offsetWidth;
-                    targetPanel.classList.add('active');
-                }
-                currentForm = target;
-                isTransitioning = false;
-
-                const firstInput = targetPanel ? targetPanel.querySelector('input:not([type="hidden"])') : null;
-                if (firstInput) {
-                    setTimeout(() => firstInput.focus(), 100);
-                }
-
-                const scrollable = document.getElementById('authScrollable');
-                if (scrollable) {
-                    scrollable.scrollTop = 0;
-                }
-            }, 350);
-        };
 
         // ===== STEP 1: HANDLE EMAIL =====
         window.handleEmailStep = async () => {
@@ -1937,15 +2041,6 @@
             
             if (wrapper) wrapper.classList.add('visible');
         }
-
-        // ===== GO BACK TO EMAIL =====
-        window.goBackToEmail = () => {
-            if (currentForm === 'forgot') {
-                resetToLoginForm();
-            } else {
-                resetToLoginForm();
-            }
-        };
 
         // ===== STEP 2: HANDLE PASSWORD =====
         window.handlePasswordStep = async () => {
@@ -2105,123 +2200,121 @@
         }
 
         // ===== HANDLE SIGNUP =====
-window.handleSignup = async () => {
-    const name = document.getElementById('signup-name').value.trim();
-    const email = document.getElementById('signup-email').value.trim();
-    const password = document.getElementById('signup-password').value;
-    const confirm = document.getElementById('signup-confirm').value;
-    const gender = document.getElementById('signup-gender').value;
-    const birthday = document.getElementById('signup-birthday').value;
+        window.handleSignup = async () => {
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+            const gender = document.getElementById('signup-gender').value;
+            const birthday = document.getElementById('signup-birthday').value;
 
-    if (!name || !email || !password || !confirm) {
-        showToast('Thông báo', 'Vui lòng điền đầy đủ thông tin.', 'warning');
-        return;
-    }
-
-    if (!email.includes('@') || !email.includes('.')) {
-        showToast('Lỗi', 'Email không hợp lệ.', 'error');
-        return;
-    }
-
-    if (!birthday) {
-        showToast('Thông báo', 'Vui lòng chọn ngày sinh.', 'warning');
-        document.getElementById('signup-birthday').focus();
-        return;
-    }
-
-    const age = checkAge(birthday);
-    if (age < 12) {
-        showToast('Yêu cầu độ tuổi', 'Bạn cần phải trên 12 tuổi để sử dụng dịch vụ.', 'error');
-        document.getElementById('signup-birthday').focus();
-        return;
-    }
-
-    const strengthResult = checkPasswordStrength(password);
-    if (!strengthResult.isValid) {
-        showToast('Mật khẩu yếu', 'Vui lòng tạo mật khẩu mạnh hơn với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.',
-            'error');
-        return;
-    }
-
-    if (password !== confirm) {
-        showToast('Lỗi', 'Mật khẩu xác nhận không khớp.', 'error');
-        return;
-    }
-
-    if (!document.getElementById('terms-checkbox').checked) {
-        showToast('Thông báo', 'Vui lòng đồng ý với Điều khoản sử dụng.', 'warning');
-        return;
-    }
-
-    showLoading('Đang tạo tài khoản...');
-
-    try {
-        isSigningUp = true;
-        const res = await createUserWithEmailAndPassword(auth, email, password);
-
-        // ===== TẠO USER ID =====
-        function generateUserId() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let id = '';
-            for (let i = 0; i < 8; i++) {
-                id += chars.charAt(Math.floor(Math.random() * chars.length));
+            if (!name || !email || !password || !confirm) {
+                showToast('Thông báo', 'Vui lòng điền đầy đủ thông tin.', 'warning');
+                return;
             }
-            return id;
-        }
 
-        let userId = generateUserId();
-        let isDuplicate = true;
-        let attempts = 0;
-        
-        while (isDuplicate && attempts < 20) {
-            const checkSnap = await get(ref(db, `users_by_id/${userId}`));
-            if (!checkSnap.exists()) {
-                isDuplicate = false;
-            } else {
-                userId = generateUserId();
-                attempts++;
+            if (!email.includes('@') || !email.includes('.')) {
+                showToast('Lỗi', 'Email không hợp lệ.', 'error');
+                return;
             }
-        }
 
-        await set(ref(db, `users/${res.user.uid}`), {
-            email: email.toLowerCase(),
-            name: name,
-            gender: gender || 'Nam',
-            birthday: birthday || '2000-01-01',
-            showGender: true,
-            showBirthday: true,
-            allowStrangerChat: true,
-            allowFriendRequest: true,
-            allowSearch: true,
-            allowLinkSearch: true,
-            isLocked: false,
-            haveGreenTick: false,
-            providers: ['password'],
-            userId: userId,  // <-- THÊM DÒNG NÀY
-            lockInfo: {
-                id: "---",
-                reason: "---",
-                start: "---",
-                end: "---",
+            if (!birthday) {
+                showToast('Thông báo', 'Vui lòng chọn ngày sinh.', 'warning');
+                document.getElementById('signup-birthday').focus();
+                return;
             }
-        });
 
-        // Lưu vào bảng tra cứu
-        await set(ref(db, `users_by_id/${userId}`), res.user.uid);
+            const age = checkAge(birthday);
+            if (age < 12) {
+                showToast('Yêu cầu độ tuổi', 'Bạn cần phải trên 12 tuổi để sử dụng dịch vụ.', 'error');
+                document.getElementById('signup-birthday').focus();
+                return;
+            }
 
-        isSigningUp = false;
-        hideLoading();
-        showToast('Thành công', 'Đăng ký tài khoản thành công!', 'success');
-        setTimeout(() => {
-            window.location.href = "chat.html";
-        }, 1000);
-    } catch (error) {
-        isSigningUp = false;
-        hideLoading();
-        console.error('Lỗi đăng ký:', error);
-        showToast('Lỗi', getFirebaseErrorMessage(error.code), 'error');
-    }
-};
+            const strengthResult = checkPasswordStrength(password);
+            if (!strengthResult.isValid) {
+                showToast('Mật khẩu yếu', 'Vui lòng tạo mật khẩu mạnh hơn với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.',
+                    'error');
+                return;
+            }
+
+            if (password !== confirm) {
+                showToast('Lỗi', 'Mật khẩu xác nhận không khớp.', 'error');
+                return;
+            }
+
+            if (!document.getElementById('terms-checkbox').checked) {
+                showToast('Thông báo', 'Vui lòng đồng ý với Điều khoản sử dụng.', 'warning');
+                return;
+            }
+
+            showLoading('Đang tạo tài khoản...');
+
+            try {
+                isSigningUp = true;
+                const res = await createUserWithEmailAndPassword(auth, email, password);
+
+                function generateUserId() {
+                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                    let id = '';
+                    for (let i = 0; i < 8; i++) {
+                        id += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+                    return id;
+                }
+
+                let userId = generateUserId();
+                let isDuplicate = true;
+                let attempts = 0;
+                
+                while (isDuplicate && attempts < 20) {
+                    const checkSnap = await get(ref(db, `users_by_id/${userId}`));
+                    if (!checkSnap.exists()) {
+                        isDuplicate = false;
+                    } else {
+                        userId = generateUserId();
+                        attempts++;
+                    }
+                }
+
+                await set(ref(db, `users/${res.user.uid}`), {
+                    email: email.toLowerCase(),
+                    name: name,
+                    gender: gender || 'Nam',
+                    birthday: birthday || '2000-01-01',
+                    showGender: true,
+                    showBirthday: true,
+                    allowStrangerChat: true,
+                    allowFriendRequest: true,
+                    allowSearch: true,
+                    allowLinkSearch: true,
+                    isLocked: false,
+                    haveGreenTick: false,
+                    providers: ['password'],
+                    userId: userId,
+                    lockInfo: {
+                        id: "---",
+                        reason: "---",
+                        start: "---",
+                        end: "---",
+                    }
+                });
+
+                await set(ref(db, `users_by_id/${userId}`), res.user.uid);
+
+                isSigningUp = false;
+                hideLoading();
+                showToast('Thành công', 'Đăng ký tài khoản thành công!', 'success');
+                setTimeout(() => {
+                    window.location.href = "chat.html";
+                }, 1000);
+            } catch (error) {
+                isSigningUp = false;
+                hideLoading();
+                console.error('Lỗi đăng ký:', error);
+                showToast('Lỗi', getFirebaseErrorMessage(error.code), 'error');
+            }
+        };
 
         // ===== HANDLE FORGOT PASSWORD =====
         window.handleForgotPassword = async () => {
@@ -2330,57 +2423,61 @@ window.handleSignup = async () => {
             updatePasswordStrengthUI(this.value);
         });
 
-// ===== AUTH STATE =====
-onAuthStateChanged(auth, async (user) => {
-    if (user && !isSigningUp) {
-        try {
-            const snap = await get(ref(db, `users/${user.uid}`));
-            if (!snap.exists()) {
-                // User chưa có trong DB, nếu là social login thì hiển thị form hoàn thiện
-                if (user.providerData && user.providerData.length > 0) {
-                    const provider = user.providerData[0].providerId;
-                    const providerName = provider === 'google.com' ? 'google' : 'password';
-                    if (providerName !== 'password') {
-                        // Đang trong quá trình social login, hiển thị form hoàn thiện
-                        const pendingUser = user;
-                        pendingSocialUser = pendingUser;
-                        pendingSocialProvider = providerName;
-                        showCompleteProfile(pendingUser, providerName);
+        // ===== AUTH STATE =====
+        onAuthStateChanged(auth, async (user) => {
+            if (user && !isSigningUp) {
+                try {
+                    const snap = await get(ref(db, `users/${user.uid}`));
+                    if (!snap.exists()) {
+                        if (user.providerData && user.providerData.length > 0) {
+                            const provider = user.providerData[0].providerId;
+                            const providerName = provider === 'google.com' ? 'google' : 'password';
+                            if (providerName !== 'password') {
+                                pendingSocialUser = user;
+                                pendingSocialProvider = providerName;
+                                showCompleteProfile(user, providerName);
+                                return;
+                            }
+                        }
+                        await signOut(auth);
+                        showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ.', 'warning');
                         return;
                     }
-                }
-                await signOut(auth);
-                showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ.', 'warning');
-                return;
-            }
 
-            const userData = snap.val();
-            if (userData.isLocked === true || userData.isLocked === "true") {
-                await signOut(auth);
-                const lockInfo = userData.lockInfo || { id: '---', reason: '---', start: '---', end: '---' };
-                showLockForm(lockInfo);
-                return;
+                    const userData = snap.val();
+                    
+                    // Kiểm tra tài khoản bị khóa
+                    if (userData.isLocked === true || userData.isLocked === "true") {
+                        await signOut(auth);
+                        const lockInfo = userData.lockInfo || { 
+                            id: '---', 
+                            reason: '---', 
+                            start: '---', 
+                            end: '---' 
+                        };
+                        showLockForm(lockInfo);
+                        return;
+                    }
+                    
+                    const params = new URLSearchParams(window.location.search);
+                    const redirect = params.get('redirect');
+                    const redirectUid = params.get('uid');
+                    
+                    if (redirect === 'chat' && redirectUid) {
+                        window.location.href = `chat.html?uid=${redirectUid}`;
+                    } else {
+                        window.location.href = "chat.html";
+                    }
+                } catch (error) {
+                    console.error('Lỗi kiểm tra tài khoản:', error);
+                    window.location.href = "chat.html";
+                }
             }
-            
-            // Kiểm tra redirect từ chat.html
-            const params = new URLSearchParams(window.location.search);
-            const redirect = params.get('redirect');
-            const redirectUid = params.get('uid');
-            
-            if (redirect === 'chat' && redirectUid) {
-                window.location.href = `chat.html?uid=${redirectUid}`;
-            } else {
-                window.location.href = "chat.html";
-            }
-        } catch (error) {
-            console.error('Lỗi kiểm tra tài khoản:', error);
-            window.location.href = "chat.html";
-        }
-    }
-});
+        });
 
         // ===== INIT =====
         document.addEventListener('DOMContentLoaded', function() {
+            const chooseMethod = document.getElementById('choose-method');
             const stepEmail = document.getElementById('step-email');
             const stepPassword = document.getElementById('step-password');
             const signupForm = document.getElementById('signup-form');
@@ -2388,14 +2485,15 @@ onAuthStateChanged(auth, async (user) => {
             const lockForm = document.getElementById('lock-form');
             const completeForm = document.getElementById('complete-profile-form');
 
-            stepEmail.style.display = 'block';
-            stepEmail.classList.add('active');
+            chooseMethod.style.display = 'block';
+            chooseMethod.classList.add('active');
+            stepEmail.style.display = 'none';
             stepPassword.style.display = 'none';
             signupForm.style.display = 'none';
             forgotForm.style.display = 'none';
             lockForm.style.display = 'none';
             completeForm.style.display = 'none';
-            currentForm = 'login';
+            currentForm = 'choose';
             currentTab = 'login';
 
             setTimeout(() => {
@@ -2403,8 +2501,9 @@ onAuthStateChanged(auth, async (user) => {
             }, 500);
         });
 
-        // Export hàm resetToLoginForm để sử dụng trong onclick
+        // Export hàm để sử dụng
         window.resetToLoginForm = resetToLoginForm;
+        window.showLockForm = showLockForm;
     </script>
 </body>
 </html>
