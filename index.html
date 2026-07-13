@@ -2105,93 +2105,123 @@
         }
 
         // ===== HANDLE SIGNUP =====
-        window.handleSignup = async () => {
-            const name = document.getElementById('signup-name').value.trim();
-            const email = document.getElementById('signup-email').value.trim();
-            const password = document.getElementById('signup-password').value;
-            const confirm = document.getElementById('signup-confirm').value;
-            const gender = document.getElementById('signup-gender').value;
-            const birthday = document.getElementById('signup-birthday').value;
+window.handleSignup = async () => {
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const confirm = document.getElementById('signup-confirm').value;
+    const gender = document.getElementById('signup-gender').value;
+    const birthday = document.getElementById('signup-birthday').value;
 
-            if (!name || !email || !password || !confirm) {
-                showToast('Thông báo', 'Vui lòng điền đầy đủ thông tin.', 'warning');
-                return;
+    if (!name || !email || !password || !confirm) {
+        showToast('Thông báo', 'Vui lòng điền đầy đủ thông tin.', 'warning');
+        return;
+    }
+
+    if (!email.includes('@') || !email.includes('.')) {
+        showToast('Lỗi', 'Email không hợp lệ.', 'error');
+        return;
+    }
+
+    if (!birthday) {
+        showToast('Thông báo', 'Vui lòng chọn ngày sinh.', 'warning');
+        document.getElementById('signup-birthday').focus();
+        return;
+    }
+
+    const age = checkAge(birthday);
+    if (age < 12) {
+        showToast('Yêu cầu độ tuổi', 'Bạn cần phải trên 12 tuổi để sử dụng dịch vụ.', 'error');
+        document.getElementById('signup-birthday').focus();
+        return;
+    }
+
+    const strengthResult = checkPasswordStrength(password);
+    if (!strengthResult.isValid) {
+        showToast('Mật khẩu yếu', 'Vui lòng tạo mật khẩu mạnh hơn với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.',
+            'error');
+        return;
+    }
+
+    if (password !== confirm) {
+        showToast('Lỗi', 'Mật khẩu xác nhận không khớp.', 'error');
+        return;
+    }
+
+    if (!document.getElementById('terms-checkbox').checked) {
+        showToast('Thông báo', 'Vui lòng đồng ý với Điều khoản sử dụng.', 'warning');
+        return;
+    }
+
+    showLoading('Đang tạo tài khoản...');
+
+    try {
+        isSigningUp = true;
+        const res = await createUserWithEmailAndPassword(auth, email, password);
+
+        // ===== TẠO USER ID =====
+        function generateUserId() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let id = '';
+            for (let i = 0; i < 8; i++) {
+                id += chars.charAt(Math.floor(Math.random() * chars.length));
             }
+            return id;
+        }
 
-            if (!email.includes('@') || !email.includes('.')) {
-                showToast('Lỗi', 'Email không hợp lệ.', 'error');
-                return;
+        let userId = generateUserId();
+        let isDuplicate = true;
+        let attempts = 0;
+        
+        while (isDuplicate && attempts < 20) {
+            const checkSnap = await get(ref(db, `users_by_id/${userId}`));
+            if (!checkSnap.exists()) {
+                isDuplicate = false;
+            } else {
+                userId = generateUserId();
+                attempts++;
             }
+        }
 
-            if (!birthday) {
-                showToast('Thông báo', 'Vui lòng chọn ngày sinh.', 'warning');
-                document.getElementById('signup-birthday').focus();
-                return;
+        await set(ref(db, `users/${res.user.uid}`), {
+            email: email.toLowerCase(),
+            name: name,
+            gender: gender || 'Nam',
+            birthday: birthday || '2000-01-01',
+            showGender: true,
+            showBirthday: true,
+            allowStrangerChat: true,
+            allowFriendRequest: true,
+            allowSearch: true,
+            allowLinkSearch: true,
+            isLocked: false,
+            haveGreenTick: false,
+            providers: ['password'],
+            userId: userId,  // <-- THÊM DÒNG NÀY
+            lockInfo: {
+                id: "---",
+                reason: "---",
+                start: "---",
+                end: "---",
             }
+        });
 
-            const age = checkAge(birthday);
-            if (age < 12) {
-                showToast('Yêu cầu độ tuổi', 'Bạn cần phải trên 12 tuổi để sử dụng dịch vụ.', 'error');
-                document.getElementById('signup-birthday').focus();
-                return;
-            }
+        // Lưu vào bảng tra cứu
+        await set(ref(db, `users_by_id/${userId}`), res.user.uid);
 
-            const strengthResult = checkPasswordStrength(password);
-            if (!strengthResult.isValid) {
-                showToast('Mật khẩu yếu', 'Vui lòng tạo mật khẩu mạnh hơn với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.',
-                    'error');
-                return;
-            }
-
-            if (password !== confirm) {
-                showToast('Lỗi', 'Mật khẩu xác nhận không khớp.', 'error');
-                return;
-            }
-
-            if (!document.getElementById('terms-checkbox').checked) {
-                showToast('Thông báo', 'Vui lòng đồng ý với Điều khoản sử dụng.', 'warning');
-                return;
-            }
-
-            showLoading('Đang tạo tài khoản...');
-
-            try {
-                isSigningUp = true;
-                const res = await createUserWithEmailAndPassword(auth, email, password);
-
-                await set(ref(db, `users/${res.user.uid}`), {
-                    email: email.toLowerCase(),
-                    name: name,
-                    gender: gender || 'Nam',
-                    birthday: birthday || '2000-01-01',
-                    showGender: true,
-                    showBirthday: true,
-                    allowStrangerChat: true,
-                    allowFriendRequest: true,
-                    isLocked: false,
-                    haveGreenTick: false,
-                    providers: ['password'],
-                    lockInfo: {
-                        id: "---",
-                        reason: "---",
-                        start: "---",
-                        end: "---",
-                    }
-                });
-
-                isSigningUp = false;
-                hideLoading();
-                showToast('Thành công', 'Đăng ký tài khoản thành công!', 'success');
-                setTimeout(() => {
-                    window.location.href = "chat.html";
-                }, 1000);
-            } catch (error) {
-                isSigningUp = false;
-                hideLoading();
-                console.error('Lỗi đăng ký:', error);
-                showToast('Lỗi', getFirebaseErrorMessage(error.code), 'error');
-            }
-        };
+        isSigningUp = false;
+        hideLoading();
+        showToast('Thành công', 'Đăng ký tài khoản thành công!', 'success');
+        setTimeout(() => {
+            window.location.href = "chat.html";
+        }, 1000);
+    } catch (error) {
+        isSigningUp = false;
+        hideLoading();
+        console.error('Lỗi đăng ký:', error);
+        showToast('Lỗi', getFirebaseErrorMessage(error.code), 'error');
+    }
+};
 
         // ===== HANDLE FORGOT PASSWORD =====
         window.handleForgotPassword = async () => {
@@ -2300,29 +2330,54 @@
             updatePasswordStrengthUI(this.value);
         });
 
-        // ===== AUTH STATE =====
-        onAuthStateChanged(auth, async (user) => {
-            if (user && !isSigningUp) {
-                try {
-                    const snap = await get(ref(db, `users/${user.uid}`));
-                    if (!snap.exists()) {
+// ===== AUTH STATE =====
+onAuthStateChanged(auth, async (user) => {
+    if (user && !isSigningUp) {
+        try {
+            const snap = await get(ref(db, `users/${user.uid}`));
+            if (!snap.exists()) {
+                // User chưa có trong DB, nếu là social login thì hiển thị form hoàn thiện
+                if (user.providerData && user.providerData.length > 0) {
+                    const provider = user.providerData[0].providerId;
+                    const providerName = provider === 'google.com' ? 'google' : 'password';
+                    if (providerName !== 'password') {
+                        // Đang trong quá trình social login, hiển thị form hoàn thiện
+                        const pendingUser = user;
+                        pendingSocialUser = pendingUser;
+                        pendingSocialProvider = providerName;
+                        showCompleteProfile(pendingUser, providerName);
                         return;
                     }
-
-                    const userData = snap.val();
-                    if (userData.isLocked === true || userData.isLocked === "true") {
-                        await signOut(auth);
-                        const lockInfo = userData.lockInfo || { id: '---', reason: '---', start: '---', end: '---' };
-                        showLockForm(lockInfo);
-                        return;
-                    }
-                    window.location.href = "chat.html";
-                } catch (error) {
-                    console.error('Lỗi kiểm tra tài khoản:', error);
-                    window.location.href = "chat.html";
                 }
+                await signOut(auth);
+                showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ.', 'warning');
+                return;
             }
-        });
+
+            const userData = snap.val();
+            if (userData.isLocked === true || userData.isLocked === "true") {
+                await signOut(auth);
+                const lockInfo = userData.lockInfo || { id: '---', reason: '---', start: '---', end: '---' };
+                showLockForm(lockInfo);
+                return;
+            }
+            
+            // Kiểm tra redirect từ chat.html
+            const params = new URLSearchParams(window.location.search);
+            const redirect = params.get('redirect');
+            const redirectUid = params.get('uid');
+            
+            if (redirect === 'chat' && redirectUid) {
+                window.location.href = `chat.html?uid=${redirectUid}`;
+            } else {
+                window.location.href = "chat.html";
+            }
+        } catch (error) {
+            console.error('Lỗi kiểm tra tài khoản:', error);
+            window.location.href = "chat.html";
+        }
+    }
+});
 
         // ===== INIT =====
         document.addEventListener('DOMContentLoaded', function() {

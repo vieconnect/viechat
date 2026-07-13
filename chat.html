@@ -771,6 +771,123 @@
             margin-bottom: 8px;
         }
 
+        /* ===== LINK ACCOUNT STYLES ===== */
+        .link-account-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            border: 1px solid #e4e6eb;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+            background: white;
+        }
+        .link-account-item:hover {
+            border-color: #bbb;
+        }
+        .link-account-item .provider-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .link-account-item .provider-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            flex-shrink: 0;
+        }
+        .link-account-item .provider-icon.google {
+            background: #ea4335;
+        }
+        .link-account-item .provider-icon.email {
+            background: #1a73e8;
+        }
+        .link-account-item .provider-icon.facebook {
+            background: #1877f2;
+        }
+        .link-account-item .provider-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1c1e21;
+        }
+        .link-account-item .provider-status {
+            font-size: 12px;
+            color: #888;
+        }
+        .link-account-item .provider-status .status-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .link-account-item .provider-status .status-badge.linked {
+            background: #e6f7e6;
+            color: #2e7d32;
+        }
+        .link-account-item .provider-status .status-badge.unlinked {
+            background: #f5f5f5;
+            color: #999;
+        }
+        .link-account-item .provider-status .status-badge.primary {
+            background: #e3f0ff;
+            color: var(--primary);
+        }
+        .link-account-item .btn-link-action {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .link-account-item .btn-link-action.link-btn {
+            background: var(--primary);
+            color: white;
+        }
+        .link-account-item .btn-link-action.link-btn:hover {
+            background: #1557b0;
+        }
+        .link-account-item .btn-link-action.link-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .link-account-item .btn-link-action.unlink-btn {
+            background: #f5f5f5;
+            color: var(--danger);
+            border: 1px solid #e4e6eb;
+        }
+        .link-account-item .btn-link-action.unlink-btn:hover {
+            background: #fff1f0;
+            border-color: var(--danger);
+        }
+        .link-account-item .btn-link-action.unlink-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .link-account-help {
+            font-size: 13px;
+            color: #888;
+            margin-top: 12px;
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        .link-account-help i {
+            color: var(--primary);
+            margin-right: 6px;
+        }
+
         @media (max-width: 790px) {
             .privacy-modal .modal-content {
                 height: 100vh;
@@ -829,6 +946,26 @@
             }
             .privacy-modal .modal-footer {
                 padding: 10px 16px;
+            }
+            .link-account-item {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .link-account-item .provider-info {
+                flex: 1;
+                min-width: 0;
+            }
+            .link-account-item .btn-link-action {
+                padding: 4px 12px;
+                font-size: 12px;
+            }
+            .link-account-item .provider-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+            .link-account-item .provider-name {
+                font-size: 13px;
             }
         }
         @media (max-width: 480px) {
@@ -1091,6 +1228,68 @@
     .swipe-reply-indicator {
         font-size: 18px;
     }
+}
+
+.link-account-loading {
+    text-align: center;
+    padding: 30px;
+    color: #888;
+}
+.link-account-loading .spinner {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    border: 3px solid #e4e6eb;
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 10px;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ===== LOADING OVERLAY ===== */
+.form-loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.85);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 12px;
+}
+.form-loading-overlay.show {
+    display: flex;
+}
+.form-loading-overlay .loader {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #e8eaed;
+    border-radius: 50%;
+    border-top-color: var(--primary);
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+.form-loading-overlay .loader-text {
+    font-size: 14px;
+    color: var(--gray);
+}
+
+/* ===== PROFILE LINK IN PRIVACY MODAL ===== */
+#privProfileLinkDisplay a {
+    color: #1a73e8;
+    text-decoration: none;
+}
+#privProfileLinkDisplay a:hover {
+    text-decoration: underline;
 }
     </style>
 </head>
@@ -1368,9 +1567,12 @@
                         <button class="menu-item-privacy" data-section="privacy" onclick="switchPrivacySection('privacy')">
                             <i class="fas fa-lock"></i> Quyền riêng tư
                         </button>
-                            <button class="menu-item-privacy" data-section="activation" onclick="switchPrivacySection('activation')">
-        <i class="fas fa-check-circle"></i> Kích hoạt
-    </button>
+                        <button class="menu-item-privacy" data-section="activation" onclick="switchPrivacySection('activation')">
+                            <i class="fas fa-check-circle"></i> Kích hoạt
+                        </button>
+                        <button class="menu-item-privacy" data-section="linkaccount" onclick="switchPrivacySection('linkaccount')">
+                            <i class="fas fa-link"></i> Liên kết tài khoản
+                        </button>
                         <button class="menu-item-privacy" data-section="danger" onclick="switchPrivacySection('danger')" style="color:var(--danger);">
                             <i class="fas fa-exclamation-triangle"></i> Nguy hiểm
                         </button>
@@ -1403,80 +1605,102 @@
         <input type="date" class="form-control" id="privInputBirthday">
     </div>
     
+    <!-- ===== LINK ĐẾN TRANG PROFILE ===== -->
+    <div class="form-group" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e4e6eb;">
+        <label style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-user-circle" style="color: var(--primary);"></i>
+            Trang hồ sơ của bạn
+            <span class="badge bg-info" style="font-size: 10px; cursor: pointer;" onclick="openProfilePage()" title="Mở trang hồ sơ">
+                <i class="fas fa-external-link-alt"></i> Mở
+            </span>
+        </label>
+        <div style="background: #f0f7ff; border-radius: 8px; padding: 10px 14px; border: 1px solid #b8d8ff;">
+            <div id="privProfileLinkDisplay" style="font-size: 13px; color: #1a73e8; word-break: break-all;">
+                <a id="privProfileLinkAnchor" href="#" target="_blank" style="color: #1a73e8; text-decoration: none;">
+                    Đang tải...
+                </a>
+            </div>
+            <div style="margin-top: 6px; font-size: 12px; color: #888;">
+                <i class="fas fa-info-circle"></i> 
+                Đây là link hồ sơ công khai của bạn. Mọi người có thể xem thông tin qua link này.
+            </div>
+        </div>
+    </div>
+    
     <button class="btn btn-primary mt-2" onclick="saveAllProfileInfo()" style="float: right;">
         <i class="fas fa-save me-1"></i> Lưu thông tin cá nhân
     </button>
 </div>
                         
-<!-- Bảo mật -->
-<div class="content-section" id="section-security">
-    <div class="section-header">🔒 Bảo mật</div>
-    <div class="section-desc">Thay đổi mật khẩu để bảo vệ tài khoản của bạn.</div>
-    
-    <div class="form-group" id="privOldPasswordGroup">
-        <label>Mật khẩu cũ</label>
-        <div class="password-wrapper">
-            <input type="password" class="form-control" id="privOldPassword" placeholder="Nhập mật khẩu cũ">
-            <button type="button" class="password-toggle" onclick="togglePassword('privOldPassword', this)">
-                <i class="fas fa-eye"></i>
-            </button>
-        </div>
-    </div>
-    
-    <div class="form-group">
-        <label>Mật khẩu mới</label>
-        <div class="password-wrapper">
-            <input type="password" class="form-control" id="privNewPassword" placeholder="Nhập mật khẩu mới (6+ ký tự)">
-            <button type="button" class="password-toggle" onclick="togglePassword('privNewPassword', this)">
-                <i class="fas fa-eye"></i>
-            </button>
-        </div>
-    </div>
-    
-    <!-- Password Strength Indicator -->
-    <div class="password-strength" id="privPasswordStrength">
-        <div class="strength-bar">
-            <div class="strength-fill" id="privStrengthFill"></div>
-        </div>
-        <span class="strength-label" id="privStrengthLabel">Yếu</span>
-    </div>
-    
-    <!-- Password Requirements -->
-    <div class="password-requirements" id="privPasswordRequirements">
-        <div class="req-item unmet" id="privReqLength">
-            <span class="req-icon"><i class="fas fa-circle"></i></span>
-            <span>Ít nhất 8 ký tự</span>
-        </div>
-        <div class="req-item unmet" id="privReqUppercase">
-            <span class="req-icon"><i class="fas fa-circle"></i></span>
-            <span>Chứa chữ hoa (A-Z)</span>
-        </div>
-        <div class="req-item unmet" id="privReqLowercase">
-            <span class="req-icon"><i class="fas fa-circle"></i></span>
-            <span>Chứa chữ thường (a-z)</span>
-        </div>
-        <div class="req-item unmet" id="privReqDigit">
-            <span class="req-icon"><i class="fas fa-circle"></i></span>
-            <span>Chứa số (0-9)</span>
-        </div>
-        <div class="req-item unmet" id="privReqSpecial">
-            <span class="req-icon"><i class="fas fa-circle"></i></span>
-            <span>Chứa ký tự đặc biệt (!@#$%^&*)</span>
-        </div>
-    </div>
-    
-    <div class="form-group">
-        <label>Xác nhận mật khẩu mới</label>
-        <div class="password-wrapper">
-            <input type="password" class="form-control" id="privConfirmPassword" placeholder="Xác nhận mật khẩu mới">
-            <button type="button" class="password-toggle" onclick="togglePassword('privConfirmPassword', this)">
-                <i class="fas fa-eye"></i>
-            </button>
-        </div>
-    </div>
-    
-    <button class="btn btn-primary" onclick="changePasswordFromPrivacy()">🔄 Đổi mật khẩu</button>
-</div>
+                        <!-- Bảo mật -->
+                        <div class="content-section" id="section-security">
+                            <div class="section-header">🔒 Bảo mật</div>
+                            <div class="section-desc">Thay đổi mật khẩu để bảo vệ tài khoản của bạn.</div>
+                            
+                            <div class="form-group" id="privOldPasswordGroup">
+                                <label>Mật khẩu cũ</label>
+                                <div class="password-wrapper">
+                                    <input type="password" class="form-control" id="privOldPassword" placeholder="Nhập mật khẩu cũ">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('privOldPassword', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Mật khẩu mới</label>
+                                <div class="password-wrapper">
+                                    <input type="password" class="form-control" id="privNewPassword" placeholder="Nhập mật khẩu mới (6+ ký tự)">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('privNewPassword', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Password Strength Indicator -->
+                            <div class="password-strength" id="privPasswordStrength">
+                                <div class="strength-bar">
+                                    <div class="strength-fill" id="privStrengthFill"></div>
+                                </div>
+                                <span class="strength-label" id="privStrengthLabel">Yếu</span>
+                            </div>
+                            
+                            <!-- Password Requirements -->
+                            <div class="password-requirements" id="privPasswordRequirements">
+                                <div class="req-item unmet" id="privReqLength">
+                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
+                                    <span>Ít nhất 8 ký tự</span>
+                                </div>
+                                <div class="req-item unmet" id="privReqUppercase">
+                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
+                                    <span>Chứa chữ hoa (A-Z)</span>
+                                </div>
+                                <div class="req-item unmet" id="privReqLowercase">
+                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
+                                    <span>Chứa chữ thường (a-z)</span>
+                                </div>
+                                <div class="req-item unmet" id="privReqDigit">
+                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
+                                    <span>Chứa số (0-9)</span>
+                                </div>
+                                <div class="req-item unmet" id="privReqSpecial">
+                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
+                                    <span>Chứa ký tự đặc biệt (!@#$%^&*)</span>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Xác nhận mật khẩu mới</label>
+                                <div class="password-wrapper">
+                                    <input type="password" class="form-control" id="privConfirmPassword" placeholder="Xác nhận mật khẩu mới">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('privConfirmPassword', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary" onclick="changePasswordFromPrivacy()">🔄 Đổi mật khẩu</button>
+                        </div>
                         
                         <!-- Quyền riêng tư -->
                         <div class="content-section" id="section-privacy">
@@ -1521,31 +1745,47 @@
                             <button class="btn btn-primary" onclick="savePrivacySettings()" style="float: right;">💾 Lưu cài đặt</button>
                         </div>
 
-<!-- THÊM TAB KÍCH HOẠT MỚI -->
-<div class="content-section" id="section-activation">
-    <div class="section-header">✅ Kích hoạt tài khoản</div>
-    <div class="section-desc">Nhập mã kích hoạt để xác minh tài khoản của bạn.</div>
-    
-    <!-- CHỈ 1 THÔNG BÁO DUY NHẤT -->
-    <div id="activationStatus" style="margin-bottom: 16px;"></div>
-    
-    <!-- Form nhập mã (chỉ hiển thị khi chưa kích hoạt) -->
-    <div id="activationInputGroup" class="form-group">
-        <label>Mã kích hoạt</label>
-        <div class="input-group">
-            <input type="text" class="form-control" id="activationCodeInput" placeholder="Nhập mã kích hoạt có 8 chữ số" style="border-radius: 10px 0 0 10px;">
-            <button class="btn btn-success" onclick="activateAccount()" style="border-radius: 0 10px 10px 0;">
-                <i class="fas fa-check me-1"></i> Kích hoạt
-            </button>
-        </div>
-    </div>
-    <!-- Nút hủy kích hoạt (chỉ hiển thị khi đã kích hoạt) -->
-    <div id="activationActions" style="display: none; margin-top: 12px;">
-        <button class="btn btn-danger w-100" onclick="deactivateAccount()">
-            <i class="fas fa-times me-1"></i> Hủy kích hoạt
-        </button>
-    </div>
-</div>
+                        <!-- THÊM TAB KÍCH HOẠT MỚI -->
+                        <div class="content-section" id="section-activation">
+                            <div class="section-header">✅ Kích hoạt tài khoản</div>
+                            <div class="section-desc">Nhập mã kích hoạt để xác minh tài khoản của bạn.</div>
+                            
+                            <!-- CHỈ 1 THÔNG BÁO DUY NHẤT -->
+                            <div id="activationStatus" style="margin-bottom: 16px;"></div>
+                            
+                            <!-- Form nhập mã (chỉ hiển thị khi chưa kích hoạt) -->
+                            <div id="activationInputGroup" class="form-group">
+                                <label>Mã kích hoạt</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="activationCodeInput" placeholder="Nhập mã kích hoạt có 8 chữ số" style="border-radius: 10px 0 0 10px;">
+                                    <button class="btn btn-success" onclick="activateAccount()" style="border-radius: 0 10px 10px 0;">
+                                        <i class="fas fa-check me-1"></i> Kích hoạt
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Nút hủy kích hoạt (chỉ hiển thị khi đã kích hoạt) -->
+                            <div id="activationActions" style="display: none; margin-top: 12px;">
+                                <button class="btn btn-danger w-100" onclick="deactivateAccount()">
+                                    <i class="fas fa-times me-1"></i> Hủy kích hoạt
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- TAB LIÊN KẾT TÀI KHOẢN -->
+                        <div class="content-section" id="section-linkaccount">
+                            <div class="section-header">🔗 Liên kết tài khoản</div>
+                            <div class="section-desc">Quản lý các phương thức đăng nhập liên kết với tài khoản của bạn.</div>
+                            
+                            <div id="linkAccountContainer">
+                                <!-- Nội dung sẽ được render bởi JavaScript -->
+                            </div>
+                            
+                            <div class="link-account-help">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Lưu ý:</strong> Bạn cần có ít nhất <strong>2 phương thức đăng nhập</strong> để có thể ngắt kết nối một phương thức. 
+                                Phương thức đăng nhập chính sẽ được đánh dấu <span class="badge bg-primary">Chính</span>.
+                            </div>
+                        </div>
                         
                         <!-- Nguy hiểm -->
                         <div class="content-section" id="section-danger">
@@ -1652,6 +1892,12 @@
     <!-- TOAST CONTAINER -->
     <div class="toast-container-custom" id="toastContainer"></div>
 
+    <!-- LOADING OVERLAY -->
+<div class="form-loading-overlay" id="formLoadingOverlay" style="display:none;">
+    <div class="loader"></div>
+    <div class="loader-text" id="loadingText">Đang xử lý...</div>
+</div>
+
     <!-- MODALS CHUNG -->
     <div class="modal fade" id="commonModal" tabindex="-1" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="commonModalTitle">Thông báo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="commonModalBody"></div><div class="modal-footer"><button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button></div></div></div></div>
     <div class="modal fade" id="confirmModal" tabindex="-1" data-bs-backdrop="static"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header"><h5>Xác nhận</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body" id="confirmModalBody"></div><div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button><button type="button" class="btn btn-danger" id="confirmModalOkBtn">Đồng ý</button></div></div></div></div>
@@ -1659,8 +1905,21 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, updatePassword, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { 
+    initializeApp 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { 
+    getAuth, 
+    onAuthStateChanged, 
+    signOut, 
+    updatePassword, 
+    deleteUser, 
+    reauthenticateWithCredential, 
+    EmailAuthProvider, 
+    GoogleAuthProvider, 
+    signInWithPopup,
+    linkWithCredential 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, set, push, onValue, query, orderByChild, equalTo, get, remove, off, update, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -1710,6 +1969,7 @@
         let activeModalInstance = null;
         let ageWarningModalObj = null;
         let ageWarningShown = false;
+        let userDataCache = {};
 
         // ===== SWIPE TO REPLY VARIABLES =====
         let swipeStartX = 0;
@@ -1718,6 +1978,58 @@
         let swipeTargetMsg = null;
         let swipeIsActive = false;
         let swipeThreshold = 50;
+
+        // ===== XỬ LÝ THAM SỐ URL KHI MỞ CHAT =====
+function handleUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get('uid');
+    const name = params.get('name');
+    
+    if (uid && currentUser) {
+        console.log('🔍 Xử lý tham số URL:', { uid, name });
+        
+        // Lấy thông tin user để mở chat
+        get(ref(db, `users/${uid}`)).then((snap) => {
+            if (snap.exists()) {
+                const userData = snap.val();
+                const displayName = name ? decodeURIComponent(name) : userData.name || 'Người dùng';
+                
+                // Kiểm tra trạng thái friend_status
+                get(ref(db, `friend_status/${currentUser.uid}/${uid}`)).then((statusSnap) => {
+                    const status = statusSnap.val();
+                    
+                    // Nếu chưa có status, tạo stranger nếu có tin nhắn
+                    if (!status) {
+                        const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+                        get(ref(db, `messages/${chatId}`)).then((msgSnap) => {
+                            if (msgSnap.exists()) {
+                                set(ref(db, `friend_status/${currentUser.uid}/${uid}`), 'stranger').catch(() => {});
+                            }
+                        });
+                    }
+                });
+                
+                // Tìm hoặc tạo item trong danh sách
+                setTimeout(() => {
+                    const existingItem = document.getElementById(`item-${uid}`);
+                    if (existingItem) {
+                        existingItem.click();
+                    } else {
+                        openChatFunction(uid, displayName, null);
+                    }
+                }, 500);
+            } else {
+                showToast('Lỗi', 'Không tìm thấy người dùng này.', 'error');
+            }
+        }).catch((err) => {
+            console.error('Lỗi lấy thông tin user từ URL:', err);
+            showToast('Lỗi', 'Không thể tải thông tin người dùng.', 'error');
+        });
+        
+        // Xóa tham số URL sau khi xử lý
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+}
 
         // ===== TOAST SYSTEM =====
         function showToast(title, message, type = 'info', duration = 4000) {
@@ -1890,7 +2202,6 @@
                 const revokeBtn = document.getElementById('sheet-revoke');
                 const deleteBtn = document.getElementById('sheet-delete-for-me');
                 
-                // LUÔN HIỂN THỊ "Trả lời" cho cả tin nhắn của mình và đối phương
                 replyBtn.style.display = 'flex';
                 revokeBtn.style.display = isOwn ? 'flex' : 'none';
                 deleteBtn.textContent = isOwn ? 'Xóa' : 'Xóa phía tôi';
@@ -1908,7 +2219,6 @@
                 const revokeBtn = document.getElementById('menu-revoke');
                 const deleteBtn = document.getElementById('menu-delete-for-me');
                 
-                // LUÔN HIỂN THỊ "Trả lời" cho cả tin nhắn của mình và đối phương
                 replyBtn.style.display = 'flex';
                 revokeBtn.style.display = isOwn ? 'flex' : 'none';
                 deleteBtn.textContent = isOwn ? 'Xóa' : 'Xóa phía tôi';
@@ -2043,22 +2353,20 @@
             return null;
         }
 
-// Cập nhật hàm renderUserAvatar trong chat.html
-function renderUserAvatar(uid, userData, size = 36) {
-    let avatar = getAvatarDataFromUser(userData);
-    const name = userData?.name || 'Người dùng';
-    
-    // Nếu không có avatar trong DB và uid là current user, thử lấy từ auth
-    if (!avatar && uid === currentUser?.uid && currentUser?.photoURL) {
-        avatar = currentUser.photoURL;
-    }
-    
-    if (avatar && avatar.startsWith('data:image')) {
-        return `<img src="${avatar}" class="msg-avatar" style="width:${size}px; height:${size}px;" onclick="event.stopPropagation(); openUserInfoModal('${uid}')" title="${escapeHtml(name)}" loading="lazy">`;
-    } else {
-        return `<div class="msg-avatar-placeholder" style="width:${size}px; height:${size}px; font-size:${size/2}px;" onclick="event.stopPropagation(); openUserInfoModal('${uid}')" title="${escapeHtml(name)}">${name.charAt(0).toUpperCase()}</div>`;
-    }
-}
+        function renderUserAvatar(uid, userData, size = 36) {
+            let avatar = getAvatarDataFromUser(userData);
+            const name = userData?.name || 'Người dùng';
+            
+            if (!avatar && uid === currentUser?.uid && currentUser?.photoURL) {
+                avatar = currentUser.photoURL;
+            }
+            
+            if (avatar && (avatar.startsWith('data:image') || avatar.startsWith('http'))) {
+                return `<img src="${avatar}" class="msg-avatar" style="width:${size}px; height:${size}px;" onclick="event.stopPropagation(); openUserInfoModal('${uid}')" title="${escapeHtml(name)}" loading="lazy">`;
+            } else {
+                return `<div class="msg-avatar-placeholder" style="width:${size}px; height:${size}px; font-size:${size/2}px;" onclick="event.stopPropagation(); openUserInfoModal('${uid}')" title="${escapeHtml(name)}">${name.charAt(0).toUpperCase()}</div>`;
+            }
+        }
 
         // ===== AVATAR UPLOAD MODAL =====
         window.openAvatarUploadModal = () => {
@@ -2324,240 +2632,214 @@ function renderUserAvatar(uid, userData, size = 36) {
             `;
         }
 
- // ===== USER INFO MODAL =====
-window.openUserInfoModal = async (uid) => {
-    if (!uid) return;
-    
-    try {
-        // Lấy thông tin user từ database
-        const snap = await get(ref(db, `users/${uid}`));
-        if (!snap.exists()) {
-            showToast("Lỗi", "Không thể tải thông tin người dùng.", "error");
-            return;
-        }
-        const targetData = snap.val();
-        
-        // ===== XỬ LÝ AVATAR =====
-        let avatar = getAvatarDataFromUser(targetData);
-        
-        // Nếu không có avatar trong DB, thử lấy từ social (cho current user)
-        if (!avatar && uid === currentUser?.uid && currentUser?.photoURL) {
+        // ===== USER INFO MODAL =====
+        window.openUserInfoModal = async (uid) => {
+            if (!uid) return;
+            
             try {
-                // Thử lấy ảnh từ social URL
-                const response = await fetch(currentUser.photoURL);
-                const blob = await response.blob();
-                const reader = new FileReader();
-                avatar = await new Promise((resolve) => {
-                    reader.onload = () => resolve(reader.result);
-                    reader.readAsDataURL(blob);
-                });
-                // Lưu vào database để dùng sau
-                if (avatar) {
-                    await update(ref(db, `users/${uid}`), { avatar: avatar });
+                const snap = await get(ref(db, `users/${uid}`));
+                if (!snap.exists()) {
+                    showToast("Lỗi", "Không thể tải thông tin người dùng.", "error");
+                    return;
                 }
-            } catch (e) {
-                console.warn('Không thể tải avatar từ social:', e);
-                avatar = null;
-            }
-        }
-        
-        // ===== HIỂN THỊ AVATAR =====
-        const modalAvatar = document.getElementById('modalUserAvatar');
-        const modalPlaceholder = document.getElementById('modalUserAvatarPlaceholder');
-        
-        if (avatar && (avatar.startsWith('data:image') || avatar.startsWith('http'))) {
-            modalAvatar.src = avatar;
-            modalAvatar.style.display = 'block';
-            modalPlaceholder.style.display = 'none';
-        } else {
-            modalAvatar.style.display = 'none';
-            const placeholder = document.getElementById('modalUserAvatarPlaceholder');
-            placeholder.textContent = (targetData.name || 'U').charAt(0).toUpperCase();
-            placeholder.style.display = 'flex';
-        }
-        
-        // ===== HIỂN THỊ TÊN =====
-        let nameHtml = escapeHtml(targetData.name || "Người dùng");
-        if (targetData.haveGreenTick === true) {
-            nameHtml += ` <i class="fas fa-check-circle verified-icon" style="color: #1da1f2; font-size: 16px;" title="Tài khoản đã được xác minh"></i>`;
-        }
-        document.getElementById('modalUserTxtName').innerHTML = nameHtml;
-        
-        // ===== HIỂN THỊ EMAIL =====
-        document.getElementById('modalUserTxtEmail').innerText = targetData.email || "";
-        
-        // ===== HIỂN THỊ BADGE XÁC MINH =====
-        if (targetData.haveGreenTick === true) {
-            document.getElementById('modalUserVerifiedBadge').style.display = 'inline-flex';
-        } else {
-            document.getElementById('modalUserVerifiedBadge').style.display = 'none';
-        }
-        
-        // ===== HIỂN THỊ GIỚI TÍNH VÀ NGÀY SINH =====
-        let isHiddenInfo = false;
-        if (targetData.showGender !== false) {
-            document.getElementById('modalUserTxtGender').innerText = targetData.gender || "Chưa cập nhật";
-        } else {
-            document.getElementById('modalUserTxtGender').innerText = "••••••••";
-            isHiddenInfo = true;
-        }
-        
-        if (targetData.showBirthday !== false) {
-            document.getElementById('modalUserTxtBirthday').innerText = targetData.birthday || "Chưa cập nhật";
-        } else {
-            document.getElementById('modalUserTxtBirthday').innerText = "••/••/••••";
-            isHiddenInfo = true;
-        }
-        document.getElementById('modalUserPrivacyAlert').style.display = isHiddenInfo ? 'block' : 'none';
-        
-        // ===== KIỂM TRA TRẠNG THÁI KẾT BẠN =====
-        let status = null;
-        let theirStatus = null;
-        let targetName = targetData.name || 'Người dùng';
-        
-        try {
-            const statusSnap = await get(ref(db, `friend_status/${currentUser.uid}/${uid}`));
-            status = statusSnap.val();
-            
-            const theirStatusSnap = await get(ref(db, `friend_status/${uid}/${currentUser.uid}`));
-            theirStatus = theirStatusSnap.val();
-        } catch (e) {
-            console.warn('Lỗi lấy trạng thái kết bạn:', e);
-        }
-        
-        // ===== TẠO CÁC NÚT HÀNH ĐỘNG =====
-        let actionAreaHtml = "";
-        
-        // Kiểm tra nếu là chính mình
-        if (uid === currentUser.uid) {
-            actionAreaHtml = `<button class="btn btn-secondary px-4" disabled>👤 Đây là bạn</button>`;
-        } 
-        // Kiểm tra bị chặn
-        else if (status === 'blocked' || theirStatus === 'blocked') {
-            if (status === 'blocked') {
-                actionAreaHtml = `<button class="btn btn-warning" onclick="updateStatus('${uid}','unblock')">🔓 Bỏ chặn</button>`;
-            } else {
-                actionAreaHtml = `<button class="btn btn-secondary" disabled>🚫 Đã bị chặn</button>`;
-            }
-        }
-        // Đã là bạn bè
-        else if (status === "accepted" && theirStatus === "accepted") {
-            actionAreaHtml = `
-                <button class="btn btn-primary px-4" onclick="directMessageFromModal('${uid}','${targetName.replace(/'/g, "\\'")}')">
-                    <i class="fas fa-comment"></i> Nhắn tin ngay
-                </button>
-                <button class="btn btn-outline-danger" onclick="updateStatus('${uid}','remove')">
-                    <i class="fas fa-user-minus"></i> Xóa bạn
-                </button>
-            `;
-        }
-        // Đã gửi lời mời kết bạn
-        else if (status === "outgoing") {
-            actionAreaHtml = `
-                <button class="btn btn-secondary" disabled>
-                    <i class="fas fa-clock"></i> Đang chờ chấp nhận
-                </button>
-                <button class="btn btn-danger" onclick="updateStatus('${uid}','cancel')">
-                    <i class="fas fa-times"></i> Hủy
-                </button>
-            `;
-        }
-        // Nhận được lời mời kết bạn
-        else if (status === "incoming") {
-            actionAreaHtml = `
-                <button class="btn btn-success" onclick="updateStatus('${uid}','accepted'); closeModalObj();">
-                    <i class="fas fa-check"></i> Chấp nhận kết bạn
-                </button>
-                <button class="btn btn-danger" onclick="updateStatus('${uid}','reject'); closeModalObj();">
-                    <i class="fas fa-times"></i> Từ chối
-                </button>
-            `;
-        }
-        // Người lạ (chưa có quan hệ)
-        else {
-            // Nút kết bạn (nếu cho phép)
-            if (targetData.allowFriendRequest !== false) {
-                actionAreaHtml += `
-                    <button class="btn btn-success" onclick="sendFriendRequestFromModal('${uid}')">
-                        <i class="fas fa-user-plus"></i> Kết bạn
-                    </button>
-                `;
-            }
-            
-            // Nút nhắn tin (nếu cho phép người lạ nhắn tin hoặc đã có tin nhắn trước đó)
-            let canChat = targetData.allowStrangerChat !== false;
-            
-            // Kiểm tra xem đã có tin nhắn trước đó chưa
-            if (!canChat) {
-                const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
-                const msgSnap = await get(ref(db, `messages/${chatId}`));
-                if (msgSnap.exists()) {
-                    // Kiểm tra xem có tin nhắn hợp lệ không
-                    const clearSnap = await get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`));
-                    const clearTime = clearSnap.val() || 0;
-                    let hasValidMsg = false;
-                    msgSnap.forEach((m) => {
-                        const msg = m.val();
-                        if (msg.timestamp > clearTime && !(msg.deletedBy && msg.deletedBy[currentUser.uid])) {
-                            hasValidMsg = true;
+                const targetData = snap.val();
+                
+                let avatar = getAvatarDataFromUser(targetData);
+                
+                if (!avatar && uid === currentUser?.uid && currentUser?.photoURL) {
+                    try {
+                        const response = await fetch(currentUser.photoURL);
+                        const blob = await response.blob();
+                        const reader = new FileReader();
+                        avatar = await new Promise((resolve) => {
+                            reader.onload = () => resolve(reader.result);
+                            reader.readAsDataURL(blob);
+                        });
+                        if (avatar) {
+                            await update(ref(db, `users/${uid}`), { avatar: avatar });
                         }
-                    });
-                    if (hasValidMsg) {
-                        canChat = true;
+                    } catch (e) {
+                        console.warn('Không thể tải avatar từ social:', e);
+                        avatar = null;
                     }
                 }
+                
+                const modalAvatar = document.getElementById('modalUserAvatar');
+                const modalPlaceholder = document.getElementById('modalUserAvatarPlaceholder');
+                
+                if (avatar && (avatar.startsWith('data:image') || avatar.startsWith('http'))) {
+                    modalAvatar.src = avatar;
+                    modalAvatar.style.display = 'block';
+                    modalPlaceholder.style.display = 'none';
+                } else {
+                    modalAvatar.style.display = 'none';
+                    const placeholder = document.getElementById('modalUserAvatarPlaceholder');
+                    placeholder.textContent = (targetData.name || 'U').charAt(0).toUpperCase();
+                    placeholder.style.display = 'flex';
+                }
+                
+                let nameHtml = escapeHtml(targetData.name || "Người dùng");
+                if (targetData.haveGreenTick === true) {
+                    nameHtml += ` <i class="fas fa-check-circle verified-icon" style="color: #1da1f2; font-size: 16px;" title="Tài khoản đã được xác minh"></i>`;
+                }
+                document.getElementById('modalUserTxtName').innerHTML = nameHtml;
+                document.getElementById('modalUserTxtEmail').innerText = targetData.email || "";
+                
+                if (targetData.haveGreenTick === true) {
+                    document.getElementById('modalUserVerifiedBadge').style.display = 'inline-flex';
+                } else {
+                    document.getElementById('modalUserVerifiedBadge').style.display = 'none';
+                }
+                
+                let isHiddenInfo = false;
+                if (targetData.showGender !== false) {
+                    document.getElementById('modalUserTxtGender').innerText = targetData.gender || "Chưa cập nhật";
+                } else {
+                    document.getElementById('modalUserTxtGender').innerText = "••••••••";
+                    isHiddenInfo = true;
+                }
+                
+                if (targetData.showBirthday !== false) {
+                    document.getElementById('modalUserTxtBirthday').innerText = targetData.birthday || "Chưa cập nhật";
+                } else {
+                    document.getElementById('modalUserTxtBirthday').innerText = "••/••/••••";
+                    isHiddenInfo = true;
+                }
+                document.getElementById('modalUserPrivacyAlert').style.display = isHiddenInfo ? 'block' : 'none';
+                
+                let status = null;
+                let theirStatus = null;
+                let targetName = targetData.name || 'Người dùng';
+                
+                try {
+                    const statusSnap = await get(ref(db, `friend_status/${currentUser.uid}/${uid}`));
+                    status = statusSnap.val();
+                    
+                    const theirStatusSnap = await get(ref(db, `friend_status/${uid}/${currentUser.uid}`));
+                    theirStatus = theirStatusSnap.val();
+                } catch (e) {
+                    console.warn('Lỗi lấy trạng thái kết bạn:', e);
+                }
+                
+                let actionAreaHtml = "";
+                
+                if (uid === currentUser.uid) {
+                    actionAreaHtml = `<button class="btn btn-secondary px-4" disabled>👤 Đây là bạn</button>`;
+                } 
+                else if (status === 'blocked' || theirStatus === 'blocked') {
+                    if (status === 'blocked') {
+                        actionAreaHtml = `<button class="btn btn-warning" onclick="updateStatus('${uid}','unblock')">🔓 Bỏ chặn</button>`;
+                    } else {
+                        actionAreaHtml = `<button class="btn btn-secondary" disabled>🚫 Đã bị chặn</button>`;
+                    }
+                }
+                else if (status === "accepted" && theirStatus === "accepted") {
+                    actionAreaHtml = `
+                        <button class="btn btn-primary px-4" onclick="directMessageFromModal('${uid}','${targetName.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-comment"></i> Nhắn tin ngay
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="updateStatus('${uid}','remove')">
+                            <i class="fas fa-user-minus"></i> Xóa bạn
+                        </button>
+                    `;
+                }
+                else if (status === "outgoing") {
+                    actionAreaHtml = `
+                        <button class="btn btn-secondary" disabled>
+                            <i class="fas fa-clock"></i> Đang chờ chấp nhận
+                        </button>
+                        <button class="btn btn-danger" onclick="updateStatus('${uid}','cancel')">
+                            <i class="fas fa-times"></i> Hủy
+                        </button>
+                    `;
+                }
+                else if (status === "incoming") {
+                    actionAreaHtml = `
+                        <button class="btn btn-success" onclick="updateStatus('${uid}','accepted'); closeModalObj();">
+                            <i class="fas fa-check"></i> Chấp nhận kết bạn
+                        </button>
+                        <button class="btn btn-danger" onclick="updateStatus('${uid}','reject'); closeModalObj();">
+                            <i class="fas fa-times"></i> Từ chối
+                        </button>
+                    `;
+                }
+                else {
+                    if (targetData.allowFriendRequest !== false) {
+                        actionAreaHtml += `
+                            <button class="btn btn-success" onclick="sendFriendRequestFromModal('${uid}')">
+                                <i class="fas fa-user-plus"></i> Kết bạn
+                            </button>
+                        `;
+                    }
+                    
+                    let canChat = targetData.allowStrangerChat !== false;
+                    
+                    if (!canChat) {
+                        const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+                        const msgSnap = await get(ref(db, `messages/${chatId}`));
+                        if (msgSnap.exists()) {
+                            const clearSnap = await get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`));
+                            const clearTime = clearSnap.val() || 0;
+                            let hasValidMsg = false;
+                            msgSnap.forEach((m) => {
+                                const msg = m.val();
+                                if (msg.timestamp > clearTime && !(msg.deletedBy && msg.deletedBy[currentUser.uid])) {
+                                    hasValidMsg = true;
+                                }
+                            });
+                            if (hasValidMsg) {
+                                canChat = true;
+                            }
+                        }
+                    }
+                    
+                    if (canChat) {
+                        actionAreaHtml += `
+                            <button class="btn btn-outline-primary" onclick="directMessageFromModal('${uid}','${targetName.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-comment"></i> Nhắn tin ngay
+                            </button>
+                        `;
+                    }
+                    
+                    if (actionAreaHtml) {
+                        actionAreaHtml += `
+                            <button class="btn btn-outline-danger" onclick="updateStatus('${uid}','blocked')">
+                                <i class="fas fa-ban"></i> Chặn
+                            </button>
+                        `;
+                    } else {
+                        actionAreaHtml = `<button class="btn btn-secondary" disabled>Không thể tương tác</button>`;
+                    }
+                }
+                
+                document.getElementById('modalUserActionArea').innerHTML = actionAreaHtml;
+                
+                closeAllModals();
+                const modalEl = document.getElementById('userInfoModal');
+                setTimeout(() => {
+                    userInfoModalObj = new bootstrap.Modal(modalEl);
+                    activeModalInstance = userInfoModalObj;
+                    modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                        modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                        activeModalInstance = null;
+                        userInfoModalObj = null;
+                    }, { once: true });
+                    userInfoModalObj.show();
+                }, 150);
+                
+            } catch (error) {
+                console.error('Lỗi mở modal thông tin user:', error);
+                showToast("Lỗi", "Không thể tải thông tin. Vui lòng thử lại.", "error");
             }
-            
-            if (canChat) {
-                actionAreaHtml += `
-                    <button class="btn btn-outline-primary" onclick="directMessageFromModal('${uid}','${targetName.replace(/'/g, "\\'")}')">
-                        <i class="fas fa-comment"></i> Nhắn tin ngay
-                    </button>
-                `;
-            }
-            
-            // Nút chặn
-            if (actionAreaHtml) {
-                actionAreaHtml += `
-                    <button class="btn btn-outline-danger" onclick="updateStatus('${uid}','blocked')">
-                        <i class="fas fa-ban"></i> Chặn
-                    </button>
-                `;
-            } else {
-                actionAreaHtml = `<button class="btn btn-secondary" disabled>Không thể tương tác</button>`;
-            }
-        }
-        
-        document.getElementById('modalUserActionArea').innerHTML = actionAreaHtml;
-        
-        // ===== MỞ MODAL =====
-        closeAllModals();
-        const modalEl = document.getElementById('userInfoModal');
-        setTimeout(() => {
-            userInfoModalObj = new bootstrap.Modal(modalEl);
-            activeModalInstance = userInfoModalObj;
-            modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
-                modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+        };
+
+        window.closeModalObj = () => { 
+            if(userInfoModalObj) {
+                userInfoModalObj.hide();
                 activeModalInstance = null;
                 userInfoModalObj = null;
-            }, { once: true });
-            userInfoModalObj.show();
-        }, 150);
-        
-    } catch (error) {
-        console.error('Lỗi mở modal thông tin user:', error);
-        showToast("Lỗi", "Không thể tải thông tin. Vui lòng thử lại.", "error");
-    }
-};
-
-// ===== HÀM ĐÓNG MODAL =====
-window.closeModalObj = () => { 
-    if(userInfoModalObj) {
-        userInfoModalObj.hide();
-        activeModalInstance = null;
-        userInfoModalObj = null;
-    }
-};
+            }
+        };
 
         // ===== CLOSE MODAL =====
         function closeAllModals() {
@@ -2631,67 +2913,470 @@ window.closeModalObj = () => {
             return escapeHtml(name);
         }
 
-// Thêm vào phần onAuthStateChanged trong chat.html
+// ===== RENDER LINK ACCOUNT UI - SỬA LẠI HOÀN CHỈNH =====
+function renderLinkAccountUI() {
+    const container = document.getElementById('linkAccountContainer');
+    if (!container) return;
+    
+    // Lấy dữ liệu từ cache
+    const userData = userDataCache || {};
+    const linkedProviders = userData.providers || [];
+    const primaryProvider = linkedProviders.length > 0 ? linkedProviders[0] : null;
+    
+    const providers = [
+        { id: 'password', name: 'Email & Mật khẩu', icon: 'fa-envelope', color: 'email' },
+        { id: 'google', name: 'Google', icon: 'fa-google', color: 'google' }
+    ];
+    
+    let html = '';
+    
+    // Kiểm tra xem user đã có mật khẩu chưa (thông qua providers)
+    const hasPassword = linkedProviders.includes('password');
+    const hasGoogle = linkedProviders.includes('google');
+    
+    providers.forEach(provider => {
+        const isLinked = linkedProviders.includes(provider.id);
+        const isPrimary = primaryProvider === provider.id;
+        const isOnlyOne = linkedProviders.length === 1 && isLinked;
+        
+        let statusHtml = '';
+        let actionHtml = '';
+        
+        if (isLinked) {
+            statusHtml = `<span class="status-badge linked">✓ Đã liên kết</span>`;
+            if (isPrimary) {
+                statusHtml += ` <span class="status-badge primary">Chính</span>`;
+            }
+            
+            if (!isOnlyOne && linkedProviders.length > 1) {
+                actionHtml = `<button class="btn-link-action unlink-btn" onclick="unlinkProvider('${provider.id}')">
+                    <i class="fas fa-unlink"></i> Ngắt kết nối
+                </button>`;
+            } else if (isOnlyOne) {
+                actionHtml = `<button class="btn-link-action unlink-btn" disabled>
+                    <i class="fas fa-lock"></i> Không thể ngắt
+                </button>`;
+            } else {
+                actionHtml = `<button class="btn-link-action unlink-btn" disabled>
+                    <i class="fas fa-lock"></i> Cần phương thức khác
+                </button>`;
+            }
+        } else {
+            statusHtml = `<span class="status-badge unlinked">Chưa liên kết</span>`;
+            
+            if (provider.id === 'google') {
+                actionHtml = `<button class="btn-link-action link-btn" onclick="linkProvider('${provider.id}')">
+                    <i class="fas fa-link"></i> Liên kết
+                </button>`;
+            } else if (provider.id === 'password') {
+                // Nếu chưa có mật khẩu
+                actionHtml = `<button class="btn-link-action link-btn" onclick="switchPrivacySection('security'); showToast('Hướng dẫn', 'Vui lòng nhập mật khẩu mới trong tab Bảo mật để liên kết tài khoản Email.', 'info')">
+                    <i class="fas fa-key"></i> Thêm mật khẩu
+                </button>`;
+            } else {
+                actionHtml = `<span class="text-muted small">Chưa hỗ trợ</span>`;
+            }
+        }
+        
+        let iconColor = '';
+        if (provider.color === 'google') iconColor = '#ea4335';
+        else if (provider.color === 'email') iconColor = '#1a73e8';
+        
+        html += `
+            <div class="link-account-item">
+                <div class="provider-info">
+                    <div class="provider-icon ${provider.color}" style="background: ${iconColor};">
+                        <i class="fas ${provider.icon}"></i>
+                    </div>
+                    <div>
+                        <div class="provider-name">${provider.name}</div>
+                        <div class="provider-status">${statusHtml}</div>
+                    </div>
+                </div>
+                <div>
+                    ${actionHtml}
+                </div>
+            </div>
+        `;
+    });
+    
+    // Thêm thông tin về số lượng phương thức
+    html += `
+        <div class="link-account-help" style="margin-top: 12px;">
+            <i class="fas fa-info-circle"></i>
+            <span>Số lượng phương thức đăng nhập: <strong>${linkedProviders.length}</strong></span>
+            <br>
+            <span class="text-muted small">Bạn cần ít nhất 2 phương thức để có thể ngắt kết nối một phương thức.</span>
+        </div>
+    `;
+    
+    container.innerHTML = html;
+}
+
+// ===== LINK PROVIDER - GOOGLE (CÁCH ĐƠN GIẢN) =====
+window.linkProvider = async (providerId) => {
+    if (providerId === 'google') {
+        if (!currentUser) {
+            showToast('Lỗi', 'Vui lòng đăng nhập trước khi liên kết tài khoản.', 'error');
+            return;
+        }
+        
+        try {
+            const userData = userDataCache || {};
+            const currentEmail = userData.email || currentUser.email;
+            const currentProviders = userData.providers || [];
+            
+            if (currentProviders.includes('google')) {
+                showToast('Thông báo', 'Tài khoản Google đã được liên kết.', 'info');
+                renderLinkAccountUI();
+                return;
+            }
+            
+            showLoading('Đang liên kết tài khoản Google...');
+            
+            const provider = new GoogleAuthProvider();
+            
+            // Đăng nhập Google - user sẽ được thay thế
+            const result = await signInWithPopup(auth, provider);
+            const googleUser = result.user;
+            
+            // Kiểm tra email
+            if (googleUser.email.toLowerCase() === currentEmail.toLowerCase()) {
+                // Lưu providers vào database
+                const newProviders = [...currentProviders, 'google'];
+                
+                await update(ref(db, `users/${currentUser.uid}`), { 
+                    providers: newProviders 
+                });
+                
+                userDataCache = { ...userData, providers: newProviders };
+                renderLinkAccountUI();
+                
+                hideLoading();
+                showToast('Thành công', 'Đã liên kết tài khoản Google thành công!', 'success');
+            } else {
+                hideLoading();
+                showToast('Lỗi', 'Email Google không khớp với email hiện tại.', 'error');
+            }
+            
+        } catch (error) {
+            hideLoading();
+            console.error('Lỗi liên kết Google:', error);
+            
+            if (error.code === 'auth/popup-closed-by-user') {
+                showToast('Thông báo', 'Bạn đã đóng cửa sổ đăng nhập.', 'warning');
+            } else if (error.code === 'auth/credential-already-in-use') {
+                showToast('Thông báo', 'Tài khoản Google này đã được liên kết với tài khoản khác.', 'warning');
+            } else {
+                showToast('Lỗi', 'Không thể liên kết tài khoản Google. Vui lòng thử lại.', 'error');
+            }
+        }
+    }
+};
+
+// ===== SHOW/HIDE LOADING =====
+function showLoading(message = 'Đang xử lý...') {
+    const overlay = document.getElementById('formLoadingOverlay');
+    if (overlay) {
+        document.getElementById('loadingText').textContent = message;
+        overlay.classList.add('show');
+    }
+}
+
+function hideLoading() {
+    const overlay = document.getElementById('formLoadingOverlay');
+    if (overlay) {
+        overlay.classList.remove('show');
+    }
+}
+
+// ===== SỬA HÀM UNLINK PROVIDER =====
+window.unlinkProvider = async (providerId) => {
+    const snap = await get(ref(db, `users/${currentUser.uid}`));
+    if (!snap.exists()) return;
+    
+    const data = snap.val();
+    let providers = data.providers || [];
+    
+    // Kiểm tra nếu chỉ có 1 provider thì không cho ngắt
+    if (providers.length <= 1) {
+        showToast('Thông báo', 'Bạn cần có ít nhất 2 phương thức đăng nhập để ngắt kết nối.', 'warning');
+        renderLinkAccountUI();
+        return;
+    }
+    
+    // Nếu provider là password (email), cần kiểm tra kỹ
+    if (providerId === 'password') {
+        const socialProviders = providers.filter(p => p !== 'password');
+        if (socialProviders.length === 0) {
+            showToast('Thông báo', 'Bạn cần có ít nhất 1 phương thức đăng nhập thay thế để ngắt kết nối Email.', 'warning');
+            renderLinkAccountUI();
+            return;
+        }
+    }
+    
+    // Kiểm tra nếu đang ngắt Google và có nhiều hơn 1 provider
+    if (providerId === 'google') {
+        const otherProviders = providers.filter(p => p !== 'google');
+        if (otherProviders.length === 0) {
+            showToast('Thông báo', 'Bạn cần có ít nhất 1 phương thức đăng nhập thay thế để ngắt kết nối Google.', 'warning');
+            renderLinkAccountUI();
+            return;
+        }
+    }
+    
+    // Kiểm tra nếu đây là phương thức đăng nhập chính và chỉ có 2 phương thức
+    if (providers.length === 2 && providers[0] === providerId) {
+        showConfirm(
+            `<div class="text-center">
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--warning); display: block; margin-bottom: 15px;"></i>
+                <p><strong>Đây là phương thức đăng nhập chính của bạn.</strong></p>
+                <p class="text-muted small">Sau khi ngắt kết nối, phương thức còn lại sẽ trở thành phương thức chính.</p>
+            </div>`,
+            async () => {
+                await performUnlink(providerId, providers, data);
+            }
+        );
+    } else {
+        showConfirm(
+            `<div class="text-center">
+                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--danger); display: block; margin-bottom: 15px;"></i>
+                <p><strong>Bạn có chắc chắn muốn ngắt kết nối <span style="color: var(--danger);">${providerId === 'password' ? 'Email & Mật khẩu' : providerId === 'google' ? 'Google' : providerId}</span>?</strong></p>
+                <p class="text-muted small">Sau khi ngắt kết nối, bạn sẽ không thể đăng nhập bằng phương thức này nữa.</p>
+            </div>`,
+            async () => {
+                await performUnlink(providerId, providers, data);
+            }
+        );
+    }
+};
+
+// ===== HÀM THỰC HIỆN NGẮT KẾT NỐI =====
+async function performUnlink(providerId, providers, data) {
+    try {
+        // Xóa provider khỏi danh sách
+        const newProviders = providers.filter(p => p !== providerId);
+        
+        // Nếu đang ngắt kết nối Google, cần xóa provider trong Firebase Auth
+        if (providerId === 'google') {
+            try {
+                // Lấy tất cả providers từ Firebase Auth
+                const user = auth.currentUser;
+                if (user) {
+                    // Không thể xóa provider trực tiếp từ Firebase Auth
+                    // Chỉ cần xóa trong database là đủ
+                    // Người dùng sẽ không thể đăng nhập bằng Google nữa
+                }
+            } catch (authError) {
+                console.warn('Không thể xóa provider trong Auth:', authError);
+            }
+        }
+        
+        // Cập nhật vào database
+        await update(ref(db, `users/${currentUser.uid}`), { 
+            providers: newProviders 
+        });
+        
+        // Cập nhật cache
+        userDataCache = { ...data, providers: newProviders };
+        
+        // Cập nhật lại UI
+        renderLinkAccountUI();
+        
+        showToast('Thành công', 'Đã ngắt kết nối thành công!', 'success');
+    } catch (error) {
+        console.error('Lỗi ngắt kết nối:', error);
+        showToast('Lỗi', 'Không thể ngắt kết nối. Vui lòng thử lại.', 'error');
+    }
+}
+
+        // ===== SAVE SOCIAL AVATAR =====
+        async function saveSocialAvatar(user) {
+            if (!user || !user.photoURL) return null;
+            
+            try {
+                const snap = await get(ref(db, `users/${user.uid}/avatar`));
+                if (snap.exists()) return snap.val();
+                
+                const response = await fetch(user.photoURL);
+                const blob = await response.blob();
+                const reader = new FileReader();
+                const avatarData = await new Promise((resolve) => {
+                    reader.onload = () => resolve(reader.result);
+                    reader.readAsDataURL(blob);
+                });
+                
+                await update(ref(db, `users/${user.uid}`), { avatar: avatarData });
+                return avatarData;
+            } catch (e) {
+                console.warn('Không thể lưu avatar từ social:', e);
+                return null;
+            }
+        }
+
+// ===== AUTH STATE =====
 onAuthStateChanged(auth, (user) => {
     if (!user) { 
         cleanupChatListeners(); 
         cleanupGlobalListeners();
         currentUser = null; 
-        window.location.href = "index.html"; 
+        
+        // Kiểm tra nếu có tham số uid trong URL, chuyển hướng đến index.html với tham số redirect
+        const params = new URLSearchParams(window.location.search);
+        const uid = params.get('uid');
+        if (uid) {
+            window.location.href = `index.html?redirect=chat&uid=${uid}`;
+        } else {
+            window.location.href = "index.html";
+        }
     } else {
         currentUser = user;
-        onValue(ref(db, `users/${user.uid}`), (snap) => {
-            const data = snap.val();
-            if(data) {
-                if(data.isLocked === true || data.isLocked === "true") { 
-                    signOut(auth); 
-                    return; 
-                }
-                
-                const displayEmail = data.email || user.email || 'Chưa có email';
-                document.getElementById('my-email').innerText = displayEmail;
-                document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
-                
-                // Kiểm tra và cập nhật avatar
-                let avatar = getAvatarDataFromUser(data);
-                
-                // Nếu không có avatar trong DB nhưng user có photoURL từ social
-                if (!avatar && user.photoURL) {
-                    // Lưu avatar từ social vào DB
-                    fetch(user.photoURL)
-                        .then(res => res.blob())
-                        .then(blob => {
-                            const reader = new FileReader();
-                            reader.onload = async () => {
-                                const avatarData = reader.result;
-                                await update(ref(db, `users/${user.uid}`), { avatar: avatarData });
-                                updateAvatarUI(avatarData);
-                            };
-                            reader.readAsDataURL(blob);
-                        })
-                        .catch(e => console.warn('Không thể tải avatar từ social:', e));
-                }
-                
-                updateAvatarUI(avatar);
-                
-                if (!avatar) {
-                    const placeholder = document.getElementById('my-avatar-placeholder');
-                    const name = data.name || 'Người dùng';
-                    placeholder.textContent = name.charAt(0).toUpperCase();
-                }
-                
-                if (data.birthday && isUnderAge(data.birthday) && !ageWarningShown) {
-                    setTimeout(() => {
-                        showAgeWarning();
-                    }, 1000);
-                }
-                
-                syncLists(); 
-                setupOutsideClick();
+        // Kiểm tra user có trong DB không
+        get(ref(db, `users/${user.uid}`)).then((snap) => {
+            if (!snap.exists()) {
+                showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ.', 'warning');
+                signOut(auth);
+                window.location.href = "index.html";
+                return;
             }
+            
+            // User có trong DB, tiếp tục
+            onValue(ref(db, `users/${user.uid}`), (dataSnap) => {
+                const data = dataSnap.val();
+                if(data) {
+                    if(data.isLocked === true || data.isLocked === "true") { 
+                        signOut(auth); 
+                        return; 
+                    }
+                    
+                    // Cập nhật cache
+                    userDataCache = data;
+                    
+                    const displayEmail = data.email || user.email || 'Chưa có email';
+                    document.getElementById('my-email').innerText = displayEmail;
+                    document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
+                    
+                    let avatar = getAvatarDataFromUser(data);
+                    
+                    if (!avatar && user.photoURL) {
+                        fetch(user.photoURL)
+                            .then(res => res.blob())
+                            .then(blob => {
+                                const reader = new FileReader();
+                                reader.onload = async () => {
+                                    const avatarData = reader.result;
+                                    await update(ref(db, `users/${user.uid}`), { avatar: avatarData });
+                                    updateAvatarUI(avatarData);
+                                    userDataCache.avatar = avatarData;
+                                };
+                                reader.readAsDataURL(blob);
+                            })
+                            .catch(e => console.warn('Không thể tải avatar từ social:', e));
+                    }
+                    
+                    updateAvatarUI(avatar);
+                    
+                    if (!avatar) {
+                        const placeholder = document.getElementById('my-avatar-placeholder');
+                        const name = data.name || 'Người dùng';
+                        placeholder.textContent = name.charAt(0).toUpperCase();
+                    }
+                    
+                    if (data.birthday && isUnderAge(data.birthday) && !ageWarningShown) {
+                        setTimeout(() => {
+                            showAgeWarning();
+                        }, 1000);
+                    }
+                    
+                    // ===== TẠO USER ID NẾU CHƯA CÓ =====
+                    ensureUserId(user.uid).then((userId) => {
+                        if (userId) {
+                            updateReferralLinkWithId(userId);
+                            updateReferralLinkInPrivacy(userId);
+                            updateProfileLinkInPrivacy(userId);
+                            localStorage.setItem('viechat_userId', userId);
+                        }
+                    }).catch((err) => {
+                        console.error('Lỗi tạo userId:', err);
+                    });
+                    
+                    syncLists(); 
+                    setupOutsideClick();
+                    
+                    // Xử lý tham số URL để mở chat
+                    if (window.location.search.includes('uid')) {
+                        setTimeout(handleUrlParams, 1500);
+                    }
+                    
+                    // Nếu modal đang mở, cập nhật UI link account
+                    if (privacySettingsModalObj && document.getElementById('privacySettingsModal').classList.contains('show')) {
+                        renderLinkAccountUI();
+                    }
+                }
+            });
+        }).catch((error) => {
+            console.error('Lỗi kiểm tra user:', error);
+            showToast('Lỗi', 'Không thể kiểm tra thông tin tài khoản.', 'error');
+            signOut(auth);
+            window.location.href = "index.html";
         });
     }
 });
+
+// ===== USER ID GENERATION =====
+function generateUserId() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let userId = '';
+    for (let i = 0; i < 8; i++) {
+        userId += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return userId;
+}
+
+async function ensureUserId(uid) {
+    try {
+        const userSnap = await get(ref(db, `users/${uid}`));
+        if (!userSnap.exists()) return null;
+        
+        const userData = userSnap.val();
+        
+        // Nếu đã có userId thì trả về
+        if (userData.userId) {
+            return userData.userId;
+        }
+        
+        // Tạo userId mới
+        let userId = generateUserId();
+        let isDuplicate = true;
+        let attempts = 0;
+        
+        while (isDuplicate && attempts < 20) {
+            const checkSnap = await get(ref(db, `users_by_id/${userId}`));
+            if (!checkSnap.exists()) {
+                isDuplicate = false;
+            } else {
+                userId = generateUserId();
+                attempts++;
+            }
+        }
+        
+        if (isDuplicate) {
+            console.error('Không thể tạo userId duy nhất');
+            return null;
+        }
+        
+        // Lưu userId
+        await update(ref(db), {
+            [`users/${uid}/userId`]: userId,
+            [`users_by_id/${userId}`]: uid
+        });
+        
+        return userId;
+    } catch (error) {
+        console.error('Lỗi tạo userId:', error);
+        return null;
+    }
+}
 
         // ===== SHOW CONFIRM =====
         window.showConfirm = (message, onOk) => {
@@ -2735,240 +3420,245 @@ onAuthStateChanged(auth, (user) => {
             }, 150);
         };
 
-// Thêm vào phần showPrivacyModal để kiểm tra provider
 window.showPrivacyModal = async () => {
-    const snap = await get(ref(db, `users/${currentUser.uid}`));
-    if(snap.exists()){
-        const d = snap.val();
-        document.getElementById('privInputName').value = d.name || '';
-        document.getElementById('privInputGender').value = d.gender || "Nam";
-        document.getElementById('privInputBirthday').value = d.birthday || "2000-01-01";
-        
-        document.getElementById('privSwitchShowGender').checked = d.showGender !== false;
-        document.getElementById('privSwitchShowBirthday').checked = d.showBirthday !== false;
-        document.getElementById('privSwitchAllowSearch').checked = d.allowSearch !== false;
-        document.getElementById('privSwitchAllowFriend').checked = d.allowFriendRequest !== false;
-        document.getElementById('privSwitchAllowStrangerChat').checked = d.allowStrangerChat !== false;
-        
-        // Kiểm tra provider để ẩn/hiện input mật khẩu cũ
-        const providers = d.providers || [];
-        const hasPasswordProvider = providers.includes('password');
-        const oldPasswordGroup = document.getElementById('privOldPasswordGroup');
-        if (oldPasswordGroup) {
-            if (hasPasswordProvider) {
-                oldPasswordGroup.style.display = 'block';
-            } else {
-                oldPasswordGroup.style.display = 'none';
+    try {
+        const snap = await get(ref(db, `users/${currentUser.uid}`));
+        if (snap.exists()) {
+            const d = snap.val();
+            // Cập nhật cache
+            userDataCache = d;
+            
+            document.getElementById('privInputName').value = d.name || '';
+            document.getElementById('privInputGender').value = d.gender || "Nam";
+            document.getElementById('privInputBirthday').value = d.birthday || "2000-01-01";
+            
+            document.getElementById('privSwitchShowGender').checked = d.showGender !== false;
+            document.getElementById('privSwitchShowBirthday').checked = d.showBirthday !== false;
+            document.getElementById('privSwitchAllowSearch').checked = d.allowSearch !== false;
+            document.getElementById('privSwitchAllowFriend').checked = d.allowFriendRequest !== false;
+            document.getElementById('privSwitchAllowStrangerChat').checked = d.allowStrangerChat !== false;
+            
+            const providers = d.providers || [];
+            const hasPasswordProvider = providers.includes('password');
+            const oldPasswordGroup = document.getElementById('privOldPasswordGroup');
+            if (oldPasswordGroup) {
+                oldPasswordGroup.style.display = hasPasswordProvider ? 'block' : 'none';
             }
+            
+            document.getElementById('privOldPassword').value = '';
+            document.getElementById('privNewPassword').value = '';
+            document.getElementById('privConfirmPassword').value = '';
+            document.getElementById('privDeleteConfirmCode').value = '';
+            
+            updatePasswordStrengthUI('', 'privStrengthFill', 'privStrengthLabel', 'priv');
+            
+            // ===== CẬP NHẬT LINK HỒ SƠ VÀ LINK GIỚI THIỆU =====
+            const userId = d.userId || localStorage.getItem('viechat_userId');
+            if (userId) {
+                updateProfileLinkInPrivacy(userId);
+                updateReferralLinkInPrivacy(userId);
+            }
+            
+            const modalEl = document.getElementById('privacySettingsModal');
+            closeAllModals();
+            setTimeout(() => {
+                privacySettingsModalObj = new bootstrap.Modal(modalEl);
+                activeModalInstance = privacySettingsModalObj;
+                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                    activeModalInstance = null;
+                }, { once: true });
+                privacySettingsModalObj.show();
+                
+                setTimeout(() => {
+                    renderLinkAccountUI();
+                    checkActivationStatus();
+                }, 300);
+            }, 150);
         }
-        
-        // Reset password fields
-        document.getElementById('privOldPassword').value = '';
-        document.getElementById('privNewPassword').value = '';
-        document.getElementById('privConfirmPassword').value = '';
-        document.getElementById('privDeleteConfirmCode').value = '';
-        
-        // Reset password strength UI
-        updatePasswordStrengthUI('', 'privStrengthFill', 'privStrengthLabel', 'priv');
-        
-        const modalEl = document.getElementById('privacySettingsModal');
-        closeAllModals();
-        setTimeout(() => {
-            privacySettingsModalObj = new bootstrap.Modal(modalEl);
-            activeModalInstance = privacySettingsModalObj;
-            modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
-                modalEl.removeEventListener('hidden.bs.modal', handleHidden);
-                activeModalInstance = null;
-            }, { once: true });
-            privacySettingsModalObj.show();
-        }, 150);
+    } catch (error) {
+        console.error('Lỗi mở modal:', error);
+        showToast('Lỗi', 'Không thể mở cài đặt. Vui lòng thử lại.', 'error');
     }
 };
 
         // ===== SAVE ALL PROFILE INFORMATION =====
-    window.saveAllProfileInfo = async () => {
-    if (!currentUser) {
-        showToast("Lỗi", "Bạn chưa đăng nhập. Vui lòng đăng nhập và thực hiện lại thao tác này", "error");
-        return;
-    }
-    
-    const name = document.getElementById('privInputName').value.trim();
-    const gender = document.getElementById('privInputGender').value;
-    const birthday = document.getElementById('privInputBirthday').value;
-    
-    // Kiểm tra tên không được để trống
-    if (!name) {
-        showToast("Lỗi", "Tên hiển thị không được để trống.", "error");
-        document.getElementById('privInputName').focus();
-        return;
-    }
-    
-    // Kiểm tra ngày sinh hợp lệ
-    if (!birthday) {
-        showToast("Lỗi", "Vui lòng chọn ngày sinh.", "error");
-        document.getElementById('privInputBirthday').focus();
-        return;
-    }
-    
-    try {
-        const updateData = {
-            name: name,
-            gender: gender,
-            birthday: birthday
-        };
-        
-        await update(ref(db, `users/${currentUser.uid}`), updateData);
-        
-        // Cập nhật UI tên hiển thị
-        const userSnap = await get(ref(db, `users/${currentUser.uid}`));
-        if (userSnap.exists()) {
-            const data = userSnap.val();
-            document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
-            
-            // Cập nhật avatar placeholder nếu không có avatar
-            const avatar = getAvatarDataFromUser(data);
-            if (!avatar) {
-                const placeholder = document.getElementById('my-avatar-placeholder');
-                placeholder.textContent = (data.name || 'U').charAt(0).toUpperCase();
+        window.saveAllProfileInfo = async () => {
+            if (!currentUser) {
+                showToast("Lỗi", "Bạn chưa đăng nhập. Vui lòng đăng nhập và thực hiện lại thao tác này", "error");
+                return;
             }
-        }
-        
-        // Kiểm tra tuổi sau khi cập nhật
-        if (birthday) {
-            if (!isUnderAge(birthday)) {
+            
+            const name = document.getElementById('privInputName').value.trim();
+            const gender = document.getElementById('privInputGender').value;
+            const birthday = document.getElementById('privInputBirthday').value;
+            
+            if (!name) {
+                showToast("Lỗi", "Tên hiển thị không được để trống.", "error");
+                document.getElementById('privInputName').focus();
+                return;
+            }
+            
+            if (!birthday) {
+                showToast("Lỗi", "Vui lòng chọn ngày sinh.", "error");
+                document.getElementById('privInputBirthday').focus();
+                return;
+            }
+            
+            try {
+                const updateData = {
+                    name: name,
+                    gender: gender,
+                    birthday: birthday
+                };
+                
+                await update(ref(db, `users/${currentUser.uid}`), updateData);
+                
+                const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+                if (userSnap.exists()) {
+                    const data = userSnap.val();
+                    userDataCache = data;
+                    document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
+                    
+                    const avatar = getAvatarDataFromUser(data);
+                    if (!avatar) {
+                        const placeholder = document.getElementById('my-avatar-placeholder');
+                        placeholder.textContent = (data.name || 'U').charAt(0).toUpperCase();
+                    }
+                }
+                
+                if (birthday) {
+                    if (!isUnderAge(birthday)) {
+                        if (ageWarningModalObj) {
+                            ageWarningModalObj.hide();
+                            ageWarningModalObj = null;
+                        }
+                        ageWarningShown = false;
+                    } else {
+                        showAgeWarning();
+                    }
+                }
+                
+                showToast("Thành công", "Đã cập nhật thông tin cá nhân thành công!", "success");
+                
+            } catch (error) {
+                console.error('Lỗi lưu thông tin:', error);
+                showToast("Lỗi", "Không thể lưu thông tin. Vui lòng thử lại.", "error");
+            }
+        };
+
+        // ===== CHANGE PASSWORD FROM PRIVACY =====
+        window.changePasswordFromPrivacy = async () => {
+            const newPw = document.getElementById('privNewPassword').value;
+            const confPw = document.getElementById('privConfirmPassword').value;
+            
+            if (!newPw || !confPw) {
+                showToast("Lỗi", "Vui lòng nhập đầy đủ mật khẩu mới và xác nhận.", "error");
+                return;
+            }
+            
+            const strengthResult = checkPasswordStrength(newPw);
+            if (!strengthResult.isValid) {
+                showToast("Mật khẩu yếu", "Vui lòng tạo mật khẩu mạnh hơn với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.", "error");
+                return;
+            }
+            
+            if (newPw !== confPw) {
+                showToast("Lỗi", "Xác nhận mật khẩu mới không khớp.", "error");
+                return;
+            }
+            
+            if (newPw.length < 6) {
+                showToast("Lỗi", "Mật khẩu mới phải từ 6 ký tự trở lên.", "error");
+                return;
+            }
+            
+            const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+            let hasPasswordProvider = false;
+            let currentProviders = [];
+            if (userSnap.exists()) {
+                const userData = userSnap.val();
+                currentProviders = userData.providers || [];
+                hasPasswordProvider = currentProviders.includes('password');
+            }
+            
+            if (hasPasswordProvider) {
+                const oldPw = document.getElementById('privOldPassword').value;
+                if (!oldPw) {
+                    showToast("Lỗi", "Vui lòng nhập mật khẩu cũ để xác thực.", "error");
+                    document.getElementById('privOldPassword').focus();
+                    return;
+                }
+                
+                try {
+                    const credential = EmailAuthProvider.credential(currentUser.email, oldPw);
+                    await reauthenticateWithCredential(auth.currentUser, credential);
+                    await updatePassword(auth.currentUser, newPw);
+                    
+                    document.getElementById('privOldPassword').value = '';
+                    document.getElementById('privNewPassword').value = '';
+                    document.getElementById('privConfirmPassword').value = '';
+                    updatePasswordStrengthUI('', 'privStrengthFill', 'privStrengthLabel', 'priv');
+                    showToast("Thành công", "Đã thay đổi mật khẩu thành công.", "success");
+                } catch (error) {
+                    if (error.code === 'auth/wrong-password') {
+                        showToast("Lỗi", "Mật khẩu cũ không chính xác. Vui lòng thử lại.", "error");
+                    } else {
+                        showToast("Lỗi", "Không thể đổi mật khẩu. Vui lòng thử lại.", "error");
+                    }
+                }
+            } else {
+                try {
+                    await updatePassword(auth.currentUser, newPw);
+                    
+                    const newProviders = [...currentProviders, 'password'];
+                    await update(ref(db, `users/${currentUser.uid}`), {
+                        providers: newProviders
+                    });
+                    
+                    userDataCache.providers = newProviders;
+                    
+                    document.getElementById('privNewPassword').value = '';
+                    document.getElementById('privConfirmPassword').value = '';
+                    updatePasswordStrengthUI('', 'privStrengthFill', 'privStrengthLabel', 'priv');
+                    
+                    const oldPasswordGroup = document.getElementById('privOldPasswordGroup');
+                    if (oldPasswordGroup) {
+                        oldPasswordGroup.style.display = 'block';
+                    }
+                    
+                    showToast("Thành công", "Đã thêm mật khẩu và đổi mật khẩu thành công!", "success");
+                    
+                    renderLinkAccountUI();
+                } catch (error) {
+                    console.error('Lỗi đổi mật khẩu social:', error);
+                    showToast("Lỗi", "Không thể đổi mật khẩu. Vui lòng thử lại.", "error");
+                }
+            }
+        };
+
+        // ===== SAVE PRIVACY SETTINGS =====
+        window.savePrivacySettings = async () => {
+            const newBirthday = document.getElementById('privInputBirthday').value;
+            const upd = {
+                showGender: document.getElementById('privSwitchShowGender').checked,
+                showBirthday: document.getElementById('privSwitchShowBirthday').checked,
+                allowSearch: document.getElementById('privSwitchAllowSearch').checked,
+                allowFriendRequest: document.getElementById('privSwitchAllowFriend').checked,
+                allowStrangerChat: document.getElementById('privSwitchAllowStrangerChat').checked,
+            };
+            await update(ref(db, `users/${currentUser.uid}`), upd);
+            
+            if (newBirthday && !isUnderAge(newBirthday)) {
                 if (ageWarningModalObj) {
                     ageWarningModalObj.hide();
                     ageWarningModalObj = null;
                 }
                 ageWarningShown = false;
-            } else {
-                showAgeWarning();
             }
-        }
-        
-        showToast("Thành công", "Đã cập nhật thông tin cá nhân thành công!", "success");
-        
-    } catch (error) {
-        console.error('Lỗi lưu thông tin:', error);
-        showToast("Lỗi", "Không thể lưu thông tin. Vui lòng thử lại.", "error");
-    }
-};
-
-        // ===== SAVE DISPLAY NAME =====
-        // window.saveDisplayName = async () => {
-        //     const name = document.getElementById('privInputName').value.trim();
-        //     if (!name) {
-        //         showToast("Lỗi", "Tên hiển thị không được để trống.", "error");
-        //         return;
-        //     }
-        //     await update(ref(db, `users/${currentUser.uid}`), { name: name });
-        //     showToast("Thành công", "Đã cập nhật tên hiển thị.", "success");
-        // };
-
-// ===== CHANGE PASSWORD FROM PRIVACY =====
-window.changePasswordFromPrivacy = async () => {
-    const newPw = document.getElementById('privNewPassword').value;
-    const confPw = document.getElementById('privConfirmPassword').value;
-    
-    if (!newPw || !confPw) {
-        showToast("Lỗi", "Vui lòng nhập đầy đủ mật khẩu mới và xác nhận.", "error");
-        return;
-    }
-    
-    // Kiểm tra độ mạnh mật khẩu mới
-    const strengthResult = checkPasswordStrength(newPw);
-    if (!strengthResult.isValid) {
-        showToast("Mật khẩu yếu", "Vui lòng tạo mật khẩu mạnh hơn với ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.", "error");
-        return;
-    }
-    
-    if (newPw !== confPw) {
-        showToast("Lỗi", "Xác nhận mật khẩu mới không khớp.", "error");
-        return;
-    }
-    
-    if (newPw.length < 6) {
-        showToast("Lỗi", "Mật khẩu mới phải từ 6 ký tự trở lên.", "error");
-        return;
-    }
-    
-    // Kiểm tra user có provider là password hay không
-    const userSnap = await get(ref(db, `users/${currentUser.uid}`));
-    let hasPasswordProvider = false;
-    if (userSnap.exists()) {
-        const userData = userSnap.val();
-        const providers = userData.providers || [];
-        hasPasswordProvider = providers.includes('password');
-    }
-    
-    if (hasPasswordProvider) {
-        // Nếu có provider password, yêu cầu nhập mật khẩu cũ
-        const oldPw = document.getElementById('privOldPassword').value;
-        if (!oldPw) {
-            showToast("Lỗi", "Vui lòng nhập mật khẩu cũ để xác thực.", "error");
-            document.getElementById('privOldPassword').focus();
-            return;
-        }
-        
-        try {
-            const credential = EmailAuthProvider.credential(currentUser.email, oldPw);
-            await reauthenticateWithCredential(auth.currentUser, credential);
-            await updatePassword(auth.currentUser, newPw);
             
-            document.getElementById('privOldPassword').value = '';
-            document.getElementById('privNewPassword').value = '';
-            document.getElementById('privConfirmPassword').value = '';
-            updatePasswordStrengthUI('', 'privStrengthFill', 'privStrengthLabel', 'priv');
-            showToast("Thành công", "Đã thay đổi mật khẩu thành công.", "success");
-        } catch (error) {
-            if (error.code === 'auth/wrong-password') {
-                showToast("Lỗi", "Mật khẩu cũ không chính xác. Vui lòng thử lại.", "error");
-            } else {
-                showToast("Lỗi", "Không thể đổi mật khẩu. Vui lòng thử lại.", "error");
-            }
-        }
-    } else {
-        // Tài khoản social - chỉ cần nhập mật khẩu mới và xác nhận
-        try {
-            await updatePassword(auth.currentUser, newPw);
-            
-            // Cập nhật providers để thêm 'password'
-            await update(ref(db, `users/${currentUser.uid}`), {
-                providers: ['password']
-            });
-            
-            document.getElementById('privNewPassword').value = '';
-            document.getElementById('privConfirmPassword').value = '';
-            updatePasswordStrengthUI('', 'privStrengthFill', 'privStrengthLabel', 'priv');
-            showToast("Thành công", "Đã thêm mật khẩu và đổi mật khẩu thành công!", "success");
-        } catch (error) {
-            console.error('Lỗi đổi mật khẩu social:', error);
-            showToast("Lỗi", "Không thể đổi mật khẩu. Vui lòng thử lại.", "error");
-        }
-    }
-};
-
-window.savePrivacySettings = async () => {
-    const newBirthday = document.getElementById('privInputBirthday').value;
-    const upd = {
-        showGender: document.getElementById('privSwitchShowGender').checked,
-        showBirthday: document.getElementById('privSwitchShowBirthday').checked,
-        allowSearch: document.getElementById('privSwitchAllowSearch').checked,
-        allowFriendRequest: document.getElementById('privSwitchAllowFriend').checked,
-        allowStrangerChat: document.getElementById('privSwitchAllowStrangerChat').checked,
-    };
-    await update(ref(db, `users/${currentUser.uid}`), upd);
-    
-    if (newBirthday && !isUnderAge(newBirthday)) {
-        if (ageWarningModalObj) {
-            ageWarningModalObj.hide();
-            ageWarningModalObj = null;
-        }
-        ageWarningShown = false;
-    }
-    
-    showToast("Thành công", "Đã cập nhật cài đặt quyền riêng tư.", "success");
-};
+            showToast("Thành công", "Đã cập nhật cài đặt quyền riêng tư.", "success");
+        };
 
         // ===== DELETE ACCOUNT FROM PRIVACY =====
         window.deleteAccountFromPrivacy = async () => {
@@ -3177,272 +3867,162 @@ window.savePrivacySettings = async () => {
             openChatFunction(uid, name, null); 
         };
 
-        window.closeModalObj = () => { 
-            if(userInfoModalObj) {
-                userInfoModalObj.hide();
-                activeModalInstance = null;
-                userInfoModalObj = null;
-            }
-        };
-
-// ===== UPDATE STATUS =====
-window.updateStatus = async (uid, status) => {
-    const myUid = currentUser.uid;
-    const updates = {};
-    
-    if (status === 'accepted') {
-        updates[`friend_status/${myUid}/${uid}`] = "accepted";
-        updates[`friend_status/${uid}/${myUid}`] = "accepted";
-        await update(ref(db), updates);
-        showToast("Thành công", "Đã kết bạn thành công!", "success");
-        setTimeout(() => openChatFunction(uid, "", null), 400);
-    } 
-    // ===== BỎ CHẶN: CHỈ XÓA STATUS BLOCKED =====
-    else if (status === 'unblock') {
-        // Xóa status 'blocked' của mình
-        await remove(ref(db, `friend_status/${myUid}/${uid}`));
-        // Kiểm tra nếu đã từng là bạn bè thì tạo lại status 'accepted'
-        const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
-        // Nếu phía kia vẫn còn 'accepted' thì mình cũng tạo lại 'accepted'
-        if (theirStatus.val() === 'accepted') {
-            await set(ref(db, `friend_status/${myUid}/${uid}`), 'accepted');
-            showToast("Thành công", "Đã bỏ chặn", "success");
-        } else {
-            // Nếu không còn là bạn bè, tạo lại 'stranger' nếu có tin nhắn
-            const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
-            const msgSnap = await get(ref(db, `messages/${chatId}`));
-            if (msgSnap.exists()) {
-                await set(ref(db, `friend_status/${myUid}/${uid}`), 'stranger');
-            }
-            showToast("Thành công", "Đã bỏ chặn!", "success");
-        }
-        if(activeChatId && activeChatId.includes(uid)) goHome();
-    } 
-    else if (status === 'unblock_stranger') {
-        // Xóa status 'blocked' của mình
-        await remove(ref(db, `friend_status/${myUid}/${uid}`));
-        // Kiểm tra nếu đã từng là bạn bè thì tạo lại status 'accepted'
-        const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
-        if (theirStatus.val() === 'accepted') {
-            await set(ref(db, `friend_status/${myUid}/${uid}`), 'accepted');
-            showToast("Thành công", "Đã bỏ chặn", "success");
-        } else {
-            const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
-            const msgSnap = await get(ref(db, `messages/${chatId}`));
-            if (msgSnap.exists()) {
-                await set(ref(db, `friend_status/${myUid}/${uid}`), 'stranger');
-            }
-            showToast("Thành công", "Đã bỏ chặn!", "success");
-        }
-        if(activeChatId && activeChatId.includes(uid)) goHome();
-    } 
-    // ===== CHẶN: GIỮ NGUYÊN TRẠNG THÁI BẠN BÈ, CHỈ THÊM BLOCKED =====
-    else if (status === 'blocked') {
-        // Kiểm tra xem có đang là bạn bè không
-        const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
-        const currentRel = await get(ref(db, `friend_status/${myUid}/${uid}`));
-        
-        // Nếu đang là bạn bè (accepted) thì giữ nguyên, chỉ thêm blocked
-        if (currentRel.val() === 'accepted' || theirStatus.val() === 'accepted') {
-            // Giữ nguyên status 'accepted' và thêm 'blocked' riêng
-            await set(ref(db, `friend_status/${myUid}/${uid}`), "blocked");
-            // KHÔNG XÓA 'accepted' của người kia
-            showToast("Thông báo", "Đã chặn bạn bè!", "warning");
-        } else {
-            // Nếu chưa là bạn bè thì chỉ chặn
-            await set(ref(db, `friend_status/${myUid}/${uid}`), "blocked");
-            showToast("Thành công", "Đã chặn người dùng!", "warning");
-        }
-        
-        if(activeChatId && activeChatId.includes(uid)) goHome();
-    } 
-    else if (status === 'add_friend_stranger') {
-        updates[`friend_status/${myUid}/${uid}`] = "outgoing";
-        updates[`friend_status/${uid}/${myUid}`] = "incoming";
-        await update(ref(db), updates);
-        showToast("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!", "success");
-    } 
-    else if (status === 'reject') {
-        const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
-        await set(ref(db, `users/${myUid}/cleared_chats/${chatId}`), Date.now());
-        await remove(ref(db, `friend_status/${myUid}/${uid}`));
-        await remove(ref(db, `friend_status/${uid}/${myUid}`));
-        if(activeChatId && activeChatId.includes(uid)) goHome();
-        showToast("Thành công", "Đã từ chối lời mời kết bạn!", "warning");
-    }
-    else if (status === 'cancel') {
-        await remove(ref(db, `friend_status/${myUid}/${uid}`));
-        await remove(ref(db, `friend_status/${uid}/${myUid}`));
-        showToast("Thành công", "Đã hủy yêu cầu kết bạn!", "warning");
-    }
-    else if (status === 'remove') {
-        showConfirm("Bạn có chắc chắn muốn xóa bạn bè này?", async () => {
-            const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
-            await remove(ref(db, `friend_status/${myUid}/${uid}`));
-            await remove(ref(db, `friend_status/${uid}/${myUid}`));
-            await remove(ref(db, `messages/${chatId}`));
-            if(activeChatId && activeChatId.includes(uid)) goHome();
-            showToast("Thành công", "Đã xóa bạn bè!", "warning");
-        });
-    }
-    // ===== XÓA NGƯỜI LẠ (CÓ MODAL XÁC NHẬN) =====
-    else if (status === 'delete_stranger_chat') {
-        showConfirm(
-            `<div class="text-center">
-                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--danger); display: block; margin-bottom: 15px;"></i>
-                <p><strong>Bạn có chắc chắn muốn xóa cuộc trò chuyện này?</strong></p>
-                <p class="text-muted small">Hành động này sẽ xóa lịch sử trò chuyện và người này khỏi danh sách người lạ của bạn.<br>Người kia sẽ không bị ảnh hưởng.</p>
-            </div>`,
-            async () => {
+        // ===== UPDATE STATUS =====
+        window.updateStatus = async (uid, status) => {
+            const myUid = currentUser.uid;
+            const updates = {};
+            
+            if (status === 'accepted') {
+                updates[`friend_status/${myUid}/${uid}`] = "accepted";
+                updates[`friend_status/${uid}/${myUid}`] = "accepted";
+                await update(ref(db), updates);
+                showToast("Thành công", "Đã kết bạn thành công!", "success");
+                setTimeout(() => openChatFunction(uid, "", null), 400);
+            } 
+            else if (status === 'unblock') {
+                await remove(ref(db, `friend_status/${myUid}/${uid}`));
+                const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
+                if (theirStatus.val() === 'accepted') {
+                    await set(ref(db, `friend_status/${myUid}/${uid}`), 'accepted');
+                    showToast("Thành công", "Đã bỏ chặn", "success");
+                } else {
+                    const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+                    const msgSnap = await get(ref(db, `messages/${chatId}`));
+                    if (msgSnap.exists()) {
+                        await set(ref(db, `friend_status/${myUid}/${uid}`), 'stranger');
+                    }
+                    showToast("Thành công", "Đã bỏ chặn!", "success");
+                }
+                if(activeChatId && activeChatId.includes(uid)) goHome();
+            } 
+            else if (status === 'unblock_stranger') {
+                await remove(ref(db, `friend_status/${myUid}/${uid}`));
+                const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
+                if (theirStatus.val() === 'accepted') {
+                    await set(ref(db, `friend_status/${myUid}/${uid}`), 'accepted');
+                    showToast("Thành công", "Đã bỏ chặn", "success");
+                } else {
+                    const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+                    const msgSnap = await get(ref(db, `messages/${chatId}`));
+                    if (msgSnap.exists()) {
+                        await set(ref(db, `friend_status/${myUid}/${uid}`), 'stranger');
+                    }
+                    showToast("Thành công", "Đã bỏ chặn!", "success");
+                }
+                if(activeChatId && activeChatId.includes(uid)) goHome();
+            } 
+            else if (status === 'blocked') {
+                const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
+                const currentRel = await get(ref(db, `friend_status/${myUid}/${uid}`));
+                
+                if (currentRel.val() === 'accepted' || theirStatus.val() === 'accepted') {
+                    await set(ref(db, `friend_status/${myUid}/${uid}`), "blocked");
+                    showToast("Thông báo", "Đã chặn bạn bè!", "warning");
+                } else {
+                    await set(ref(db, `friend_status/${myUid}/${uid}`), "blocked");
+                    showToast("Thành công", "Đã chặn người dùng!", "warning");
+                }
+                
+                if(activeChatId && activeChatId.includes(uid)) goHome();
+            } 
+            else if (status === 'add_friend_stranger') {
+                updates[`friend_status/${myUid}/${uid}`] = "outgoing";
+                updates[`friend_status/${uid}/${myUid}`] = "incoming";
+                await update(ref(db), updates);
+                showToast("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!", "success");
+            } 
+            else if (status === 'reject') {
                 const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
                 await set(ref(db, `users/${myUid}/cleared_chats/${chatId}`), Date.now());
                 await remove(ref(db, `friend_status/${myUid}/${uid}`));
+                await remove(ref(db, `friend_status/${uid}/${myUid}`));
                 if(activeChatId && activeChatId.includes(uid)) goHome();
-                showToast("Thành công", "Đã xóa cuộc trò chuyện!", "success");
+                showToast("Thành công", "Đã từ chối lời mời kết bạn!", "warning");
             }
-        );
-    }
-    
-    // Refresh danh sách
-    syncLists();
-};
-// ===== SYNC LISTS =====
-function syncLists() {
-    cleanupGlobalListeners();
-
-    globalFriendStatusListener = onValue(ref(db, `friend_status/${currentUser.uid}`), (statusSnap) => {
-        const relations = statusSnap.val() || {};
-        let counts = { incoming: 0, outgoing: 0, friends: 0, strangers: 0 };
-        
-        document.getElementById('incoming-list').innerHTML = ""; 
-        document.getElementById('outgoing-list').innerHTML = ""; 
-        document.getElementById('friend-list').innerHTML = "";
-        document.getElementById('stranger-list').innerHTML = "";
-
-        // ===== HIỂN THỊ CÁC RELATION ĐÃ CÓ (TRỪ 'stranger') =====
-        Object.keys(relations).forEach((uid) => {
-            const status = relations[uid];
-            
-            // Bỏ qua status 'stranger' (sẽ xử lý riêng)
-            if (status === 'stranger') return;
-            
-            get(ref(db, `users/${uid}`)).then((u) => {
-                if (!u.exists()) {
-                    remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
-                    return;
-                }
-                const data = u.val();
-                
-                const oldEl = document.getElementById(`item-${uid}`);
-                if (oldEl) oldEl.remove();
-                
-                const div = document.createElement('div'); 
-                div.id = `item-${uid}`; 
-                div.className = `item ${activeChatId && activeChatId.includes(uid) ? 'active' : ''}`;
-                
-                let acts = '';
-                if(status === 'incoming') {
-                    counts.incoming++;
-                    acts = `<button class="btn-icon bg-success" onclick="event.stopPropagation();updateStatus('${uid}','accepted')">✔</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','reject')">✖</button>`;
-                }
-                else if(status === 'outgoing') {
-                    counts.outgoing++;
-                    acts = `<button class="btn-icon bg-secondary" onclick="event.stopPropagation();updateStatus('${uid}','cancel')">Hủy</button>`;
-                }
-                else if(status === 'accepted') {
-                    counts.friends++;
-                    acts = `<button class="btn-icon bg-secondary text-dark" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','remove')">🗑</button>`;
-                }
-                else if(status === 'blocked') {
-                    counts.strangers++;
-                    acts = `<button class="btn-icon bg-primary" onclick="event.stopPropagation();updateStatus('${uid}','unblock')">Mở</button>`;
-                }
-                
-                const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
-                const avatar = getAvatarDataFromUser(data);
-                const avatarHtml = avatar ? 
-                    `<img src="${avatar}" class="item-avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover; margin-right:10px; flex-shrink:0;">` :
-                    `<div class="item-avatar-placeholder" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--primary), #0056b3); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:14px; margin-right:10px; flex-shrink:0;">${(data.name || 'U').charAt(0).toUpperCase()}</div>`;
-                
-                div.innerHTML = `
-                    <div style="display:flex; align-items:center; flex:1; min-width:0;">
-                        ${avatarHtml}
-                        <div class="item-info">
-                            <div class="name">${escapeHtml(data.name)}${verifiedHtml}</div>
-                            <div class="email">${escapeHtml(data.email)}</div>
-                        </div>
-                    </div>
-                    <div class="btn-group">${acts}</div>
-                `;
-                div.onclick = () => { closeSidebar(); openChatFunction(uid, data.name, div); };
-                
-                if (status === 'incoming') {
-                    document.getElementById('incoming-list').appendChild(div);
-                } else if (status === 'outgoing') {
-                    document.getElementById('outgoing-list').appendChild(div);
-                } else if (status === 'accepted') {
-                    document.getElementById('friend-list').appendChild(div);
-                } else if (status === 'blocked') {
-                    document.getElementById('stranger-list').appendChild(div);
-                }
-                
-                updateBadgeCounts(counts);
-            });
-        });
-
-        // ===== XỬ LÝ NGƯỜI LẠ: HIỂN THỊ TẤT CẢ 'stranger' =====
-        const strangerList = [];
-        Object.keys(relations).forEach((uid) => {
-            if (relations[uid] === 'stranger') {
-                strangerList.push(uid);
+            else if (status === 'cancel') {
+                await remove(ref(db, `friend_status/${myUid}/${uid}`));
+                await remove(ref(db, `friend_status/${uid}/${myUid}`));
+                showToast("Thành công", "Đã hủy yêu cầu kết bạn!", "warning");
             }
-        });
-        
-        strangerList.forEach((uid) => {
-            if (document.getElementById(`item-${uid}`)) return;
-            
-            get(ref(db, `users/${uid}`)).then((u) => {
-                if (!u.exists()) {
-                    remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
-                    return;
-                }
-                
-                const data = u.val();
-                const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
-                
-                // Kiểm tra có tin nhắn không (bao gồm cả tin nhắn cũ)
-                get(ref(db, `messages/${chatId}`)).then((msgSnap) => {
-                    if (!msgSnap.exists()) {
-                        // Nếu không có tin nhắn, không hiển thị
-                        return;
+            else if (status === 'remove') {
+                showConfirm("Bạn có chắc chắn muốn xóa bạn bè này?", async () => {
+                    const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+                    await remove(ref(db, `friend_status/${myUid}/${uid}`));
+                    await remove(ref(db, `friend_status/${uid}/${myUid}`));
+                    await remove(ref(db, `messages/${chatId}`));
+                    if(activeChatId && activeChatId.includes(uid)) goHome();
+                    showToast("Thành công", "Đã xóa bạn bè!", "warning");
+                });
+            }
+            else if (status === 'delete_stranger_chat') {
+                showConfirm(
+                    `<div class="text-center">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--danger); display: block; margin-bottom: 15px;"></i>
+                        <p><strong>Bạn có chắc chắn muốn xóa cuộc trò chuyện này?</strong></p>
+                        <p class="text-muted small">Hành động này sẽ xóa lịch sử trò chuyện và người này khỏi danh sách người lạ của bạn.<br>Người kia sẽ không bị ảnh hưởng.</p>
+                    </div>`,
+                    async () => {
+                        const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+                        await set(ref(db, `users/${myUid}/cleared_chats/${chatId}`), Date.now());
+                        await remove(ref(db, `friend_status/${myUid}/${uid}`));
+                        if(activeChatId && activeChatId.includes(uid)) goHome();
+                        showToast("Thành công", "Đã xóa cuộc trò chuyện!", "success");
                     }
+                );
+            }
+            
+            syncLists();
+        };
+
+        // ===== SYNC LISTS =====
+        function syncLists() {
+            cleanupGlobalListeners();
+
+            globalFriendStatusListener = onValue(ref(db, `friend_status/${currentUser.uid}`), (statusSnap) => {
+                const relations = statusSnap.val() || {};
+                let counts = { incoming: 0, outgoing: 0, friends: 0, strangers: 0 };
+                
+                document.getElementById('incoming-list').innerHTML = ""; 
+                document.getElementById('outgoing-list').innerHTML = ""; 
+                document.getElementById('friend-list').innerHTML = "";
+                document.getElementById('stranger-list').innerHTML = "";
+
+                Object.keys(relations).forEach((uid) => {
+                    const status = relations[uid];
                     
-                    // Kiểm tra xem có tin nhắn hợp lệ không (không bị xóa)
-                    get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`)).then((clearSnap) => {
-                        const clearTime = clearSnap.val() || 0;
-                        let hasVisibleMsg = false;
-                        
-                        msgSnap.forEach((m) => {
-                            const msg = m.val();
-                            if (msg.timestamp > clearTime && !(msg.deletedBy && msg.deletedBy[currentUser.uid])) {
-                                hasVisibleMsg = true;
-                            }
-                        });
-                        
-                        if (!hasVisibleMsg) {
-                            // Không có tin nhắn hợp lệ, không hiển thị
+                    if (status === 'stranger') return;
+                    
+                    get(ref(db, `users/${uid}`)).then((u) => {
+                        if (!u.exists()) {
+                            remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
                             return;
                         }
+                        const data = u.val();
                         
-                        counts.strangers++;
+                        const oldEl = document.getElementById(`item-${uid}`);
+                        if (oldEl) oldEl.remove();
                         
                         const div = document.createElement('div'); 
                         div.id = `item-${uid}`; 
-                        div.className = `item ${activeChatId === chatId ? 'active' : ''}`;
+                        div.className = `item ${activeChatId && activeChatId.includes(uid) ? 'active' : ''}`;
                         
-                        const acts = `<button class="btn-icon bg-success" title="Kết bạn" onclick="event.stopPropagation();updateStatus('${uid}','add_friend_stranger')">➕</button>
-                                   <button class="btn-icon bg-secondary text-dark" title="Chặn" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button>
-                                   <button class="btn-icon bg-danger" title="Xóa cuộc trò chuyện" onclick="event.stopPropagation();updateStatus('${uid}','delete_stranger_chat')">🗑</button>`;
+                        let acts = '';
+                        if(status === 'incoming') {
+                            counts.incoming++;
+                            acts = `<button class="btn-icon bg-success" onclick="event.stopPropagation();updateStatus('${uid}','accepted')">✔</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','reject')">✖</button>`;
+                        }
+                        else if(status === 'outgoing') {
+                            counts.outgoing++;
+                            acts = `<button class="btn-icon bg-secondary" onclick="event.stopPropagation();updateStatus('${uid}','cancel')">Hủy</button>`;
+                        }
+                        else if(status === 'accepted') {
+                            counts.friends++;
+                            acts = `<button class="btn-icon bg-secondary text-dark" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','remove')">🗑</button>`;
+                        }
+                        else if(status === 'blocked') {
+                            counts.strangers++;
+                            acts = `<button class="btn-icon bg-primary" onclick="event.stopPropagation();updateStatus('${uid}','unblock')">Mở</button>`;
+                        }
                         
                         const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
                         const avatar = getAvatarDataFromUser(data);
@@ -3454,22 +4034,103 @@ function syncLists() {
                             <div style="display:flex; align-items:center; flex:1; min-width:0;">
                                 ${avatarHtml}
                                 <div class="item-info">
-                                    <div class="name">${escapeHtml(data.name)}${verifiedHtml} <span class="badge bg-warning text-dark" style="font-size:8px;">Lạ</span></div>
+                                    <div class="name">${escapeHtml(data.name)}${verifiedHtml}</div>
                                     <div class="email">${escapeHtml(data.email)}</div>
                                 </div>
                             </div>
                             <div class="btn-group">${acts}</div>
                         `;
                         div.onclick = () => { closeSidebar(); openChatFunction(uid, data.name, div); };
-                        document.getElementById('stranger-list').appendChild(div);
+                        
+                        if (status === 'incoming') {
+                            document.getElementById('incoming-list').appendChild(div);
+                        } else if (status === 'outgoing') {
+                            document.getElementById('outgoing-list').appendChild(div);
+                        } else if (status === 'accepted') {
+                            document.getElementById('friend-list').appendChild(div);
+                        } else if (status === 'blocked') {
+                            document.getElementById('stranger-list').appendChild(div);
+                        }
                         
                         updateBadgeCounts(counts);
                     });
                 });
+
+                const strangerList = [];
+                Object.keys(relations).forEach((uid) => {
+                    if (relations[uid] === 'stranger') {
+                        strangerList.push(uid);
+                    }
+                });
+                
+                strangerList.forEach((uid) => {
+                    if (document.getElementById(`item-${uid}`)) return;
+                    
+                    get(ref(db, `users/${uid}`)).then((u) => {
+                        if (!u.exists()) {
+                            remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
+                            return;
+                        }
+                        
+                        const data = u.val();
+                        const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+                        
+                        get(ref(db, `messages/${chatId}`)).then((msgSnap) => {
+                            if (!msgSnap.exists()) {
+                                return;
+                            }
+                            
+                            get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`)).then((clearSnap) => {
+                                const clearTime = clearSnap.val() || 0;
+                                let hasVisibleMsg = false;
+                                
+                                msgSnap.forEach((m) => {
+                                    const msg = m.val();
+                                    if (msg.timestamp > clearTime && !(msg.deletedBy && msg.deletedBy[currentUser.uid])) {
+                                        hasVisibleMsg = true;
+                                    }
+                                });
+                                
+                                if (!hasVisibleMsg) {
+                                    return;
+                                }
+                                
+                                counts.strangers++;
+                                
+                                const div = document.createElement('div'); 
+                                div.id = `item-${uid}`; 
+                                div.className = `item ${activeChatId === chatId ? 'active' : ''}`;
+                                
+                                const acts = `<button class="btn-icon bg-success" title="Kết bạn" onclick="event.stopPropagation();updateStatus('${uid}','add_friend_stranger')">➕</button>
+                                           <button class="btn-icon bg-secondary text-dark" title="Chặn" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button>
+                                           <button class="btn-icon bg-danger" title="Xóa cuộc trò chuyện" onclick="event.stopPropagation();updateStatus('${uid}','delete_stranger_chat')">🗑</button>`;
+                                
+                                const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
+                                const avatar = getAvatarDataFromUser(data);
+                                const avatarHtml = avatar ? 
+                                    `<img src="${avatar}" class="item-avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover; margin-right:10px; flex-shrink:0;">` :
+                                    `<div class="item-avatar-placeholder" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--primary), #0056b3); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:14px; margin-right:10px; flex-shrink:0;">${(data.name || 'U').charAt(0).toUpperCase()}</div>`;
+                                
+                                div.innerHTML = `
+                                    <div style="display:flex; align-items:center; flex:1; min-width:0;">
+                                        ${avatarHtml}
+                                        <div class="item-info">
+                                            <div class="name">${escapeHtml(data.name)}${verifiedHtml} <span class="badge bg-warning text-dark" style="font-size:8px;">Lạ</span></div>
+                                            <div class="email">${escapeHtml(data.email)}</div>
+                                        </div>
+                                    </div>
+                                    <div class="btn-group">${acts}</div>
+                                `;
+                                div.onclick = () => { closeSidebar(); openChatFunction(uid, data.name, div); };
+                                document.getElementById('stranger-list').appendChild(div);
+                                
+                                updateBadgeCounts(counts);
+                            });
+                        });
+                    });
+                });
             });
-        });
-    });
-}
+        }
 
         // ===== RENDER MESSAGES =====
         async function renderMessages(snapshot, clearTime) {
@@ -3565,7 +4226,6 @@ function syncLists() {
                     avatarHtml = renderUserAvatar(msg.sender, userData, 36);
                 }
                 
-                // ===== SWIPE INDICATOR - CHỈ MŨI TÊN =====
                 const swipeIndicator = `
                     <div class="swipe-reply-indicator">
                         <i class="fas fa-reply"></i>
@@ -3596,7 +4256,6 @@ function syncLists() {
                     wrapper.innerHTML = bubbleContent;
                 }
                 
-                // ===== SWIPE TO REPLY HANDLERS - CHO PHÉP VUỐT CẢ TIN CỦA MÌNH =====
                 if (msg.revoked !== true) {
                     wrapper.addEventListener('touchstart', function(e) {
                         const touch = e.touches[0];
@@ -3606,7 +4265,6 @@ function syncLists() {
                         swipeTargetMsg = this;
                         swipeIsActive = false;
                         
-                        // Clear long press timer
                         if (longPressTimer) {
                             clearTimeout(longPressTimer);
                             longPressTimer = null;
@@ -3619,7 +4277,6 @@ function syncLists() {
                         const deltaX = touch.clientX - swipeStartX;
                         const deltaY = touch.clientY - swipeStartY;
                         
-                        // Check if horizontal swipe (more horizontal than vertical)
                         if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
                             swipeIsActive = true;
                             swipeCurrentX = touch.clientX;
@@ -3629,9 +4286,6 @@ function syncLists() {
                             const indicator = wrapperEl.querySelector('.swipe-reply-indicator');
                             
                             if (indicator) {
-                                // CHO PHÉP VUỐT CẢ 2 CHIỀU:
-                                // - Tin nhận (received): vuốt phải (deltaX > 0)
-                                // - Tin gửi (sent): vuốt trái (deltaX < 0)
                                 let progress = 0;
                                 if (!isOwnMsg) {
                                     progress = Math.min(deltaX / swipeThreshold, 1);
@@ -3644,7 +4298,6 @@ function syncLists() {
                                     indicator.style.opacity = Math.min(progress * 1.5, 1);
                                     wrapperEl.classList.add('swipe-reply-active');
                                     
-                                    // Move the indicator
                                     if (!isOwnMsg) {
                                         indicator.style.transform = `translateX(${Math.min(deltaX, swipeThreshold)}px)`;
                                     } else {
@@ -3668,10 +4321,8 @@ function syncLists() {
                             
                             let shouldReply = false;
                             if (!isOwnMsg) {
-                                // Tin nhận: vuốt phải
                                 shouldReply = deltaX > swipeThreshold * 0.6;
                             } else {
-                                // Tin gửi: vuốt trái
                                 shouldReply = -deltaX > swipeThreshold * 0.6;
                             }
                             
@@ -3682,11 +4333,9 @@ function syncLists() {
                                 const file = wrapperEl.dataset.file ? JSON.parse(wrapperEl.dataset.file) : null;
                                 const senderName = wrapperEl.dataset.senderName || 'Người dùng';
                                 
-                                // CHO PHÉP REPLY TIN CỦA CHÍNH MÌNH
                                 window.replyToMessage(msgId, sender, text, file, senderName);
                             }
                             
-                            // Reset swipe state
                             if (indicator) {
                                 indicator.classList.remove('show');
                                 indicator.style.opacity = '0';
@@ -3702,7 +4351,6 @@ function syncLists() {
                         swipeCurrentX = 0;
                     }, { passive: true });
                     
-                    // ===== DOTS BUTTON =====
                     if (!isMobile) {
                         const dotsBtn = document.createElement('button');
                         dotsBtn.className = 'msg-options-btn';
@@ -3730,7 +4378,6 @@ function syncLists() {
                     }
                 }
                 
-                // ===== RIGHT CLICK =====
                 wrapper.addEventListener('contextmenu', function(e) {
                     if (msg.revoked) return;
                     e.preventDefault();
@@ -3745,7 +4392,6 @@ function syncLists() {
                     showContextMenuFromDots(fakeEvent, msg.id, msg.sender, msg.text || '', msg.file || null, senderName, isOwn);
                 });
                 
-                // ===== LONG PRESS =====
                 wrapper.addEventListener('touchstart', function(e) {
                     if (msg.revoked) return;
                     longPressTimer = setTimeout(() => {
@@ -3973,133 +4619,124 @@ function syncLists() {
             pendingDeleteMsgId = null;
         });
 
-// ===== SEND MESSAGE =====
-window.sendMessage = async () => {
-    const text = document.getElementById('message-input').value.trim();
-    if (selectedFiles.length === 0 && !text) return;
-    
-    const myUid = currentUser.uid;
-    const targetUid = currentChatUid;
-    
-    // ===== TẠO FRIEND_STATUS CHO CẢ 2 PHÍA =====
-    const myPath = `friend_status/${myUid}/${targetUid}`;
-    const theirPath = `friend_status/${targetUid}/${myUid}`;
-    
-    try {
-        // Kiểm tra và tạo friend_status cho chính mình
-        const mySnap = await get(ref(db, myPath));
-        if (!mySnap.exists()) {
-            await set(ref(db, myPath), 'stranger');
-            console.log('✅ Đã tạo friend_status cho người gửi:', myPath);
-        } else if (mySnap.val() === 'deleted_stranger') {
-            // Nếu đã xóa, tạo lại
-            await set(ref(db, myPath), 'stranger');
-            console.log('✅ Đã tạo lại friend_status cho người gửi:', myPath);
-        }
-        
-        // ===== QUAN TRỌNG: Tạo friend_status cho người nhận =====
-        const theirSnap = await get(ref(db, theirPath));
-        if (!theirSnap.exists()) {
-            await set(ref(db, theirPath), 'stranger');
-            console.log('✅ Đã tạo friend_status cho người nhận:', theirPath);
-        } else if (theirSnap.val() === 'deleted_stranger') {
-            await set(ref(db, theirPath), 'stranger');
-            console.log('✅ Đã tạo lại friend_status cho người nhận:', theirPath);
-        }
-    } catch (error) {
-        console.error('❌ Lỗi tạo friend_status:', error);
-    }
+        // ===== SEND MESSAGE =====
+        window.sendMessage = async () => {
+            const text = document.getElementById('message-input').value.trim();
+            if (selectedFiles.length === 0 && !text) return;
+            
+            const myUid = currentUser.uid;
+            const targetUid = currentChatUid;
+            
+            const myPath = `friend_status/${myUid}/${targetUid}`;
+            const theirPath = `friend_status/${targetUid}/${myUid}`;
+            
+            try {
+                const mySnap = await get(ref(db, myPath));
+                if (!mySnap.exists()) {
+                    await set(ref(db, myPath), 'stranger');
+                } else if (mySnap.val() === 'deleted_stranger') {
+                    await set(ref(db, myPath), 'stranger');
+                }
+                
+                const theirSnap = await get(ref(db, theirPath));
+                if (!theirSnap.exists()) {
+                    await set(ref(db, theirPath), 'stranger');
+                } else if (theirSnap.val() === 'deleted_stranger') {
+                    await set(ref(db, theirPath), 'stranger');
+                }
+            } catch (error) {
+                console.error('❌ Lỗi tạo friend_status:', error);
+            }
 
-    const senderName = document.getElementById('my-name').innerText.replace(/<[^>]*>/g, '');
-    const replyData = replyToMessage ? {
-        id: replyToMessage.id,
-        sender: replyToMessage.sender,
-        senderName: replyToMessage.name || 'Người dùng',
-        text: replyToMessage.text || '',
-        file: replyToMessage.file || null
-    } : null;
-    
-    try {
-        if (selectedFiles.length > 0) {
-            for (let i = 0; i < selectedFiles.length; i++) {
-                const file = selectedFiles[i];
-                const fileData = selectedFilesData[i];
-                
-                const fileMsgData = {
-                    sender: currentUser.uid,
-                    senderName: senderName,
-                    text: '',
-                    timestamp: serverTimestamp(),
-                    revoked: false,
-                    file: {
-                        name: file.name,
-                        size: file.size,
-                        type: file.type || 'application/octet-stream',
-                        data: fileData
+            const senderName = document.getElementById('my-name').innerText.replace(/<[^>]*>/g, '');
+            const replyData = replyToMessage ? {
+                id: replyToMessage.id,
+                sender: replyToMessage.sender,
+                senderName: replyToMessage.name || 'Người dùng',
+                text: replyToMessage.text || '',
+                file: replyToMessage.file || null
+            } : null;
+            
+            try {
+                if (selectedFiles.length > 0) {
+                    for (let i = 0; i < selectedFiles.length; i++) {
+                        const file = selectedFiles[i];
+                        const fileData = selectedFilesData[i];
+                        
+                        const fileMsgData = {
+                            sender: currentUser.uid,
+                            senderName: senderName,
+                            text: '',
+                            timestamp: serverTimestamp(),
+                            revoked: false,
+                            file: {
+                                name: file.name,
+                                size: file.size,
+                                type: file.type || 'application/octet-stream',
+                                data: fileData
+                            }
+                        };
+                        
+                        if (replyData) {
+                            fileMsgData.replyTo = replyData;
+                        }
+                        
+                        await push(ref(db, `messages/${activeChatId}`), fileMsgData);
                     }
-                };
-                
-                if (replyData) {
-                    fileMsgData.replyTo = replyData;
+                    
+                    clearAllFiles();
+                    
+                    if (text) {
+                        const textMsgData = {
+                            sender: currentUser.uid,
+                            senderName: senderName,
+                            text: text,
+                            timestamp: serverTimestamp(),
+                            revoked: false
+                        };
+                        
+                        if (replyData) {
+                            textMsgData.replyTo = replyData;
+                        }
+                        
+                        await push(ref(db, `messages/${activeChatId}`), textMsgData);
+                    }
+                    
+                    if (replyToMessage) cancelReply();
+                    document.getElementById('message-input').value = "";
+                } else if (text) {
+                    const msgData = {
+                        sender: currentUser.uid,
+                        senderName: senderName,
+                        text: text,
+                        timestamp: serverTimestamp(),
+                        revoked: false
+                    };
+                    
+                    if (replyToMessage) {
+                        msgData.replyTo = {
+                            id: replyToMessage.id,
+                            sender: replyToMessage.sender,
+                            senderName: replyToMessage.name || 'Người dùng',
+                            text: replyToMessage.text || '',
+                            file: replyToMessage.file || null
+                        };
+                        cancelReply();
+                    }
+                    
+                    await push(ref(db, `messages/${activeChatId}`), msgData);
+                    document.getElementById('message-input').value = "";
                 }
                 
-                await push(ref(db, `messages/${activeChatId}`), fileMsgData);
-            }
-            
-            clearAllFiles();
-            
-            if (text) {
-                const textMsgData = {
-                    sender: currentUser.uid,
-                    senderName: senderName,
-                    text: text,
-                    timestamp: serverTimestamp(),
-                    revoked: false
-                };
+                setTimeout(() => {
+                    syncLists();
+                }, 300);
                 
-                if (replyData) {
-                    textMsgData.replyTo = replyData;
-                }
-                
-                await push(ref(db, `messages/${activeChatId}`), textMsgData);
+            } catch (error) {
+                console.error('❌ Lỗi gửi tin nhắn:', error);
+                showToast("Lỗi", "Không thể gửi tin nhắn. Vui lòng thử lại.", "error");
             }
-            
-            if (replyToMessage) cancelReply();
-            document.getElementById('message-input').value = "";
-        } else if (text) {
-            const msgData = {
-                sender: currentUser.uid,
-                senderName: senderName,
-                text: text,
-                timestamp: serverTimestamp(),
-                revoked: false
-            };
-            
-            if (replyToMessage) {
-                msgData.replyTo = {
-                    id: replyToMessage.id,
-                    sender: replyToMessage.sender,
-                    senderName: replyToMessage.name || 'Người dùng',
-                    text: replyToMessage.text || '',
-                    file: replyToMessage.file || null
-                };
-                cancelReply();
-            }
-            
-            await push(ref(db, `messages/${activeChatId}`), msgData);
-            document.getElementById('message-input').value = "";
-        }
-        
-        // ===== REFRESH DANH SÁCH NGAY LẬP TỨC =====
-        setTimeout(() => {
-            syncLists();
-        }, 300);
-        
-    } catch (error) {
-        console.error('❌ Lỗi gửi tin nhắn:', error);
-        showToast("Lỗi", "Không thể gửi tin nhắn. Vui lòng thử lại.", "error");
-    }
-};
+        };
 
         // ===== GO HOME =====
         window.goHome = () => { 
@@ -4227,288 +4864,316 @@ window.sendMessage = async () => {
             window.addEventListener('resize', () => { if(window.innerWidth > 790) window.closeSidebar(); });
         }, 100);
 
-        // ===== TAB KÍCH HOẠT =====
-// Thêm tab activation vào sidebar
-
-// ===== HÀM KIỂM TRA TRẠNG THÁI KÍCH HOẠT =====
-async function checkActivationStatus() {
-    if (!currentUser) return;
-    
-    const snap = await get(ref(db, `users/${currentUser.uid}`));
-    if (!snap.exists()) return;
-    
-    const data = snap.val();
-    const isActivated = data.haveGreenTick === true;
-    
-    const statusDiv = document.getElementById('activationStatus');
-    const inputGroup = document.getElementById('activationInputGroup');
-    const actionsDiv = document.getElementById('activationActions');
-    
-    if (isActivated) {
-        statusDiv.innerHTML = `
-            <div class="alert alert-success d-flex align-items-center" role="alert" style="border-radius: 10px;">
-                <i class="fas fa-check-circle me-2" style="font-size: 20px; color: var(--success);"></i>
-                <div>
-                    <strong>✅ Đã kích hoạt tài khoản</strong>
-                    <div class="small">Tài khoản của bạn đã được xác minh bởi VieChat Verified</div>
-                </div>
-            </div>
-        `;
-        inputGroup.style.display = 'none';
-        actionsDiv.style.display = 'block';
-    } else {
-        statusDiv.innerHTML = `
-            <div class="alert alert-secondary d-flex align-items-center" role="alert" style="border-radius: 10px;">
-                <i class="fas fa-info-circle me-2" style="font-size: 20px; color: #6c757d;"></i>
-                <div>
-                    <strong>Chưa kích hoạt</strong>
-                    <div class="small">Nhập mã kích hoạt bên dưới để xác minh tài khoản.</div>
-                </div>
-            </div>
-        `;
-        inputGroup.style.display = 'block';
-        actionsDiv.style.display = 'none';
-    }
-}
-
-/// ===== KÍCH HOẠT TÀI KHOẢN =====
-window.activateAccount = async () => {
-    const codeInput = document.getElementById('activationCodeInput');
-    const code = codeInput.value.trim();
-    
-    if (!code) {
-        showToast('Lỗi', 'Vui lòng nhập mã kích hoạt.', 'error');
-        return;
-    }
-    
-    try {
-        // Lấy toàn bộ danh sách code từ database
-        const codeSnap = await get(ref(db, 'code'));
-        
-        if (!codeSnap.exists()) {
-            showToast('Lỗi', 'Mã kích hoạt không hợp lệ hoặc đã được sử dụng', 'error');
-            return;
-        }
-        
-        const allCodes = codeSnap.val();
-        let foundKey = null;
-        let foundValue = null;
-        
-        // Duyệt qua tất cả code để tìm mã khớp
-        for (const [key, value] of Object.entries(allCodes)) {
-            // So sánh giá trị (string hoặc number) với mã nhập vào
-            if (String(value) === code) {
-                foundKey = key;
-                foundValue = value;
-                break;
+        // ===== CHECK ACTIVATION STATUS =====
+        async function checkActivationStatus() {
+            if (!currentUser) return;
+            
+            const snap = await get(ref(db, `users/${currentUser.uid}`));
+            if (!snap.exists()) return;
+            
+            const data = snap.val();
+            const isActivated = data.haveGreenTick === true;
+            
+            const statusDiv = document.getElementById('activationStatus');
+            const inputGroup = document.getElementById('activationInputGroup');
+            const actionsDiv = document.getElementById('activationActions');
+            
+            if (isActivated) {
+                statusDiv.innerHTML = `
+                    <div class="alert alert-success d-flex align-items-center" role="alert" style="border-radius: 10px;">
+                        <i class="fas fa-check-circle me-2" style="font-size: 20px; color: var(--success);"></i>
+                        <div>
+                            <strong>✅ Đã kích hoạt tài khoản</strong>
+                            <div class="small">Tài khoản của bạn đã được xác minh bởi VieChat Verified</div>
+                        </div>
+                    </div>
+                `;
+                inputGroup.style.display = 'none';
+                actionsDiv.style.display = 'block';
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="alert alert-secondary d-flex align-items-center" role="alert" style="border-radius: 10px;">
+                        <i class="fas fa-info-circle me-2" style="font-size: 20px; color: #6c757d;"></i>
+                        <div>
+                            <strong>Chưa kích hoạt</strong>
+                            <div class="small">Nhập mã kích hoạt bên dưới để xác minh tài khoản.</div>
+                        </div>
+                    </div>
+                `;
+                inputGroup.style.display = 'block';
+                actionsDiv.style.display = 'none';
             }
         }
-        
-        if (!foundKey) {
-            showToast('Lỗi', 'Mã kích hoạt không hợp lệ hoặc đã được sử dụng.', 'error');
-            return;
-        }
-        
-        // Cập nhật haveGreenTick = true cho user
-        await update(ref(db, `users/${currentUser.uid}`), {
-            haveGreenTick: true,
-            activatedAt: serverTimestamp(),
-            activationCode: code
-        });
-        
-        // Xóa key đã nhập khỏi database
-        await remove(ref(db, `code/${foundKey}`));
-        
-        // Cập nhật UI
-        await checkActivationStatus();
-        
-        // Cập nhật tên hiển thị với tích xanh
-        const userSnap = await get(ref(db, `users/${currentUser.uid}`));
-        if (userSnap.exists()) {
-            const data = userSnap.val();
-            document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || 'Người dùng', true);
-        }
-        
-        codeInput.value = '';
-        showToast('Thành công', 'Tài khoản của bạn đã được kích hoạt thành công!', 'success');
-        
-        // Đóng modal sau khi kích hoạt thành công
-        setTimeout(() => {
-            if (privacySettingsModalObj) {
-                privacySettingsModalObj.hide();
-                activeModalInstance = null;
-            }
-        }, 1500);
-        
-    } catch (error) {
-        console.error('Lỗi kích hoạt:', error);
-        showToast('Lỗi', 'Không thể kích hoạt tài khoản. Vui lòng thử lại.', 'error');
-    }
-};
 
-// ===== HỦY KÍCH HOẠT =====
-window.deactivateAccount = async () => {
-    showConfirm(
-        `<div class="text-center">
-            <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--danger); display: block; margin-bottom: 15px;"></i>
-            <p><strong>Bạn có chắc chắn muốn hủy kích hoạt?</strong></p>
-            <p class="text-muted">Nếu hủy kích hoạt thì bạn sẽ không thể dùng mã cũ để kích hoạt nữa.</p>
-            <p class="text-danger small">⚠️ Hành động này không thể hoàn tác!</p>
-        </div>`,
-        async () => {
+        // ===== ACTIVATE ACCOUNT =====
+        window.activateAccount = async () => {
+            const codeInput = document.getElementById('activationCodeInput');
+            const code = codeInput.value.trim();
+            
+            if (!code) {
+                showToast('Lỗi', 'Vui lòng nhập mã kích hoạt.', 'error');
+                return;
+            }
+            
             try {
-                // Lấy thông tin user để lấy mã kích hoạt cũ (nếu có)
-                const userSnap = await get(ref(db, `users/${currentUser.uid}`));
-                if (userSnap.exists()) {
-                    const userData = userSnap.val();
-                    const oldCode = userData.activationCode || null;
-                    
-                    // Nếu có mã cũ, xóa luôn để không thể dùng lại
-                    if (oldCode) {
-                        await remove(ref(db, `code/${oldCode}`)).catch(() => {});
+                const codeSnap = await get(ref(db, 'code'));
+                
+                if (!codeSnap.exists()) {
+                    showToast('Lỗi', 'Mã kích hoạt không hợp lệ hoặc đã được sử dụng', 'error');
+                    return;
+                }
+                
+                const allCodes = codeSnap.val();
+                let foundKey = null;
+                
+                for (const [key, value] of Object.entries(allCodes)) {
+                    if (String(value) === code) {
+                        foundKey = key;
+                        break;
                     }
                 }
                 
-                // Cập nhật haveGreenTick = false và xóa thông tin kích hoạt
-                await update(ref(db, `users/${currentUser.uid}`), {
-                    haveGreenTick: false,
-                    activatedAt: null,
-                    activationCode: null
-                });
-                
-                // Cập nhật UI
-                await checkActivationStatus();
-                
-                // Cập nhật tên hiển thị (bỏ tích xanh)
-                const updatedSnap = await get(ref(db, `users/${currentUser.uid}`));
-                if (updatedSnap.exists()) {
-                    const data = updatedSnap.val();
-                    document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || 'Người dùng', false);
+                if (!foundKey) {
+                    showToast('Lỗi', 'Mã kích hoạt không hợp lệ hoặc đã được sử dụng.', 'error');
+                    return;
                 }
                 
-                showToast('Thông báo', 'Đã hủy kích hoạt tài khoản.', 'warning');
+                await update(ref(db, `users/${currentUser.uid}`), {
+                    haveGreenTick: true,
+                    activatedAt: serverTimestamp(),
+                    activationCode: code
+                });
+                
+                await remove(ref(db, `code/${foundKey}`));
+                
+                await checkActivationStatus();
+                
+                const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+                if (userSnap.exists()) {
+                    const data = userSnap.val();
+                    document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || 'Người dùng', true);
+                }
+                
+                codeInput.value = '';
+                showToast('Thành công', 'Tài khoản của bạn đã được kích hoạt thành công!', 'success');
+                
+                setTimeout(() => {
+                    if (privacySettingsModalObj) {
+                        privacySettingsModalObj.hide();
+                        activeModalInstance = null;
+                    }
+                }, 1500);
                 
             } catch (error) {
-                console.error('Lỗi hủy kích hoạt:', error);
-                showToast('Lỗi', 'Không thể hủy kích hoạt. Vui lòng thử lại.', 'error');
+                console.error('Lỗi kích hoạt:', error);
+                showToast('Lỗi', 'Không thể kích hoạt tài khoản. Vui lòng thử lại.', 'error');
             }
-        }
-    );
-};
+        };
 
-// ===== GỌI KIỂM TRA TRẠNG THÁI KHI MỞ MODAL =====
-// Lưu lại hàm showPrivacyModal gốc để gọi sau
-const originalShowPrivacyModal = window.showPrivacyModal;
+        // ===== DEACTIVATE ACCOUNT =====
+        window.deactivateAccount = async () => {
+            showConfirm(
+                `<div class="text-center">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--danger); display: block; margin-bottom: 15px;"></i>
+                    <p><strong>Bạn có chắc chắn muốn hủy kích hoạt?</strong></p>
+                    <p class="text-muted">Nếu hủy kích hoạt thì bạn sẽ không thể dùng mã cũ để kích hoạt nữa.</p>
+                    <p class="text-danger small">⚠️ Hành động này không thể hoàn tác!</p>
+                </div>`,
+                async () => {
+                    try {
+                        const userSnap = await get(ref(db, `users/${currentUser.uid}`));
+                        if (userSnap.exists()) {
+                            const userData = userSnap.val();
+                            const oldCode = userData.activationCode || null;
+                            
+                            if (oldCode) {
+                                await remove(ref(db, `code/${oldCode}`)).catch(() => {});
+                            }
+                        }
+                        
+                        await update(ref(db, `users/${currentUser.uid}`), {
+                            haveGreenTick: false,
+                            activatedAt: null,
+                            activationCode: null
+                        });
+                        
+                        await checkActivationStatus();
+                        
+                        const updatedSnap = await get(ref(db, `users/${currentUser.uid}`));
+                        if (updatedSnap.exists()) {
+                            const data = updatedSnap.val();
+                            document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || 'Người dùng', false);
+                        }
+                        
+                        showToast('Thông báo', 'Đã hủy kích hoạt tài khoản.', 'warning');
+                        
+                    } catch (error) {
+                        console.error('Lỗi hủy kích hoạt:', error);
+                        showToast('Lỗi', 'Không thể hủy kích hoạt. Vui lòng thử lại.', 'error');
+                    }
+                }
+            );
+        };
 
-window.showPrivacyModal = async () => {
-    // Gọi hàm gốc
-    await originalShowPrivacyModal();
-    
-    // Sau khi modal hiển thị, kiểm tra trạng thái kích hoạt
-    setTimeout(() => {
-        checkActivationStatus();
-    }, 300);
-};
+        // ===== EXPORT FUNCTIONS =====
+        window.renderLinkAccountUI = renderLinkAccountUI;
+        window.unlinkProvider = unlinkProvider;
+        window.linkProvider = linkProvider;
+        window.saveSocialAvatar = saveSocialAvatar;
 
-// Thêm vào đầu file chat.html, sau khi import firebase
-async function saveSocialAvatar(user) {
-    if (!user || !user.photoURL) return null;
-    
-    try {
-        // Kiểm tra xem đã có avatar trong DB chưa
-        const snap = await get(ref(db, `users/${user.uid}/avatar`));
-        if (snap.exists()) return snap.val();
-        
-        // Tải ảnh từ social
-        const response = await fetch(user.photoURL);
-        const blob = await response.blob();
-        const reader = new FileReader();
-        const avatarData = await new Promise((resolve) => {
-            reader.onload = () => resolve(reader.result);
-            reader.readAsDataURL(blob);
+        // ===== DOM CONTENT LOADED =====
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                document.getElementById('emailInput').focus();
+            }, 500);
         });
-        
-        // Lưu vào DB
-        await update(ref(db, `users/${user.uid}`), { avatar: avatarData });
-        return avatarData;
-    } catch (e) {
-        console.warn('Không thể lưu avatar từ social:', e);
-        return null;
+// ===== UPDATE PROFILE LINK IN PRIVACY MODAL =====
+function updateProfileLinkInPrivacy(userId) {
+    const anchor = document.getElementById('privProfileLinkAnchor');
+    const display = document.getElementById('privProfileLinkDisplay');
+    if (!anchor || !display) return;
+    
+    if (!userId) {
+        anchor.textContent = 'Chưa có ID hồ sơ';
+        anchor.href = '#';
+        return;
     }
+    
+    const link = `https://vieconnect.github.io/viechat/profile-details.html?id=${userId}`;
+    anchor.href = link;
+    anchor.textContent = link;
+    display.style.display = 'block';
+}
+
+// ===== OPEN PROFILE PAGE =====
+window.openProfilePage = function() {
+    const anchor = document.getElementById('privProfileLinkAnchor');
+    if (!anchor || !anchor.href || anchor.href === '#') {
+        showToast('Lỗi', 'Chưa có link hồ sơ để mở.', 'error');
+        return;
+    }
+    
+    window.open(anchor.href, '_blank');
+};
+
+// ===== UPDATE REFERRAL LINK IN PRIVACY MODAL =====
+function updateReferralLinkInPrivacy(userId) {
+    const anchor = document.getElementById('privReferralLinkAnchor');
+    const display = document.getElementById('privReferralLinkDisplay');
+    if (!anchor || !display) return;
+    
+    if (!userId) {
+        anchor.textContent = 'Chưa có link giới thiệu';
+        anchor.href = '#';
+        return;
+    }
+    
+    const link = `https://vieconnect.github.io/viechat/profile-details.html?id=${userId}`;
+    anchor.href = link;
+    anchor.textContent = link;
+    display.style.display = 'block';
+}
+
+// ===== COPY REFERRAL LINK FROM PRIVACY =====
+window.copyReferralLinkFromPrivacy = function() {
+    const anchor = document.getElementById('privReferralLinkAnchor');
+    if (!anchor || !anchor.href || anchor.href === '#') {
+        showToast('Lỗi', 'Chưa có link giới thiệu để sao chép.', 'error');
+        return;
+    }
+    
+    const link = anchor.href;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(() => {
+            showToast('Thành công', 'Đã sao chép link giới thiệu!', 'success');
+        }).catch(() => {
+            copyFallback(link);
+        });
+    } else {
+        copyFallback(link);
+    }
+};
+
+function copyFallback(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+        document.execCommand('copy');
+        showToast('Thành công', 'Đã sao chép link giới thiệu!', 'success');
+    } catch (err) {
+        showToast('Lỗi', 'Không thể sao chép link. Vui lòng copy thủ công.', 'error');
+    }
+    document.body.removeChild(textarea);
 }
     </script>
     <script>
-// ===== HÀM MỞ MODAL TỐI ƯU CHO CẢ DESKTOP VÀ MOBILE =====
-function openModalOptimized(modalId, options = {}) {
-    const modalEl = document.getElementById(modalId);
-    if (!modalEl) return null;
-    
-    // Đóng tất cả modal đang mở TRƯỚC KHI mở modal mới
-    closeAllModals();
-    
-    // Đợi modal cũ đóng hoàn toàn (phù hợp với transition 0.4s)
-    setTimeout(() => {
-        // Cấu hình modal
-        const config = {
-            backdrop: 'static',
-            keyboard: true,
-            ...options
-        };
-        
-        // Nếu modal đã có instance thì hủy
-        if (bootstrap.Modal.getInstance(modalEl)) {
-            bootstrap.Modal.getInstance(modalEl).dispose();
+        // ===== HÀM MỞ MODAL TỐI ƯU CHO CẢ DESKTOP VÀ MOBILE =====
+        function openModalOptimized(modalId, options = {}) {
+            const modalEl = document.getElementById(modalId);
+            if (!modalEl) return null;
+            
+            closeAllModals();
+            
+            setTimeout(() => {
+                const config = {
+                    backdrop: 'static',
+                    keyboard: true,
+                    ...options
+                };
+                
+                if (bootstrap.Modal.getInstance(modalEl)) {
+                    bootstrap.Modal.getInstance(modalEl).dispose();
+                }
+                
+                const modal = new bootstrap.Modal(modalEl, config);
+                activeModalInstance = modal;
+                
+                modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
+                    modalEl.removeEventListener('hidden.bs.modal', handleHidden);
+                    if (activeModalInstance === modal) activeModalInstance = null;
+                }, { once: true });
+                
+                modalEl.addEventListener('shown.bs.modal', function handleShown() {
+                    modalEl.removeEventListener('shown.bs.modal', handleShown);
+                }, { once: true });
+                
+                modal.show();
+            }, 350);
         }
-        
-        const modal = new bootstrap.Modal(modalEl, config);
-        activeModalInstance = modal;
-        
-        // Xử lý sự kiện đóng
-        modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
-            modalEl.removeEventListener('hidden.bs.modal', handleHidden);
-            if (activeModalInstance === modal) activeModalInstance = null;
-        }, { once: true });
-        
-        // Xử lý sự kiện hiển thị
-        modalEl.addEventListener('shown.bs.modal', function handleShown() {
-            modalEl.removeEventListener('shown.bs.modal', handleShown);
-        }, { once: true });
-        
-        modal.show();
-    }, 350); // Đợi 350ms để modal cũ đóng hoàn toàn (transition 0.4s + 50ms)
-}
 
-// ===== HÀM ĐÓNG TẤT CẢ MODAL =====
-function closeAllModals() {
-    if (activeModalInstance) {
-        activeModalInstance.hide();
-        activeModalInstance = null;
-    }
-    
-    // Đóng tất cả modal có thể đang mở
-    const modalElements = document.querySelectorAll('.modal.show');
-    modalElements.forEach(el => {
-        const modal = bootstrap.Modal.getInstance(el);
-        if (modal) {
-            modal.hide();
-        }
-    });
-    
-    // Xóa backdrop sau khi modal đóng (đợi transition)
-    setTimeout(() => {
-        const backdrops = document.querySelectorAll('.modal-backdrop');
-        backdrops.forEach(el => {
-            if (el.parentNode) {
-                el.parentNode.removeChild(el);
+        // ===== HÀM ĐÓNG TẤT CẢ MODAL =====
+        function closeAllModals() {
+            if (activeModalInstance) {
+                activeModalInstance.hide();
+                activeModalInstance = null;
             }
-        });
-        
-        // Reset body overflow
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
-    }, 400);
-}
+            
+            const modalElements = document.querySelectorAll('.modal.show');
+            modalElements.forEach(el => {
+                const modal = bootstrap.Modal.getInstance(el);
+                if (modal) {
+                    modal.hide();
+                }
+            });
+            
+            setTimeout(() => {
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(el => {
+                    if (el.parentNode) {
+                        el.parentNode.removeChild(el);
+                    }
+                });
+                
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }, 400);
+        }
     </script>
 </body>
 </html>
