@@ -173,7 +173,7 @@
                         <i class="fas fa-comment-dots"></i>
                     </div>
                     <div class="app-name">VieChat</div>
-                    <div class="app-version">Phiên bản 3.1.2</div>
+                    <div class="app-version">Phiên bản 3.3.2</div>
                     <hr>
                     <div class="text-start">
                         <div class="info-item">
@@ -293,6 +293,9 @@
                         <!-- <button class="menu-item-privacy" data-section="activation" onclick="switchPrivacySection('activation')">
                             <i class="fas fa-check-circle"></i> Kích hoạt
                         </button> -->
+                        <button class="menu-item-privacy" data-section="securitycheck" onclick="switchPrivacySection('securitycheck')">
+                            <i class="fas fa-shield-alt"></i> Kiểm tra bảo mật
+                        </button>
                         <button class="menu-item-privacy" data-section="linkaccount" onclick="switchPrivacySection('linkaccount')">
                             <i class="fas fa-link"></i> Liên kết tài khoản
                         </button>
@@ -354,7 +357,30 @@
         <i class="fas fa-save me-1"></i> Lưu thông tin cá nhân
     </button>
 </div>
-                        
+                        <div class="content-section" id="section-securitycheck">
+    <div class="section-header">🛡️ Kiểm tra bảo mật</div>
+    <div class="section-desc">Quản lý các thiết bị đã đăng nhập vào tài khoản của bạn. Đăng xuất từ xa nếu phát hiện thiết bị lạ.</div>
+    
+    <div id="deviceListContainer">
+        <div class="text-center text-muted py-4">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p class="mt-2">Đang tải danh sách thiết bị...</p>
+        </div>
+    </div>
+    
+    <div class="device-security-tips mt-3">
+        <div class="alert alert-info small">
+            <i class="fas fa-info-circle me-1"></i>
+            <strong>Mẹo bảo mật:</strong>
+            <ul class="mb-0 mt-1">
+                <li>Đăng xuất khỏi các thiết bị không sử dụng để bảo vệ tài khoản.</li>
+                <li>Nếu thấy thiết bị lạ, hãy đăng xuất ngay và đổi mật khẩu.</li>
+                <li>Phiên hoạt động là phiên bạn đang sử dụng trên thiết bị này.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
                         <!-- Bảo mật -->
                         <div class="content-section" id="section-security">
                             <div class="section-header">🔒 Bảo mật</div>
