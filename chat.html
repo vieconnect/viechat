@@ -1845,6 +1845,12 @@
                             <div class="danger-zone">
                                 <div class="danger-title">🗑️ Xóa tài khoản</div>
                                 <p class="text-muted small">Xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn.</p>
+                                <div class="alert alert-warning" role="alert">
+                                    (i) VieConnect sẽ không thể cung ứng dịch vụ cho Quý khách khi Quý khách yêu cầu xóa Dữ Liệu Cá Nhân của Khách Hàng;<br><br>
+                                    (ii) Quý khách có 7 ngày để khôi phục tài khoản kể từ thời điểm Quý khách yêu cầu xóa Dữ Liệu Cá Nhân của Khách hàng;<br><br>
+                                    (iii) Sau 7 ngày kể từ thời điểm Quý khách yêu cầu xóa Dữ Liệu Cá Nhân của Khách hàng, toàn bộ dữ liệu sẽ bị xóa hoàn toàn và sẽ không thể khôi phục;<br><br>
+                                    (iv) VieConnect hoàn toàn có quyền lưu trữ dữ liệu của Quý khách trong vòng (2) năm kể từ thời điểm Quý khách yêu cầu xóa Dữ Liệu Cá Nhân của Khách hàng
+                                </div>
                                 <div class="input-group mb-2">
                                     <input type="text" class="form-control" id="privDeleteConfirmCode" placeholder='Nhập "XOATOANBO" để xác nhận'>
                                     <button class="btn btn-danger" onclick="deleteAccountFromPrivacy()">Xóa tài khoản</button>
@@ -3957,162 +3963,280 @@ window.showPrivacyModal = async () => {
             openChatFunction(uid, name, null); 
         };
 
-        // ===== UPDATE STATUS =====
-        window.updateStatus = async (uid, status) => {
-            const myUid = currentUser.uid;
-            const updates = {};
-            
-            if (status === 'accepted') {
-                updates[`friend_status/${myUid}/${uid}`] = "accepted";
-                updates[`friend_status/${uid}/${myUid}`] = "accepted";
-                await update(ref(db), updates);
-                showToast("Thành công", "Đã kết bạn thành công!", "success");
-                setTimeout(() => openChatFunction(uid, "", null), 400);
-            } 
-            else if (status === 'unblock') {
-                await remove(ref(db, `friend_status/${myUid}/${uid}`));
-                const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
-                if (theirStatus.val() === 'accepted') {
-                    await set(ref(db, `friend_status/${myUid}/${uid}`), 'accepted');
-                    showToast("Thành công", "Đã bỏ chặn", "success");
-                } else {
-                    const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
-                    const msgSnap = await get(ref(db, `messages/${chatId}`));
-                    if (msgSnap.exists()) {
-                        await set(ref(db, `friend_status/${myUid}/${uid}`), 'stranger');
-                    }
-                    showToast("Thành công", "Đã bỏ chặn!", "success");
-                }
-                if(activeChatId && activeChatId.includes(uid)) goHome();
-            } 
-            else if (status === 'unblock_stranger') {
-                await remove(ref(db, `friend_status/${myUid}/${uid}`));
-                const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
-                if (theirStatus.val() === 'accepted') {
-                    await set(ref(db, `friend_status/${myUid}/${uid}`), 'accepted');
-                    showToast("Thành công", "Đã bỏ chặn", "success");
-                } else {
-                    const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
-                    const msgSnap = await get(ref(db, `messages/${chatId}`));
-                    if (msgSnap.exists()) {
-                        await set(ref(db, `friend_status/${myUid}/${uid}`), 'stranger');
-                    }
-                    showToast("Thành công", "Đã bỏ chặn!", "success");
-                }
-                if(activeChatId && activeChatId.includes(uid)) goHome();
-            } 
-            else if (status === 'blocked') {
-                const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
-                const currentRel = await get(ref(db, `friend_status/${myUid}/${uid}`));
-                
-                if (currentRel.val() === 'accepted' || theirStatus.val() === 'accepted') {
-                    await set(ref(db, `friend_status/${myUid}/${uid}`), "blocked");
-                    showToast("Thông báo", "Đã chặn bạn bè!", "warning");
-                } else {
-                    await set(ref(db, `friend_status/${myUid}/${uid}`), "blocked");
-                    showToast("Thành công", "Đã chặn người dùng!", "warning");
-                }
-                
-                if(activeChatId && activeChatId.includes(uid)) goHome();
-            } 
-            else if (status === 'add_friend_stranger') {
-                updates[`friend_status/${myUid}/${uid}`] = "outgoing";
-                updates[`friend_status/${uid}/${myUid}`] = "incoming";
-                await update(ref(db), updates);
-                showToast("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!", "success");
-            } 
-            else if (status === 'reject') {
+        // ===== UPDATE STATUS - SỬA LỖI GỬI YÊU CẦU KB =====
+window.updateStatus = async (uid, status) => {
+    const myUid = currentUser.uid;
+    const updates = {};
+    
+    try {
+        if (status === 'accepted') {
+            updates[`friend_status/${myUid}/${uid}`] = "accepted";
+            updates[`friend_status/${uid}/${myUid}`] = "accepted";
+            await update(ref(db), updates);
+            showToast("Thành công", "Đã kết bạn thành công!", "success");
+            setTimeout(() => openChatFunction(uid, "", null), 400);
+            // Đồng bộ sau khi kết bạn
+            setTimeout(() => syncLists(), 500);
+        } 
+        else if (status === 'unblock') {
+            await remove(ref(db, `friend_status/${myUid}/${uid}`));
+            const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
+            if (theirStatus.val() === 'accepted') {
+                await set(ref(db, `friend_status/${myUid}/${uid}`), 'accepted');
+                showToast("Thành công", "Đã bỏ chặn", "success");
+            } else {
                 const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
-                await set(ref(db, `users/${myUid}/cleared_chats/${chatId}`), Date.now());
-                await remove(ref(db, `friend_status/${myUid}/${uid}`));
-                await remove(ref(db, `friend_status/${uid}/${myUid}`));
-                if(activeChatId && activeChatId.includes(uid)) goHome();
-                showToast("Thành công", "Đã từ chối lời mời kết bạn!", "warning");
+                const msgSnap = await get(ref(db, `messages/${chatId}`));
+                if (msgSnap.exists()) {
+                    await set(ref(db, `friend_status/${myUid}/${uid}`), 'stranger');
+                }
+                showToast("Thành công", "Đã bỏ chặn!", "success");
             }
-            else if (status === 'cancel') {
-                await remove(ref(db, `friend_status/${myUid}/${uid}`));
-                await remove(ref(db, `friend_status/${uid}/${myUid}`));
-                showToast("Thành công", "Đã hủy yêu cầu kết bạn!", "warning");
+            if(activeChatId && activeChatId.includes(uid)) goHome();
+            setTimeout(() => syncLists(), 500);
+        } 
+        else if (status === 'unblock_stranger') {
+            await remove(ref(db, `friend_status/${myUid}/${uid}`));
+            const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
+            if (theirStatus.val() === 'accepted') {
+                await set(ref(db, `friend_status/${myUid}/${uid}`), 'accepted');
+                showToast("Thành công", "Đã bỏ chặn", "success");
+            } else {
+                const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+                const msgSnap = await get(ref(db, `messages/${chatId}`));
+                if (msgSnap.exists()) {
+                    await set(ref(db, `friend_status/${myUid}/${uid}`), 'stranger');
+                }
+                showToast("Thành công", "Đã bỏ chặn!", "success");
             }
-            else if (status === 'remove') {
-                showConfirm("Bạn có chắc chắn muốn xóa bạn bè này?", async () => {
-                    const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
-                    await remove(ref(db, `friend_status/${myUid}/${uid}`));
-                    await remove(ref(db, `friend_status/${uid}/${myUid}`));
-                    await remove(ref(db, `messages/${chatId}`));
-                    if(activeChatId && activeChatId.includes(uid)) goHome();
-                    showToast("Thành công", "Đã xóa bạn bè!", "warning");
-                });
-            }
-            else if (status === 'delete_stranger_chat') {
-                showConfirm(
-                    `<div class="text-center">
-                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--danger); display: block; margin-bottom: 15px;"></i>
-                        <p><strong>Bạn có chắc chắn muốn xóa cuộc trò chuyện này?</strong></p>
-                        <p class="text-muted small">Hành động này sẽ xóa lịch sử trò chuyện và người này khỏi danh sách người lạ của bạn.<br>Người kia sẽ không bị ảnh hưởng.</p>
-                    </div>`,
-                    async () => {
-                        const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
-                        await set(ref(db, `users/${myUid}/cleared_chats/${chatId}`), Date.now());
-                        await remove(ref(db, `friend_status/${myUid}/${uid}`));
-                        if(activeChatId && activeChatId.includes(uid)) goHome();
-                        showToast("Thành công", "Đã xóa cuộc trò chuyện!", "success");
-                    }
-                );
+            if(activeChatId && activeChatId.includes(uid)) goHome();
+            setTimeout(() => syncLists(), 500);
+        } 
+        else if (status === 'blocked') {
+            const theirStatus = await get(ref(db, `friend_status/${uid}/${myUid}`));
+            const currentRel = await get(ref(db, `friend_status/${myUid}/${uid}`));
+            
+            if (currentRel.val() === 'accepted' || theirStatus.val() === 'accepted') {
+                await set(ref(db, `friend_status/${myUid}/${uid}`), "blocked");
+                showToast("Thông báo", "Đã chặn bạn bè!", "warning");
+            } else {
+                await set(ref(db, `friend_status/${myUid}/${uid}`), "blocked");
+                showToast("Thành công", "Đã chặn người dùng!", "warning");
             }
             
-            syncLists();
-        };
+            if(activeChatId && activeChatId.includes(uid)) goHome();
+            setTimeout(() => syncLists(), 500);
+        } 
+        else if (status === 'add_friend_stranger') {
+            // Xóa trạng thái cũ nếu có
+            await remove(ref(db, `friend_status/${myUid}/${uid}`)).catch(() => {});
+            await remove(ref(db, `friend_status/${uid}/${myUid}`)).catch(() => {});
+            
+            // Ghi từng đường dẫn một - QUAN TRỌNG
+            await set(ref(db, `friend_status/${myUid}/${uid}`), "outgoing");
+            await set(ref(db, `friend_status/${uid}/${myUid}`), "incoming");
+            
+            // Kiểm tra lại
+            const checkMy = await get(ref(db, `friend_status/${myUid}/${uid}`));
+            const checkTheir = await get(ref(db, `friend_status/${uid}/${myUid}`));
+            
+            if (checkMy.val() === "outgoing" && checkTheir.val() === "incoming") {
+                showToast("Đã gửi", "Yêu cầu kết bạn đã được gửi đi thành công!", "success");
+                // Đồng bộ và chuyển tab
+                setTimeout(() => {
+                    syncLists();
+                    switchTab('outgoing');
+                }, 500);
+            } else {
+                showToast("Lỗi", "Không thể gửi yêu cầu kết bạn. Vui lòng thử lại.", "error");
+            }
+        } 
+        else if (status === 'reject') {
+            const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+            await set(ref(db, `users/${myUid}/cleared_chats/${chatId}`), Date.now());
+            await remove(ref(db, `friend_status/${myUid}/${uid}`));
+            await remove(ref(db, `friend_status/${uid}/${myUid}`));
+            if(activeChatId && activeChatId.includes(uid)) goHome();
+            showToast("Thành công", "Đã từ chối lời mời kết bạn!", "warning");
+            setTimeout(() => syncLists(), 500);
+        }
+        else if (status === 'cancel') {
+            await remove(ref(db, `friend_status/${myUid}/${uid}`));
+            await remove(ref(db, `friend_status/${uid}/${myUid}`));
+            showToast("Thành công", "Đã hủy yêu cầu kết bạn!", "warning");
+            setTimeout(() => syncLists(), 500);
+        }
+        else if (status === 'remove') {
+            showConfirm("Bạn có chắc chắn muốn xóa bạn bè này?", async () => {
+                const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+                await remove(ref(db, `friend_status/${myUid}/${uid}`));
+                await remove(ref(db, `friend_status/${uid}/${myUid}`));
+                await remove(ref(db, `messages/${chatId}`));
+                if(activeChatId && activeChatId.includes(uid)) goHome();
+                showToast("Thành công", "Đã xóa bạn bè!", "warning");
+                setTimeout(() => syncLists(), 500);
+            });
+        }
+        else if (status === 'delete_stranger_chat') {
+            showConfirm(
+                `<div class="text-center">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: var(--danger); display: block; margin-bottom: 15px;"></i>
+                    <p><strong>Bạn có chắc chắn muốn xóa cuộc trò chuyện này?</strong></p>
+                    <p class="text-muted small">Hành động này sẽ xóa lịch sử trò chuyện và người này khỏi danh sách người lạ của bạn.<br>Người kia sẽ không bị ảnh hưởng.</p>
+                </div>`,
+                async () => {
+                    const chatId = myUid < uid ? `${myUid}_${uid}` : `${uid}_${myUid}`;
+                    await set(ref(db, `users/${myUid}/cleared_chats/${chatId}`), Date.now());
+                    await remove(ref(db, `friend_status/${myUid}/${uid}`));
+                    if(activeChatId && activeChatId.includes(uid)) goHome();
+                    showToast("Thành công", "Đã xóa cuộc trò chuyện!", "success");
+                    setTimeout(() => syncLists(), 500);
+                }
+            );
+        }
+    } catch (error) {
+        console.error('Lỗi updateStatus:', error);
+        showToast("Lỗi", "Không thể thực hiện hành động. Vui lòng thử lại.", "error");
+    }
+};
 
-        // ===== SYNC LISTS =====
-        function syncLists() {
-            cleanupGlobalListeners();
+        // ===== SYNC LISTS - SỬA LỖI LẶP ITEM =====
+function syncLists() {
+    cleanupGlobalListeners();
 
-            globalFriendStatusListener = onValue(ref(db, `friend_status/${currentUser.uid}`), (statusSnap) => {
-                const relations = statusSnap.val() || {};
-                let counts = { incoming: 0, outgoing: 0, friends: 0, strangers: 0 };
+    globalFriendStatusListener = onValue(ref(db, `friend_status/${currentUser.uid}`), (statusSnap) => {
+        const relations = statusSnap.val() || {};
+        let counts = { incoming: 0, outgoing: 0, friends: 0, strangers: 0 };
+        
+        // Xóa tất cả item cũ
+        document.querySelectorAll('.tab-content .item').forEach(el => el.remove());
+        document.getElementById('incoming-list').innerHTML = ""; 
+        document.getElementById('outgoing-list').innerHTML = ""; 
+        document.getElementById('friend-list').innerHTML = "";
+        document.getElementById('stranger-list').innerHTML = "";
+
+        // Xử lý các quan hệ có sẵn
+        Object.keys(relations).forEach((uid) => {
+            const status = relations[uid];
+            if (status === 'stranger') return;
+            
+            get(ref(db, `users/${uid}`)).then((u) => {
+                if (!u.exists()) {
+                    remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
+                    return;
+                }
+                const data = u.val();
                 
-                document.getElementById('incoming-list').innerHTML = ""; 
-                document.getElementById('outgoing-list').innerHTML = ""; 
-                document.getElementById('friend-list').innerHTML = "";
-                document.getElementById('stranger-list').innerHTML = "";
+                // Kiểm tra item đã tồn tại chưa
+                if (document.getElementById(`item-${uid}`)) return;
+                
+                const div = document.createElement('div'); 
+                div.id = `item-${uid}`; 
+                div.className = `item ${activeChatId && activeChatId.includes(uid) ? 'active' : ''}`;
+                
+                let acts = '';
+                if(status === 'incoming') {
+                    counts.incoming++;
+                    acts = `<button class="btn-icon bg-success" onclick="event.stopPropagation();updateStatus('${uid}','accepted')">✔</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','reject')">✖</button>`;
+                }
+                else if(status === 'outgoing') {
+                    counts.outgoing++;
+                    acts = `<button class="btn-icon bg-secondary" onclick="event.stopPropagation();updateStatus('${uid}','cancel')">Hủy</button>`;
+                }
+                else if(status === 'accepted') {
+                    counts.friends++;
+                    acts = `<button class="btn-icon bg-secondary text-dark" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','remove')">🗑</button>`;
+                }
+                else if(status === 'blocked') {
+                    counts.strangers++;
+                    acts = `<button class="btn-icon bg-primary" onclick="event.stopPropagation();updateStatus('${uid}','unblock')">Mở</button>`;
+                }
+                
+                const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
+                const avatar = getAvatarDataFromUser(data);
+                const avatarHtml = avatar ? 
+                    `<img src="${avatar}" class="item-avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover; margin-right:10px; flex-shrink:0;">` :
+                    `<div class="item-avatar-placeholder" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--primary), #0056b3); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:14px; margin-right:10px; flex-shrink:0;">${(data.name || 'U').charAt(0).toUpperCase()}</div>`;
+                
+                div.innerHTML = `
+                    <div style="display:flex; align-items:center; flex:1; min-width:0;">
+                        ${avatarHtml}
+                        <div class="item-info">
+                            <div class="name">${escapeHtml(data.name)}${verifiedHtml}</div>
+                            <div class="email">${escapeHtml(data.email)}</div>
+                        </div>
+                    </div>
+                    <div class="btn-group">${acts}</div>
+                `;
+                div.onclick = () => { closeSidebar(); openChatFunction(uid, data.name, div); };
+                
+                if (status === 'incoming') {
+                    document.getElementById('incoming-list').appendChild(div);
+                } else if (status === 'outgoing') {
+                    document.getElementById('outgoing-list').appendChild(div);
+                } else if (status === 'accepted') {
+                    document.getElementById('friend-list').appendChild(div);
+                } else if (status === 'blocked') {
+                    document.getElementById('stranger-list').appendChild(div);
+                }
+                
+                updateBadgeCounts(counts);
+            });
+        });
 
-                Object.keys(relations).forEach((uid) => {
-                    const status = relations[uid];
+        // Xử lý người lạ - THÊM KIỂM TRA TRÁNH LẶP
+        const strangerList = [];
+        Object.keys(relations).forEach((uid) => {
+            if (relations[uid] === 'stranger') {
+                strangerList.push(uid);
+            }
+        });
+        
+        strangerList.forEach((uid) => {
+            // KIỂM TRA ITEM ĐÃ TỒN TẠI
+            if (document.getElementById(`item-${uid}`)) return;
+            
+            get(ref(db, `users/${uid}`)).then((u) => {
+                if (!u.exists()) {
+                    remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
+                    return;
+                }
+                
+                const data = u.val();
+                const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+                
+                get(ref(db, `messages/${chatId}`)).then((msgSnap) => {
+                    if (!msgSnap.exists()) {
+                        return;
+                    }
                     
-                    if (status === 'stranger') return;
-                    
-                    get(ref(db, `users/${uid}`)).then((u) => {
-                        if (!u.exists()) {
-                            remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
+                    get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`)).then((clearSnap) => {
+                        const clearTime = clearSnap.val() || 0;
+                        let hasVisibleMsg = false;
+                        
+                        msgSnap.forEach((m) => {
+                            const msg = m.val();
+                            if (msg.timestamp > clearTime && !(msg.deletedBy && msg.deletedBy[currentUser.uid])) {
+                                hasVisibleMsg = true;
+                            }
+                        });
+                        
+                        if (!hasVisibleMsg) {
                             return;
                         }
-                        const data = u.val();
                         
-                        const oldEl = document.getElementById(`item-${uid}`);
-                        if (oldEl) oldEl.remove();
+                        // KIỂM TRA LẠI LẦN NỮA TRƯỚC KHI TẠO
+                        if (document.getElementById(`item-${uid}`)) return;
+                        
+                        counts.strangers++;
                         
                         const div = document.createElement('div'); 
                         div.id = `item-${uid}`; 
-                        div.className = `item ${activeChatId && activeChatId.includes(uid) ? 'active' : ''}`;
+                        div.className = `item ${activeChatId === chatId ? 'active' : ''}`;
                         
-                        let acts = '';
-                        if(status === 'incoming') {
-                            counts.incoming++;
-                            acts = `<button class="btn-icon bg-success" onclick="event.stopPropagation();updateStatus('${uid}','accepted')">✔</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','reject')">✖</button>`;
-                        }
-                        else if(status === 'outgoing') {
-                            counts.outgoing++;
-                            acts = `<button class="btn-icon bg-secondary" onclick="event.stopPropagation();updateStatus('${uid}','cancel')">Hủy</button>`;
-                        }
-                        else if(status === 'accepted') {
-                            counts.friends++;
-                            acts = `<button class="btn-icon bg-secondary text-dark" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button><button class="btn-icon bg-danger" onclick="event.stopPropagation();updateStatus('${uid}','remove')">🗑</button>`;
-                        }
-                        else if(status === 'blocked') {
-                            counts.strangers++;
-                            acts = `<button class="btn-icon bg-primary" onclick="event.stopPropagation();updateStatus('${uid}','unblock')">Mở</button>`;
-                        }
+                        const acts = `<button class="btn-icon bg-success" title="Kết bạn" onclick="event.stopPropagation();updateStatus('${uid}','add_friend_stranger')">➕</button>
+                                   <button class="btn-icon bg-secondary text-dark" title="Chặn" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button>
+                                   <button class="btn-icon bg-danger" title="Xóa cuộc trò chuyện" onclick="event.stopPropagation();updateStatus('${uid}','delete_stranger_chat')">🗑</button>`;
                         
                         const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
                         const avatar = getAvatarDataFromUser(data);
@@ -4124,103 +4248,22 @@ window.showPrivacyModal = async () => {
                             <div style="display:flex; align-items:center; flex:1; min-width:0;">
                                 ${avatarHtml}
                                 <div class="item-info">
-                                    <div class="name">${escapeHtml(data.name)}${verifiedHtml}</div>
+                                    <div class="name">${escapeHtml(data.name)}${verifiedHtml} <span class="badge bg-warning text-dark" style="font-size:8px;">Lạ</span></div>
                                     <div class="email">${escapeHtml(data.email)}</div>
                                 </div>
                             </div>
                             <div class="btn-group">${acts}</div>
                         `;
                         div.onclick = () => { closeSidebar(); openChatFunction(uid, data.name, div); };
-                        
-                        if (status === 'incoming') {
-                            document.getElementById('incoming-list').appendChild(div);
-                        } else if (status === 'outgoing') {
-                            document.getElementById('outgoing-list').appendChild(div);
-                        } else if (status === 'accepted') {
-                            document.getElementById('friend-list').appendChild(div);
-                        } else if (status === 'blocked') {
-                            document.getElementById('stranger-list').appendChild(div);
-                        }
+                        document.getElementById('stranger-list').appendChild(div);
                         
                         updateBadgeCounts(counts);
                     });
                 });
-
-                const strangerList = [];
-                Object.keys(relations).forEach((uid) => {
-                    if (relations[uid] === 'stranger') {
-                        strangerList.push(uid);
-                    }
-                });
-                
-                strangerList.forEach((uid) => {
-                    if (document.getElementById(`item-${uid}`)) return;
-                    
-                    get(ref(db, `users/${uid}`)).then((u) => {
-                        if (!u.exists()) {
-                            remove(ref(db, `friend_status/${currentUser.uid}/${uid}`)).catch(() => {});
-                            return;
-                        }
-                        
-                        const data = u.val();
-                        const chatId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
-                        
-                        get(ref(db, `messages/${chatId}`)).then((msgSnap) => {
-                            if (!msgSnap.exists()) {
-                                return;
-                            }
-                            
-                            get(ref(db, `users/${currentUser.uid}/cleared_chats/${chatId}`)).then((clearSnap) => {
-                                const clearTime = clearSnap.val() || 0;
-                                let hasVisibleMsg = false;
-                                
-                                msgSnap.forEach((m) => {
-                                    const msg = m.val();
-                                    if (msg.timestamp > clearTime && !(msg.deletedBy && msg.deletedBy[currentUser.uid])) {
-                                        hasVisibleMsg = true;
-                                    }
-                                });
-                                
-                                if (!hasVisibleMsg) {
-                                    return;
-                                }
-                                
-                                counts.strangers++;
-                                
-                                const div = document.createElement('div'); 
-                                div.id = `item-${uid}`; 
-                                div.className = `item ${activeChatId === chatId ? 'active' : ''}`;
-                                
-                                const acts = `<button class="btn-icon bg-success" title="Kết bạn" onclick="event.stopPropagation();updateStatus('${uid}','add_friend_stranger')">➕</button>
-                                           <button class="btn-icon bg-secondary text-dark" title="Chặn" onclick="event.stopPropagation();updateStatus('${uid}','blocked')">🚫</button>
-                                           <button class="btn-icon bg-danger" title="Xóa cuộc trò chuyện" onclick="event.stopPropagation();updateStatus('${uid}','delete_stranger_chat')">🗑</button>`;
-                                
-                                const verifiedHtml = data.haveGreenTick === true ? `<i class="fas fa-check-circle verified-icon" style="color: #1da1f2; margin-left: 4px;" title="Tài khoản đã được xác minh"></i>` : '';
-                                const avatar = getAvatarDataFromUser(data);
-                                const avatarHtml = avatar ? 
-                                    `<img src="${avatar}" class="item-avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover; margin-right:10px; flex-shrink:0;">` :
-                                    `<div class="item-avatar-placeholder" style="width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg, var(--primary), #0056b3); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:14px; margin-right:10px; flex-shrink:0;">${(data.name || 'U').charAt(0).toUpperCase()}</div>`;
-                                
-                                div.innerHTML = `
-                                    <div style="display:flex; align-items:center; flex:1; min-width:0;">
-                                        ${avatarHtml}
-                                        <div class="item-info">
-                                            <div class="name">${escapeHtml(data.name)}${verifiedHtml} <span class="badge bg-warning text-dark" style="font-size:8px;">Lạ</span></div>
-                                            <div class="email">${escapeHtml(data.email)}</div>
-                                        </div>
-                                    </div>
-                                    <div class="btn-group">${acts}</div>
-                                `;
-                                div.onclick = () => { closeSidebar(); openChatFunction(uid, data.name, div); };
-                                document.getElementById('stranger-list').appendChild(div);
-                                
-                                updateBadgeCounts(counts);
-                            });
-                        });
-                    });
-                });
             });
-        }
+        });
+    });
+}
 
         // ===== RENDER MESSAGES =====
         async function renderMessages(snapshot, clearTime) {
@@ -5200,6 +5243,423 @@ function copyFallback(text) {
     }
     document.body.removeChild(textarea);
 }
+
+// =====================================================
+// ===== CHỨC NĂNG XÓA TÀI KHOẢN VỚI THỜI GIAN CHỜ 7 NGÀY =====
+// =====================================================
+
+// ===== XÓA TÀI KHOẢN - LƯU TRỮ 7 NGÀY =====
+window.deleteAccountWithGrace = async function() {
+    const code = document.getElementById('privDeleteConfirmCode').value.trim();
+    if (code !== "XOATOANBO") {
+        showToast("Lỗi", 'Nhập "XOATOANBO" để xác nhận.', "error");
+        return;
+    }
+    
+    if (privacySettingsModalObj) {
+        privacySettingsModalObj.hide();
+        activeModalInstance = null;
+    }
+    
+    showConfirm(
+        `<div class="text-center">
+            <i class="fas fa-exclamation-triangle" style="font-size:48px;color:var(--danger);display:block;margin-bottom:15px;"></i>
+            <p><strong>Bạn có chắc chắn muốn xóa tài khoản?</strong></p>
+            <p class="text-muted">Tài khoản sẽ bị <strong>vô hiệu hóa ngay lập tức</strong>.</p>
+            <p class="text-warning"><i class="fas fa-clock me-1"></i> Bạn có <strong>7 ngày</strong> để khôi phục tài khoản bằng cách đăng nhập lại.</p>
+            <p class="text-danger small">Sau 7 ngày, tài khoản sẽ bị xóa vĩnh viễn khỏi hệ thống.</p>
+        </div>`,
+        async () => {
+            try {
+                showLoading('Đang xử lý xóa tài khoản...');
+                
+                const uid = currentUser.uid;
+                const userSnap = await get(ref(db, `users/${uid}`));
+                if (!userSnap.exists()) {
+                    hideLoading();
+                    showToast("Lỗi", "Không tìm thấy tài khoản.", "error");
+                    return;
+                }
+                
+                const userData = userSnap.val();
+                const deleteTime = Date.now();
+                const expiryTime = deleteTime + (7 * 24 * 60 * 60 * 1000); // 7 ngày
+                
+                // ==== LƯU THÔNG TIN VÀO deleted_users ====
+                const deletedData = {
+                    email: userData.email || currentUser.email,
+                    name: userData.name || 'Người dùng',
+                    data: userData,
+                    deletedAt: deleteTime,
+                    expiresAt: expiryTime,
+                    status: 'pending_delete',
+                    uid: uid
+                };
+                
+                await set(ref(db, `deleted_users/${uid}`), deletedData);
+                console.log('✅ Đã lưu thông tin xóa tài khoản vào deleted_users');
+                
+                // ==== XÓA USER KHỎI users (vô hiệu hóa) ====
+                await remove(ref(db, `users/${uid}`));
+                console.log('✅ Đã xóa user khỏi users');
+                
+                // ==== XÓA friend_status ====
+                await remove(ref(db, `friend_status/${uid}`));
+                console.log('✅ Đã xóa friend_status');
+                
+                // ==== ĐĂNG XUẤT ====
+                await signOut(auth);
+                
+                hideLoading();
+                showToast("Thông báo", "Tài khoản đã được vô hiệu hóa. Bạn có 7 ngày để khôi phục.", "warning");
+                
+                // Chuyển về trang đăng nhập với thông báo
+                setTimeout(() => {
+                    window.location.href = "index.html?restore=true";
+                }, 1500);
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Lỗi xóa tài khoản:', error);
+                showToast("Lỗi", "Không thể xóa tài khoản. Vui lòng thử lại.", "error");
+            }
+        }
+    );
+};
+
+// ===== KIỂM TRA VÀ KHÔI PHỤC TÀI KHOẢN =====
+async function checkAndRestoreAccount(user) {
+    if (!user) return;
+    
+    try {
+        const uid = user.uid;
+        
+        // Kiểm tra xem user có trong deleted_users không
+        const deletedSnap = await get(ref(db, `deleted_users/${uid}`));
+        if (!deletedSnap.exists()) {
+            return false;
+        }
+        
+        const deletedData = deletedSnap.val();
+        const now = Date.now();
+        
+        // Kiểm tra thời hạn
+        if (now > deletedData.expiresAt) {
+            // Quá hạn - Xóa vĩnh viễn
+            console.log('⏰ Tài khoản đã quá hạn 7 ngày, xóa vĩnh viễn...');
+            await permanentDeleteAccount(uid);
+            return false;
+        }
+        
+        // Còn trong thời hạn - Hiển thị banner khôi phục
+        const remainingTime = deletedData.expiresAt - now;
+        const days = Math.floor(remainingTime / (24 * 60 * 60 * 1000));
+        const hours = Math.floor((remainingTime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+        const minutes = Math.floor((remainingTime % (60 * 60 * 1000)) / (60 * 1000));
+        
+        let timeText = '';
+        if (days > 0) {
+            timeText = `${days} ngày ${hours} giờ`;
+        } else if (hours > 0) {
+            timeText = `${hours} giờ ${minutes} phút`;
+        } else {
+            timeText = `${minutes} phút`;
+        }
+        
+        // Hiển thị banner khôi phục (nếu chưa có)
+        showRestoreBanner(deletedData.name || 'Người dùng', timeText, uid);
+        return true;
+        
+    } catch (error) {
+        console.error('Lỗi kiểm tra restore:', error);
+        return false;
+    }
+}
+
+// ===== HIỂN THỊ BANNER KHÔI PHỤC =====
+function showRestoreBanner(name, timeText, uid) {
+    // Kiểm tra banner đã tồn tại chưa
+    let banner = document.getElementById('restoreBanner');
+    
+    if (!banner) {
+        // Tạo banner mới
+        banner = document.createElement('div');
+        banner.id = 'restoreBanner';
+        banner.className = 'restore-banner';
+        banner.innerHTML = `
+            <div class="banner-title">🔄 Khôi phục tài khoản</div>
+            <div class="banner-sub" id="restoreBannerText">Tài khoản "${name}" đã được yêu cầu xóa. Còn <strong>${timeText}</strong> để khôi phục.</div>
+            <div class="btn-group-banner">
+                <button class="btn-restore" onclick="restoreAccount()">✅ Khôi phục ngay</button>
+                <button class="btn-delete-permanent" onclick="confirmPermanentDelete()">🗑️ Xóa vĩnh viễn</button>
+            </div>
+        `;
+        document.body.appendChild(banner);
+    } else {
+        // Cập nhật banner hiện có
+        document.getElementById('restoreBannerText').innerHTML = 
+            `Tài khoản "${name}" đã được yêu cầu xóa. Còn <strong>${timeText}</strong> để khôi phục.`;
+        banner.classList.add('show');
+    }
+    
+    // Hiển thị banner với animation
+    setTimeout(() => {
+        banner.classList.add('show');
+    }, 100);
+}
+
+// ===== ẨN BANNER KHÔI PHỤC =====
+function hideRestoreBanner() {
+    const banner = document.getElementById('restoreBanner');
+    if (banner) {
+        banner.classList.remove('show');
+        setTimeout(() => {
+            if (banner.parentNode) {
+                banner.parentNode.removeChild(banner);
+            }
+        }, 500);
+    }
+}
+
+// ===== KHÔI PHỤC TÀI KHOẢN =====
+window.restoreAccount = async function() {
+    if (!currentUser) {
+        showToast("Lỗi", "Vui lòng đăng nhập để khôi phục tài khoản.", "error");
+        return;
+    }
+    
+    try {
+        showLoading('Đang khôi phục tài khoản...');
+        
+        const uid = currentUser.uid;
+        const deletedSnap = await get(ref(db, `deleted_users/${uid}`));
+        
+        if (!deletedSnap.exists()) {
+            hideLoading();
+            showToast("Lỗi", "Không tìm thấy dữ liệu khôi phục.", "error");
+            return;
+        }
+        
+        const deletedData = deletedSnap.val();
+        const now = Date.now();
+        
+        // Kiểm tra thời hạn
+        if (now > deletedData.expiresAt) {
+            hideLoading();
+            showToast("Lỗi", "Đã quá 7 ngày, không thể khôi phục tài khoản.", "error");
+            await permanentDeleteAccount(uid);
+            return;
+        }
+        
+        // ==== KHÔI PHỤC USER ====
+        const userData = deletedData.data || {};
+        userData.restoredAt = now;
+        userData.restoredFromDelete = true;
+        userData.email = deletedData.email || currentUser.email;
+        
+        // Đảm bảo có tên
+        if (!userData.name) {
+            userData.name = deletedData.name || 'Người dùng';
+        }
+        
+        await set(ref(db, `users/${uid}`), userData);
+        console.log('✅ Đã khôi phục user vào users');
+        
+        // ==== XÓA KHỎI deleted_users ====
+        await remove(ref(db, `deleted_users/${uid}`));
+        console.log('✅ Đã xóa khỏi deleted_users');
+        
+        // ==== CẬP NHẬT UI ====
+        document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(userData.name || "Người dùng", userData.haveGreenTick === true);
+        document.getElementById('my-email').innerText = userData.email || currentUser.email || 'Chưa có email';
+        
+        let avatar = getAvatarDataFromUser(userData);
+        if (avatar) updateAvatarUI(avatar);
+        
+        // ==== ẨN BANNER ====
+        hideRestoreBanner();
+        
+        hideLoading();
+        showToast("Thành công", "Tài khoản đã được khôi phục!", "success");
+        
+        // Đồng bộ lại danh sách
+        setTimeout(() => syncLists(), 500);
+        
+    } catch (error) {
+        hideLoading();
+        console.error('Lỗi khôi phục:', error);
+        showToast("Lỗi", "Không thể khôi phục tài khoản. Vui lòng thử lại.", "error");
+    }
+};
+
+// ===== XÓA VĨNH VIỄN TÀI KHOẢN =====
+window.confirmPermanentDelete = async function() {
+    showConfirm(
+        `<div class="text-center">
+            <i class="fas fa-exclamation-triangle" style="font-size:48px;color:var(--danger);display:block;margin-bottom:15px;"></i>
+            <p><strong>Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản?</strong></p>
+            <p class="text-danger small">Hành động này không thể hoàn tác! Tất cả dữ liệu sẽ bị xóa.</p>
+        </div>`,
+        async () => {
+            if (!currentUser) {
+                showToast("Lỗi", "Vui lòng đăng nhập để thực hiện.", "error");
+                return;
+            }
+            
+            try {
+                showLoading('Đang xóa vĩnh viễn tài khoản...');
+                await permanentDeleteAccount(currentUser.uid);
+                hideLoading();
+                
+                // Đăng xuất và chuyển về trang chủ
+                await signOut(auth);
+                showToast("Thông báo", "Tài khoản đã được xóa vĩnh viễn.", "info");
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 1500);
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Lỗi xóa vĩnh viễn:', error);
+                showToast("Lỗi", "Không thể xóa vĩnh viễn tài khoản.", "error");
+            }
+        }
+    );
+};
+
+// ===== HÀM XÓA VĨNH VIỄN =====
+async function permanentDeleteAccount(uid) {
+    try {
+        // ==== XÓA KHỎI deleted_users ====
+        await remove(ref(db, `deleted_users/${uid}`)).catch(() => {});
+        console.log('✅ Đã xóa khỏi deleted_users');
+        
+        // ==== XÓA KHỎI users ====
+        await remove(ref(db, `users/${uid}`)).catch(() => {});
+        console.log('✅ Đã xóa khỏi users');
+        
+        // ==== XÓA friend_status ====
+        await remove(ref(db, `friend_status/${uid}`)).catch(() => {});
+        console.log('✅ Đã xóa friend_status');
+        
+        // ==== XÓA TẤT CẢ MESSAGES CỦA USER ====
+        const msgSnap = await get(ref(db, `messages`));
+        if (msgSnap.exists()) {
+            const allMessages = msgSnap.val();
+            for (const chatId of Object.keys(allMessages)) {
+                const parts = chatId.split('_');
+                if (parts.length === 2 && (parts[0] === uid || parts[1] === uid)) {
+                    await remove(ref(db, `messages/${chatId}`)).catch(() => {});
+                    console.log(`✅ Đã xóa messages/${chatId}`);
+                }
+            }
+        }
+        
+        // ==== XÓA USER KHỎI FIREBASE AUTH ====
+        try {
+            if (auth.currentUser && auth.currentUser.uid === uid) {
+                await deleteUser(auth.currentUser);
+                console.log('✅ Đã xóa user khỏi Firebase Auth');
+            }
+        } catch (authError) {
+            console.warn('⚠️ Không thể xóa user khỏi Auth:', authError);
+        }
+        
+        console.log('✅ Đã xóa vĩnh viễn tài khoản:', uid);
+        return true;
+        
+    } catch (error) {
+        console.error('❌ Lỗi permanentDeleteAccount:', error);
+        throw error;
+    }
+}
+
+// ===== TỰ ĐỘNG XÓA TÀI KHOẢN QUÁ HẠN =====
+async function autoCleanupExpiredAccounts() {
+    try {
+        console.log('🔄 Đang kiểm tra tài khoản quá hạn...');
+        
+        const deletedSnap = await get(ref(db, `deleted_users`));
+        if (!deletedSnap.exists()) {
+            console.log('✅ Không có tài khoản nào cần xóa.');
+            return;
+        }
+        
+        const allDeleted = deletedSnap.val();
+        const now = Date.now();
+        let deletedCount = 0;
+        
+        for (const [uid, data] of Object.entries(allDeleted)) {
+            if (data.expiresAt && now > data.expiresAt) {
+                console.log(`⏰ Xóa tài khoản quá hạn: ${uid} (${data.email || 'unknown'})`);
+                try {
+                    await permanentDeleteAccount(uid);
+                    deletedCount++;
+                } catch (error) {
+                    console.error(`❌ Lỗi xóa tài khoản ${uid}:`, error);
+                }
+            }
+        }
+        
+        if (deletedCount > 0) {
+            console.log(`✅ Đã xóa ${deletedCount} tài khoản quá hạn.`);
+        } else {
+            console.log('✅ Không có tài khoản nào quá hạn.');
+        }
+        
+    } catch (error) {
+        console.error('❌ Lỗi autoCleanupExpiredAccounts:', error);
+    }
+}
+
+// ===== KIỂM TRA RESTORE KHI ĐĂNG NHẬP =====
+async function checkRestoreOnLogin(user) {
+    if (!user) return;
+    
+    try {
+        const uid = user.uid;
+        const deletedSnap = await get(ref(db, `deleted_users/${uid}`));
+        
+        if (!deletedSnap.exists()) {
+            return;
+        }
+        
+        const deletedData = deletedSnap.val();
+        const now = Date.now();
+        
+        // Nếu đã quá hạn
+        if (now > deletedData.expiresAt) {
+            console.log('⏰ Tài khoản đã quá hạn, xóa vĩnh viễn...');
+            await permanentDeleteAccount(uid);
+            await signOut(auth);
+            window.location.href = "index.html?expired=true";
+            return;
+        }
+        
+        // Còn trong thời hạn - Hiển thị banner khôi phục
+        const remainingTime = deletedData.expiresAt - now;
+        const days = Math.floor(remainingTime / (24 * 60 * 60 * 1000));
+        const hours = Math.floor((remainingTime % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+        
+        let timeText = '';
+        if (days > 0) {
+            timeText = `${days} ngày ${hours} giờ`;
+        } else if (hours > 0) {
+            timeText = `${hours} giờ`;
+        } else {
+            timeText = 'sắp hết hạn';
+        }
+        
+        showRestoreBanner(deletedData.name || 'Người dùng', timeText, uid);
+        
+    } catch (error) {
+        console.error('Lỗi checkRestoreOnLogin:', error);
+    }
+}
+
+// ===== GHI ĐÈ HÀM deleteAccountFromPrivacy =====
+// Thay thế hàm deleteAccountFromPrivacy cũ bằng hàm mới
+window.deleteAccountFromPrivacy = window.deleteAccountWithGrace;
     </script>
     <script>
         // ===== HÀM MỞ MODAL TỐI ƯU CHO CẢ DESKTOP VÀ MOBILE =====
