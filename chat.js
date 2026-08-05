@@ -79,6 +79,98 @@ let swipeThreshold = 50;
 // ===== QUẢN LÝ PHIÊN ĐĂNG NHẬP (SESSION MANAGEMENT) =====
 // =====================================================
 
+// ===== TẠO SESSION ID =====
+function generateSessionId() {
+    return 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 10);
+}
+
+// ===== LẤY ĐỊA CHỈ IP =====
+async function getIPAddress() {
+    try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip || 'Không xác định';
+    } catch (error) {
+        console.warn('Không thể lấy IP:', error);
+        return 'Không xác định';
+    }
+}
+
+// ===== LẤY THÔNG TIN THIẾT BỊ - CÓ LƯU VÀO LOCALSTORAGE =====
+function getDeviceInfo() {
+    const ua = navigator.userAgent;
+    
+    // Lấy deviceId từ localStorage hoặc tạo mới
+    let deviceId = localStorage.getItem('viechat_device_id');
+    
+    if (!deviceId) {
+        // Tạo deviceId ổn định
+        const screenInfo = `${window.screen.width}x${window.screen.height}`;
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const platform = navigator.platform || 'unknown';
+        const hardwareConcurrency = navigator.hardwareConcurrency || 'unknown';
+        
+        const stableId = `${platform}|${screenInfo}|${timezone}|${hardwareConcurrency}|${navigator.language}`;
+        deviceId = btoa(stableId).substring(0, 32);
+        localStorage.setItem('viechat_device_id', deviceId);
+    }
+    
+    // Phân loại thiết bị
+    let deviceType = "web";
+    if (/mobile/i.test(ua)) deviceType = "mobile";
+    else if (/tablet/i.test(ua)) deviceType = "tablet";
+    else if (/Windows|Macintosh|Linux/i.test(ua)) deviceType = "desktop";
+    
+    // Lấy tên thiết bị
+    let deviceName = "Unknown Device";
+    if (/iPhone/.test(ua)) deviceName = "iPhone";
+    else if (/iPad/.test(ua)) deviceName = "iPad";
+    else if (/Android/.test(ua)) {
+        const androidMatch = ua.match(/Android\s+([\d.]+)/);
+        const androidVersion = androidMatch ? androidMatch[1] : '';
+        const brandMatch = ua.match(/;\\s*([^;]+?)\\s*Build/);
+        const brand = brandMatch ? brandMatch[1] : 'Android';
+        deviceName = `${brand} (Android ${androidVersion})`;
+    }
+    else if (/Windows NT 10.0/.test(ua)) deviceName = "Windows PC";
+    else if (/Windows NT 6.1/.test(ua)) deviceName = "Windows 7";
+    else if (/Macintosh/.test(ua)) deviceName = "Mac";
+    else if (/Linux/.test(ua) && !/Android/.test(ua)) deviceName = "Linux PC";
+    
+    // Lấy OS
+    let os = "Unknown";
+    if (/Windows NT 10.0/.test(ua)) os = "Windows 10/11";
+    else if (/Windows NT 6.1/.test(ua)) os = "Windows 7";
+    else if (/Windows NT 6.2/.test(ua)) os = "Windows 8";
+    else if (/Mac OS X/.test(ua)) os = "macOS";
+    else if (/Android/.test(ua)) {
+        const androidMatch = ua.match(/Android\s+([\d.]+)/);
+        os = `Android ${androidMatch ? androidMatch[1] : ''}`;
+    }
+    else if (/iOS|iPhone|iPad/.test(ua)) os = "iOS";
+    else if (/Linux/.test(ua)) os = "Linux";
+    
+    // Lấy browser
+    let browser = "Unknown";
+    if (/Chrome/.test(ua) && !/Edg/.test(ua)) browser = "Chrome";
+    else if (/Firefox/.test(ua)) browser = "Firefox";
+    else if (/Safari/.test(ua) && !/Chrome/.test(ua)) browser = "Safari";
+    else if (/Edg/.test(ua)) browser = "Edge";
+    else if (/Opera|OPR/.test(ua)) browser = "Opera";
+    
+    return {
+        deviceId,
+        deviceName,
+        deviceType,
+        os,
+        browser,
+        userAgent: ua,
+        screenResolution: `${window.screen.width}x${window.screen.height}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+    };
+}
+
+
 // ===== LƯU THÔNG TIN THIẾT BỊ KHI ĐĂNG NHẬP =====
 async function saveDeviceSession(user) {
     if (!user) return;
@@ -91,7 +183,7 @@ async function saveDeviceSession(user) {
         const snap = await get(sessionsRef);
         let sessions = snap.val() || {};
         
-        // Kiểm tra thiết bị đã tồn tại
+        // Kiểm tra thiết bị đã tồn tại chưa (dựa trên deviceId)
         let existingSessionId = null;
         for (const [key, value] of Object.entries(sessions)) {
             if (value.deviceId === deviceInfo.deviceId) {
@@ -101,13 +193,29 @@ async function saveDeviceSession(user) {
         }
         
         if (existingSessionId) {
+            // Cập nhật phiên cũ - KHÔNG thay đổi deviceId
             await update(ref(db, `users/${user.uid}/sessions/${existingSessionId}`), {
                 lastActivity: Date.now(),
                 isActive: true,
-                userAgent: navigator.userAgent
+                isCurrentDevice: true, // Đánh dấu thiết bị hiện tại
+                userAgent: navigator.userAgent,
+                ipAddress: await getIPAddress()
             });
+            
+            // Cập nhật các session khác thành không phải thiết bị hiện tại
+            for (const [key, value] of Object.entries(sessions)) {
+                if (key !== existingSessionId && value.isCurrentDevice === true) {
+                    await update(ref(db, `users/${user.uid}/sessions/${key}`), {
+                        isCurrentDevice: false
+                    }).catch(() => {});
+                }
+            }
+            
             localStorage.setItem('viechat_current_session', existingSessionId);
             console.log('✅ Đã cập nhật phiên thiết bị:', deviceInfo.deviceName);
+            
+            // Thiết lập listener mới
+            setupSessionListener(user.uid, existingSessionId);
             return existingSessionId;
         }
         
@@ -129,81 +237,26 @@ async function saveDeviceSession(user) {
         
         await set(ref(db, `users/${user.uid}/sessions/${sessionId}`), sessionData);
         
+        // Cập nhật các session khác thành không phải thiết bị hiện tại
+        for (const [key, value] of Object.entries(sessions)) {
+            if (value.isCurrentDevice === true) {
+                await update(ref(db, `users/${user.uid}/sessions/${key}`), {
+                    isCurrentDevice: false
+                }).catch(() => {});
+            }
+        }
+        
         localStorage.setItem('viechat_current_session', sessionId);
         
         console.log('✅ Đã lưu phiên thiết bị mới:', deviceInfo.deviceName);
         
-        setTimeout(() => listenForSessionChanges(), 1000);
+        // Thiết lập listener mới
+        setupSessionListener(user.uid, sessionId);
         
         return sessionId;
     } catch (error) {
         console.error('❌ Lỗi lưu session:', error);
     }
-}
-
-// ===== TẠO SESSION ID =====
-function generateSessionId() {
-    return 'sess_' + Date.now() + '_' + Math.random().toString(36).substring(2, 10);
-}
-
-// ===== LẤY ĐỊA CHỈ IP =====
-async function getIPAddress() {
-    try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        return data.ip || 'Không xác định';
-    } catch (error) {
-        console.warn('Không thể lấy IP:', error);
-        return 'Không xác định';
-    }
-}
-
-// ===== LẤY THÔNG TIN THIẾT BỊ =====
-function getDeviceInfo() {
-    const ua = navigator.userAgent;
-    
-    const deviceId = btoa(ua + window.screen.width + window.screen.height + Intl.DateTimeFormat().resolvedOptions().timeZone).substring(0, 32);
-    
-    let deviceType = "web";
-    if (/mobile/i.test(ua)) deviceType = "mobile";
-    else if (/tablet/i.test(ua)) deviceType = "tablet";
-    else if (/Windows|Macintosh|Linux/i.test(ua)) deviceType = "desktop";
-    
-    let deviceName = "Unknown Device";
-    if (/iPhone/.test(ua)) deviceName = "iPhone";
-    else if (/iPad/.test(ua)) deviceName = "iPad";
-    else if (/Android/.test(ua)) deviceName = "Android Device";
-    else if (/Windows NT 10.0/.test(ua)) deviceName = "Windows PC";
-    else if (/Windows NT 6.1/.test(ua)) deviceName = "Windows 7";
-    else if (/Macintosh/.test(ua)) deviceName = "Mac";
-    else if (/Linux/.test(ua) && !/Android/.test(ua)) deviceName = "Linux PC";
-    
-    let os = "Unknown";
-    if (/Windows NT 10.0/.test(ua)) os = "Windows 10/11";
-    else if (/Windows NT 6.1/.test(ua)) os = "Windows 7";
-    else if (/Windows NT 6.2/.test(ua)) os = "Windows 8";
-    else if (/Mac OS X/.test(ua)) os = "macOS";
-    else if (/Android/.test(ua)) os = "Android";
-    else if (/iOS|iPhone|iPad/.test(ua)) os = "iOS";
-    else if (/Linux/.test(ua)) os = "Linux";
-    
-    let browser = "Unknown";
-    if (/Chrome/.test(ua) && !/Edg/.test(ua)) browser = "Chrome";
-    else if (/Firefox/.test(ua)) browser = "Firefox";
-    else if (/Safari/.test(ua) && !/Chrome/.test(ua)) browser = "Safari";
-    else if (/Edg/.test(ua)) browser = "Edge";
-    else if (/Opera|OPR/.test(ua)) browser = "Opera";
-    
-    return {
-        deviceId,
-        deviceName,
-        deviceType,
-        os,
-        browser,
-        userAgent: ua,
-        screenResolution: `${window.screen.width}x${window.screen.height}`,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    };
 }
 
 // ===== HIỂN THỊ DANH SÁCH THIẾT BỊ =====
@@ -225,6 +278,7 @@ async function renderDeviceList() {
                 <div class="text-center text-muted py-4">
                     <i class="fas fa-laptop" style="font-size: 48px; opacity: 0.3;"></i>
                     <p class="mt-2">Chưa có thiết bị nào đăng nhập.</p>
+                    <p class="text-muted small">Hãy đăng nhập trên thiết bị khác để hiển thị tại đây.</p>
                 </div>
             `;
             return;
@@ -238,6 +292,7 @@ async function renderDeviceList() {
             lastActivity: data.lastActivity || 0
         }));
         
+        // Sắp xếp: phiên hiện tại lên đầu, sau đó theo thời gian đăng nhập mới nhất
         sessionArray.sort((a, b) => {
             if (a.isCurrentDevice) return -1;
             if (b.isCurrentDevice) return 1;
@@ -272,13 +327,13 @@ async function renderDeviceList() {
             
             let inactiveText = '';
             if (!isActive) {
-                inactiveText = 'Không hoạt động';
+                inactiveText = '🔴 Đã đăng xuất';
             } else if (inactiveDays > 0) {
-                inactiveText = `Không hoạt động ${inactiveDays} ngày`;
+                inactiveText = `🟡 Không hoạt động ${inactiveDays} ngày`;
             } else if (inactiveHours > 0) {
-                inactiveText = `Không hoạt động ${inactiveHours} giờ`;
+                inactiveText = `🟡 Không hoạt động ${inactiveHours} giờ`;
             } else {
-                inactiveText = 'Đang hoạt động';
+                inactiveText = '🟢 Đang hoạt động';
             }
             
             const deviceIcon = session.deviceType === 'mobile' ? '📱' : 
@@ -325,18 +380,12 @@ async function renderDeviceList() {
                         </div>
                         <div class="detail-row">
                             <span class="detail-label"><i class="fas fa-activity"></i> Trạng thái:</span>
-                            <span class="detail-value ${!isActive ? 'text-danger' : ''}">${inactiveText}</span>
+                            <span class="detail-value">${inactiveText}</span>
                         </div>
                         ${session.ipAddress ? `
                         <div class="detail-row">
                             <span class="detail-label"><i class="fas fa-network-wired"></i> IP:</span>
                             <span class="detail-value">${session.ipAddress}</span>
-                        </div>
-                        ` : ''}
-                        ${session.browser ? `
-                        <div class="detail-row">
-                            <span class="detail-label"><i class="fas fa-globe"></i> Trình duyệt:</span>
-                            <span class="detail-value">${session.browser}</span>
                         </div>
                         ` : ''}
                     </div>
@@ -367,6 +416,10 @@ async function renderDeviceList() {
             <div class="alert alert-danger">
                 <i class="fas fa-exclamation-triangle me-1"></i>
                 Không thể tải danh sách thiết bị. Vui lòng thử lại.
+                <br>
+                <button class="btn btn-sm btn-outline-danger mt-2" onclick="renderDeviceList()">
+                    <i class="fas fa-sync"></i> Thử lại
+                </button>
             </div>
         `;
     }
@@ -497,8 +550,16 @@ window.handleRemoteLogout = function() {
 function listenForSessionChanges() {
     if (!currentUser) return;
     
+    // Xóa listener cũ nếu có - SỬA LỖI
     if (sessionListenerRef) {
-        off(sessionListenerRef);
+        try {
+            // Nếu sessionListenerRef là một hàm unsubscribe (từ onValue)
+            if (typeof sessionListenerRef === 'function') {
+                sessionListenerRef();
+            }
+        } catch (error) {
+            console.warn('Lỗi khi hủy listener cũ:', error);
+        }
         sessionListenerRef = null;
     }
     
@@ -506,6 +567,8 @@ function listenForSessionChanges() {
     if (!currentSessionId) return;
     
     const sessionRef = ref(db, `users/${currentUser.uid}/sessions/${currentSessionId}`);
+    
+    // Lưu hàm unsubscribe thay vì tham chiếu listener
     sessionListenerRef = onValue(sessionRef, (snap) => {
         if (!snap.exists()) {
             showRemoteLogoutModal();
@@ -529,6 +592,14 @@ function clearCurrentSession() {
         }).catch(() => {});
     }
     localStorage.removeItem('viechat_current_session');
+    
+    // KHÔNG xóa deviceId để giữ ổn định
+    // localStorage.removeItem('viechat_device_id');
+    
+    if (sessionListenerRef) {
+        off(sessionListenerRef);
+        sessionListenerRef = null;
+    }
 }
 
 // =====================================================
@@ -1464,12 +1535,11 @@ function getDisplayNameWithBadge(name, haveGreenTick) {
     return escapeHtml(name);
 }
 
-// ===== RENDER LINK ACCOUNT UI - SỬA LẠI HOÀN CHỈNH =====
+// ===== RENDER LINK ACCOUNT UI =====
 function renderLinkAccountUI() {
     const container = document.getElementById('linkAccountContainer');
     if (!container) return;
     
-    // Lấy dữ liệu từ cache
     const userData = userDataCache || {};
     const linkedProviders = userData.providers || [];
     const primaryProvider = linkedProviders.length > 0 ? linkedProviders[0] : null;
@@ -1480,10 +1550,6 @@ function renderLinkAccountUI() {
     ];
     
     let html = '';
-    
-    // Kiểm tra xem user đã có mật khẩu chưa (thông qua providers)
-    const hasPassword = linkedProviders.includes('password');
-    const hasGoogle = linkedProviders.includes('google');
     
     providers.forEach(provider => {
         const isLinked = linkedProviders.includes(provider.id);
@@ -1520,7 +1586,6 @@ function renderLinkAccountUI() {
                     <i class="fas fa-link"></i> Liên kết
                 </button>`;
             } else if (provider.id === 'password') {
-                // Nếu chưa có mật khẩu
                 actionHtml = `<button class="btn-link-action link-btn" onclick="switchPrivacySection('security'); showToast('Hướng dẫn', 'Vui lòng nhập mật khẩu mới trong tab Bảo mật để liên kết tài khoản Email.', 'info')">
                     <i class="fas fa-key"></i> Thêm mật khẩu
                 </button>`;
@@ -1551,7 +1616,6 @@ function renderLinkAccountUI() {
         `;
     });
     
-    // Thêm thông tin về số lượng phương thức
     html += `
         <div class="link-account-help" style="margin-top: 12px;">
             <i class="fas fa-info-circle"></i>
@@ -1564,7 +1628,7 @@ function renderLinkAccountUI() {
     container.innerHTML = html;
 }
 
-// ===== LINK PROVIDER - GOOGLE (CÁCH ĐƠN GIẢN) =====
+// ===== LINK PROVIDER - GOOGLE =====
 window.linkProvider = async (providerId) => {
     if (providerId === 'google') {
         if (!currentUser) {
@@ -1587,13 +1651,10 @@ window.linkProvider = async (providerId) => {
             
             const provider = new GoogleAuthProvider();
             
-            // Đăng nhập Google - user sẽ được thay thế
             const result = await signInWithPopup(auth, provider);
             const googleUser = result.user;
             
-            // Kiểm tra email
             if (googleUser.email.toLowerCase() === currentEmail.toLowerCase()) {
-                // Lưu providers vào database
                 const newProviders = [...currentProviders, 'google'];
                 
                 await update(ref(db, `users/${currentUser.uid}`), { 
@@ -1641,7 +1702,7 @@ function hideLoading() {
     }
 }
 
-// ===== SỬA HÀM UNLINK PROVIDER =====
+// ===== UNLINK PROVIDER =====
 window.unlinkProvider = async (providerId) => {
     const snap = await get(ref(db, `users/${currentUser.uid}`));
     if (!snap.exists()) return;
@@ -1649,14 +1710,12 @@ window.unlinkProvider = async (providerId) => {
     const data = snap.val();
     let providers = data.providers || [];
     
-    // Kiểm tra nếu chỉ có 1 provider thì không cho ngắt
     if (providers.length <= 1) {
         showToast('Thông báo', 'Bạn cần có ít nhất 2 phương thức đăng nhập để ngắt kết nối.', 'warning');
         renderLinkAccountUI();
         return;
     }
     
-    // Nếu provider là password (email), cần kiểm tra kỹ
     if (providerId === 'password') {
         const socialProviders = providers.filter(p => p !== 'password');
         if (socialProviders.length === 0) {
@@ -1666,7 +1725,6 @@ window.unlinkProvider = async (providerId) => {
         }
     }
     
-    // Kiểm tra nếu đang ngắt Google và có nhiều hơn 1 provider
     if (providerId === 'google') {
         const otherProviders = providers.filter(p => p !== 'google');
         if (otherProviders.length === 0) {
@@ -1676,7 +1734,6 @@ window.unlinkProvider = async (providerId) => {
         }
     }
     
-    // Kiểm tra nếu đây là phương thức đăng nhập chính và chỉ có 2 phương thức
     if (providers.length === 2 && providers[0] === providerId) {
         showConfirm(
             `<div class="text-center">
@@ -1702,36 +1759,15 @@ window.unlinkProvider = async (providerId) => {
     }
 };
 
-// ===== HÀM THỰC HIỆN NGẮT KẾT NỐI =====
 async function performUnlink(providerId, providers, data) {
     try {
-        // Xóa provider khỏi danh sách
         const newProviders = providers.filter(p => p !== providerId);
         
-        // Nếu đang ngắt kết nối Google, cần xóa provider trong Firebase Auth
-        if (providerId === 'google') {
-            try {
-                // Lấy tất cả providers từ Firebase Auth
-                const user = auth.currentUser;
-                if (user) {
-                    // Không thể xóa provider trực tiếp từ Firebase Auth
-                    // Chỉ cần xóa trong database là đủ
-                    // Người dùng sẽ không thể đăng nhập bằng Google nữa
-                }
-            } catch (authError) {
-                console.warn('Không thể xóa provider trong Auth:', authError);
-            }
-        }
-        
-        // Cập nhật vào database
         await update(ref(db, `users/${currentUser.uid}`), { 
             providers: newProviders 
         });
         
-        // Cập nhật cache
         userDataCache = { ...data, providers: newProviders };
-        
-        // Cập nhật lại UI
         renderLinkAccountUI();
         
         showToast('Thành công', 'Đã ngắt kết nối thành công!', 'success');
@@ -1772,7 +1808,6 @@ onAuthStateChanged(auth, (user) => {
         cleanupGlobalListeners();
         currentUser = null; 
         
-        // Kiểm tra nếu có tham số uid trong URL, chuyển hướng đến index.html với tham số redirect
         const params = new URLSearchParams(window.location.search);
         const uid = params.get('uid');
         if (uid) {
@@ -1782,7 +1817,6 @@ onAuthStateChanged(auth, (user) => {
         }
     } else {
         currentUser = user;
-        // Kiểm tra user có trong DB không
         get(ref(db, `users/${user.uid}`)).then((snap) => {
             if (!snap.exists()) {
                 showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ.', 'warning');
@@ -1791,7 +1825,6 @@ onAuthStateChanged(auth, (user) => {
                 return;
             }
             
-            // User có trong DB, tiếp tục
             onValue(ref(db, `users/${user.uid}`), (dataSnap) => {
                 const data = dataSnap.val();
                 if(data) {
@@ -1800,7 +1833,6 @@ onAuthStateChanged(auth, (user) => {
                         return; 
                     }
                     
-                    // Cập nhật cache
                     userDataCache = data;
                     
                     const displayEmail = data.email || user.email || 'Chưa có email';
@@ -1839,7 +1871,6 @@ onAuthStateChanged(auth, (user) => {
                         }, 1000);
                     }
                     
-                    // ===== TẠO USER ID NẾU CHƯA CÓ =====
                     ensureUserId(user.uid).then((userId) => {
                         if (userId) {
                             updateReferralLinkWithId(userId);
@@ -1852,28 +1883,24 @@ onAuthStateChanged(auth, (user) => {
                     });
                     
                     // ===== LƯU SESSION KHI ĐĂNG NHẬP =====
-                    setTimeout(() => {
-                        saveDeviceSession(user);
-                        cleanupInactiveSessions();
+                    setTimeout(async () => {
+                        await saveDeviceSession(user);
+                        await cleanupInactiveSessions();
                         listenForSessionChanges();
                     }, 2000);
                     
                     syncLists(); 
                     setupOutsideClick();
                     
-                    // Xử lý tham số URL để mở chat
                     if (window.location.search.includes('uid')) {
                         setTimeout(() => {
-                            // Ẩn overlay sau khi xử lý xong
                             hideProcessingOverlay();
                             handleUrlParams();
                         }, 1500);
                     } else {
-                        // Nếu không có tham số URL, ẩn overlay ngay
                         hideProcessingOverlay();
                     }
                     
-                    // Nếu modal đang mở, cập nhật UI link account
                     if (privacySettingsModalObj && document.getElementById('privacySettingsModal').classList.contains('show')) {
                         renderLinkAccountUI();
                     }
@@ -1907,17 +1934,13 @@ function hideProcessingOverlay() {
 function checkUrlParamsOnLoad() {
     const params = new URLSearchParams(window.location.search);
     const uid = params.get('uid');
-    const name = params.get('name');
     
     if (uid) {
-        // Hiển thị overlay xử lý
         showProcessingOverlay();
         console.log('🔄 Đang xử lý chuyển hướng từ profile-details...');
-        // Overlay sẽ được ẩn trong onAuthStateChanged sau khi xử lý xong
     }
 }
 
-// Gọi khi trang load
 checkUrlParamsOnLoad();
 
 // ===== USER ID GENERATION =====
@@ -1937,12 +1960,10 @@ async function ensureUserId(uid) {
         
         const userData = userSnap.val();
         
-        // Nếu đã có userId thì trả về
         if (userData.userId) {
             return userData.userId;
         }
         
-        // Tạo userId mới
         let userId = generateUserId();
         let isDuplicate = true;
         let attempts = 0;
@@ -1962,7 +1983,6 @@ async function ensureUserId(uid) {
             return null;
         }
         
-        // Lưu userId
         await update(ref(db), {
             [`users/${uid}/userId`]: userId,
             [`users_by_id/${userId}`]: uid
@@ -2007,7 +2027,6 @@ window.showLogoutConfirm = () => {
         document.getElementById('logoutConfirmOkBtn').onclick = () => { 
             modal.hide(); 
             activeModalInstance = null;
-            // Xóa session trước khi đăng xuất
             clearCurrentSession();
             signOut(auth); 
         };
@@ -2024,7 +2043,6 @@ window.showPrivacyModal = async () => {
         const snap = await get(ref(db, `users/${currentUser.uid}`));
         if (snap.exists()) {
             const d = snap.val();
-            // Cập nhật cache
             userDataCache = d;
             
             document.getElementById('privInputName').value = d.name || '';
@@ -2051,7 +2069,6 @@ window.showPrivacyModal = async () => {
             
             updatePasswordStrengthUI('', 'privStrengthFill', 'privStrengthLabel', 'priv');
             
-            // ===== CẬP NHẬT LINK HỒ SƠ VÀ LINK GIỚI THIỆU =====
             const userId = d.userId || localStorage.getItem('viechat_userId');
             if (userId) {
                 updateProfileLinkInPrivacy(userId);
@@ -2072,7 +2089,6 @@ window.showPrivacyModal = async () => {
                 setTimeout(() => {
                     renderLinkAccountUI();
                     checkActivationStatus();
-                    // Render danh sách thiết bị nếu tab đang active
                     const activeSection = document.querySelector('.privacy-content .content-section.active');
                     if (activeSection && activeSection.id === 'section-securitycheck') {
                         renderDeviceList();
@@ -2301,7 +2317,6 @@ window.switchPrivacySection = (section) => {
     });
     document.getElementById(`section-${section}`).classList.add('active');
     
-    // Nếu chuyển sang tab securitycheck, render danh sách thiết bị
     if (section === 'securitycheck') {
         renderDeviceList();
     }
@@ -2476,7 +2491,7 @@ window.directMessageFromModal = (uid, name) => {
     openChatFunction(uid, name, null); 
 };
 
-// ===== UPDATE STATUS - SỬA LỖI GỬI YÊU CẦU KB =====
+// ===== UPDATE STATUS =====
 window.updateStatus = async (uid, status) => {
     const myUid = currentUser.uid;
     const updates = {};
@@ -2608,7 +2623,7 @@ window.updateStatus = async (uid, status) => {
     }
 };
 
-// ===== SYNC LISTS - SỬA LỖI LẶP ITEM =====
+// ===== SYNC LISTS =====
 function syncLists() {
     cleanupGlobalListeners();
 
@@ -3807,7 +3822,6 @@ window.deleteAccountWithGrace = async function() {
                 await remove(ref(db, `friend_status/${uid}`));
                 console.log('✅ Đã xóa friend_status');
                 
-                // Xóa session
                 clearCurrentSession();
                 
                 await signOut(auth);
@@ -4139,12 +4153,10 @@ async function checkRestoreOnLogin(user) {
 window.deleteAccountFromPrivacy = window.deleteAccountWithGrace;
 
 // ===== KHỞI TẠO AUTO CLEANUP =====
-// Chạy cleanup mỗi 6 giờ
 setInterval(() => {
     autoCleanupExpiredAccounts();
 }, 6 * 60 * 60 * 1000);
 
-// Chạy lần đầu sau 5 phút
 setTimeout(() => {
     autoCleanupExpiredAccounts();
 }, 5 * 60 * 1000);

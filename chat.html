@@ -271,289 +271,281 @@
     </div>
 
     <!-- MODAL CÀI ĐẶT CHUNG - GỘP TẤT CẢ CHỨC NĂNG -->
-    <div class="modal fade privacy-modal" id="privacySettingsModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title fw-bold">⚙️ Cài đặt chung</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<div class="modal fade privacy-modal" id="privacySettingsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">⚙️ Cài đặt chung</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Sidebar trái -->
+                <div class="privacy-sidebar">
+                    <button class="menu-item-privacy active" data-section="profile" onclick="switchPrivacySection('profile')">
+                        <i class="fas fa-user-circle"></i> Tài khoản
+                    </button>
+                    <button class="menu-item-privacy" data-section="security" onclick="switchPrivacySection('security')">
+                        <i class="fas fa-shield-alt"></i> Bảo mật
+                    </button>
+                    <button class="menu-item-privacy" data-section="privacy" onclick="switchPrivacySection('privacy')">
+                        <i class="fas fa-lock"></i> Quyền riêng tư
+                    </button>
+                    <button class="menu-item-privacy" data-section="securitycheck" onclick="switchPrivacySection('securitycheck')">
+                        <i class="fas fa-shield-alt"></i> Kiểm tra bảo mật
+                    </button>
+                    <button class="menu-item-privacy" data-section="linkaccount" onclick="switchPrivacySection('linkaccount')">
+                        <i class="fas fa-link"></i> Liên kết tài khoản
+                    </button>
+                    <button class="menu-item-privacy" data-section="danger" onclick="switchPrivacySection('danger')" style="color:var(--danger);">
+                        <i class="fas fa-exclamation-triangle"></i> Nguy hiểm
+                    </button>
                 </div>
-                <div class="modal-body">
-                    <!-- Sidebar trái -->
-                    <div class="privacy-sidebar">
-                        <button class="menu-item-privacy active" data-section="profile" onclick="switchPrivacySection('profile')">
-                            <i class="fas fa-user-circle"></i> Tài khoản
-                        </button>
-                        <button class="menu-item-privacy" data-section="security" onclick="switchPrivacySection('security')">
-                            <i class="fas fa-shield-alt"></i> Bảo mật
-                        </button>
-                        <button class="menu-item-privacy" data-section="privacy" onclick="switchPrivacySection('privacy')">
-                            <i class="fas fa-lock"></i> Quyền riêng tư
-                        </button>
-                        <!-- <button class="menu-item-privacy" data-section="activation" onclick="switchPrivacySection('activation')">
-                            <i class="fas fa-check-circle"></i> Kích hoạt
-                        </button> -->
-                        <button class="menu-item-privacy" data-section="securitycheck" onclick="switchPrivacySection('securitycheck')">
-                            <i class="fas fa-shield-alt"></i> Kiểm tra bảo mật
-                        </button>
-                        <button class="menu-item-privacy" data-section="linkaccount" onclick="switchPrivacySection('linkaccount')">
-                            <i class="fas fa-link"></i> Liên kết tài khoản
-                        </button>
-                        <button class="menu-item-privacy" data-section="danger" onclick="switchPrivacySection('danger')" style="color:var(--danger);">
-                            <i class="fas fa-exclamation-triangle"></i> Nguy hiểm
+                
+                <!-- Nội dung phải - THÊM CLASS overflow-auto -->
+                <div class="privacy-content overflow-auto" style="max-height: 100%;">
+                    <!-- Tài khoản -->
+                    <div class="content-section active" id="section-profile">
+                        <div class="section-header">👤 Tài khoản</div>
+                        <div class="section-desc">Quản lý thông tin cá nhân của bạn.</div>
+                        
+                        <div class="form-group">
+                            <label>Tên hiển thị</label>
+                            <input type="text" class="form-control" id="privInputName" placeholder="Nhập tên hiển thị">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Giới tính</label>
+                            <select class="form-select" id="privInputGender">
+                                <option value="Nam">Nam</option>
+                                <option value="Nữ">Nữ</option>
+                                <option value="Khác">Khác</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Ngày sinh</label>
+                            <input type="date" class="form-control" id="privInputBirthday">
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e4e6eb;">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-user-circle" style="color: var(--primary);"></i>
+                                Trang hồ sơ của bạn
+                                <span class="badge bg-info" style="font-size: 10px; cursor: pointer;" onclick="openProfilePage()" title="Mở trang hồ sơ">
+                                    <i class="fas fa-external-link-alt"></i> Mở
+                                </span>
+                            </label>
+                            <div style="background: #f0f7ff; border-radius: 8px; padding: 10px 14px; border: 1px solid #b8d8ff;">
+                                <div id="privProfileLinkDisplay" style="font-size: 13px; color: #1a73e8; word-break: break-all;">
+                                    <a id="privProfileLinkAnchor" href="#" target="_blank" style="color: #1a73e8; text-decoration: none;">
+                                        Đang tải...
+                                    </a>
+                                </div>
+                                <div style="margin-top: 6px; font-size: 12px; color: #888;">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Đây là link hồ sơ công khai của bạn. Mọi người có thể xem thông tin qua link này.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary mt-2" onclick="saveAllProfileInfo()" style="float: right;">
+                            <i class="fas fa-save me-1"></i> Lưu thông tin cá nhân
                         </button>
                     </div>
                     
-                    <!-- Nội dung phải -->
-                    <div class="privacy-content">
-                        <!-- Tài khoản -->
-                        <!-- Tài khoản -->
-<div class="content-section active" id="section-profile">
-    <div class="section-header">👤 Tài khoản</div>
-    <div class="section-desc">Quản lý thông tin cá nhân của bạn.</div>
-    
-    <div class="form-group">
-        <label>Tên hiển thị</label>
-        <input type="text" class="form-control" id="privInputName" placeholder="Nhập tên hiển thị">
-    </div>
-    
-    <div class="form-group">
-        <label>Giới tính</label>
-        <select class="form-select" id="privInputGender">
-            <option value="Nam">Nam</option>
-            <option value="Nữ">Nữ</option>
-            <option value="Khác">Khác</option>
-        </select>
-    </div>
-    
-    <div class="form-group">
-        <label>Ngày sinh</label>
-        <input type="date" class="form-control" id="privInputBirthday">
-    </div>
-    
-    <!-- ===== LINK ĐẾN TRANG PROFILE ===== -->
-    <div class="form-group" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e4e6eb;">
-        <label style="display: flex; align-items: center; gap: 8px;">
-            <i class="fas fa-user-circle" style="color: var(--primary);"></i>
-            Trang hồ sơ của bạn
-            <span class="badge bg-info" style="font-size: 10px; cursor: pointer;" onclick="openProfilePage()" title="Mở trang hồ sơ">
-                <i class="fas fa-external-link-alt"></i> Mở
-            </span>
-        </label>
-        <div style="background: #f0f7ff; border-radius: 8px; padding: 10px 14px; border: 1px solid #b8d8ff;">
-            <div id="privProfileLinkDisplay" style="font-size: 13px; color: #1a73e8; word-break: break-all;">
-                <a id="privProfileLinkAnchor" href="#" target="_blank" style="color: #1a73e8; text-decoration: none;">
-                    Đang tải...
-                </a>
-            </div>
-            <div style="margin-top: 6px; font-size: 12px; color: #888;">
-                <i class="fas fa-info-circle"></i> 
-                Đây là link hồ sơ công khai của bạn. Mọi người có thể xem thông tin qua link này.
-            </div>
-        </div>
-    </div>
-    
-    <button class="btn btn-primary mt-2" onclick="saveAllProfileInfo()" style="float: right;">
-        <i class="fas fa-save me-1"></i> Lưu thông tin cá nhân
-    </button>
-</div>
-                        <div class="content-section" id="section-securitycheck">
-    <div class="section-header">🛡️ Kiểm tra bảo mật</div>
-    <div class="section-desc">Quản lý các thiết bị đã đăng nhập vào tài khoản của bạn. Đăng xuất từ xa nếu phát hiện thiết bị lạ.</div>
-    
-    <div id="deviceListContainer">
-        <div class="text-center text-muted py-4">
-            <i class="fas fa-spinner fa-spin fa-2x"></i>
-            <p class="mt-2">Đang tải danh sách thiết bị...</p>
-        </div>
-    </div>
-    
-    <div class="device-security-tips mt-3">
-        <div class="alert alert-info small">
-            <i class="fas fa-info-circle me-1"></i>
-            <strong>Mẹo bảo mật:</strong>
-            <ul class="mb-0 mt-1">
-                <li>Đăng xuất khỏi các thiết bị không sử dụng để bảo vệ tài khoản.</li>
-                <li>Nếu thấy thiết bị lạ, hãy đăng xuất ngay và đổi mật khẩu.</li>
-                <li>Phiên hoạt động là phiên bạn đang sử dụng trên thiết bị này.</li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-                        <!-- Bảo mật -->
-                        <div class="content-section" id="section-security">
-                            <div class="section-header">🔒 Bảo mật</div>
-                            <div class="section-desc">Thay đổi mật khẩu để bảo vệ tài khoản của bạn.</div>
-                            
-                            <div class="form-group" id="privOldPasswordGroup">
-                                <label>Mật khẩu cũ</label>
-                                <div class="password-wrapper">
-                                    <input type="password" class="form-control" id="privOldPassword" placeholder="Nhập mật khẩu cũ">
-                                    <button type="button" class="password-toggle" onclick="togglePassword('privOldPassword', this)">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
+                    <!-- Kiểm tra bảo mật -->
+                    <div class="content-section" id="section-securitycheck">
+                        <div class="section-header">🛡️ Kiểm tra bảo mật</div>
+                        <div class="section-desc">Quản lý các thiết bị đã đăng nhập vào tài khoản của bạn. Đăng xuất từ xa nếu phát hiện thiết bị lạ.</div>
+                        
+                        <div id="deviceListContainer">
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                <p class="mt-2">Đang tải danh sách thiết bị...</p>
                             </div>
-                            
-                            <div class="form-group">
-                                <label>Mật khẩu mới</label>
-                                <div class="password-wrapper">
-                                    <input type="password" class="form-control" id="privNewPassword" placeholder="Nhập mật khẩu mới (6+ ký tự)">
-                                    <button type="button" class="password-toggle" onclick="togglePassword('privNewPassword', this)">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- Password Strength Indicator -->
-                            <div class="password-strength" id="privPasswordStrength">
-                                <div class="strength-bar">
-                                    <div class="strength-fill" id="privStrengthFill"></div>
-                                </div>
-                                <span class="strength-label" id="privStrengthLabel">Yếu</span>
-                            </div>
-                            
-                            <!-- Password Requirements -->
-                            <div class="password-requirements" id="privPasswordRequirements">
-                                <div class="req-item unmet" id="privReqLength">
-                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
-                                    <span>Ít nhất 8 ký tự</span>
-                                </div>
-                                <div class="req-item unmet" id="privReqUppercase">
-                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
-                                    <span>Chứa chữ hoa (A-Z)</span>
-                                </div>
-                                <div class="req-item unmet" id="privReqLowercase">
-                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
-                                    <span>Chứa chữ thường (a-z)</span>
-                                </div>
-                                <div class="req-item unmet" id="privReqDigit">
-                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
-                                    <span>Chứa số (0-9)</span>
-                                </div>
-                                <div class="req-item unmet" id="privReqSpecial">
-                                    <span class="req-icon"><i class="fas fa-circle"></i></span>
-                                    <span>Chứa ký tự đặc biệt (!@#$%^&*)</span>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Xác nhận mật khẩu mới</label>
-                                <div class="password-wrapper">
-                                    <input type="password" class="form-control" id="privConfirmPassword" placeholder="Xác nhận mật khẩu mới">
-                                    <button type="button" class="password-toggle" onclick="togglePassword('privConfirmPassword', this)">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <button class="btn btn-primary" onclick="changePasswordFromPrivacy()">🔄 Đổi mật khẩu</button>
                         </div>
                         
-                        <!-- Quyền riêng tư -->
-                        <div class="content-section" id="section-privacy">
-                            <div class="section-header">🔐 Quyền riêng tư</div>
-                            <div class="section-desc">Kiểm soát những gì người khác có thể thấy về bạn.</div>
-                            
-                            <div class="form-switch">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="privSwitchShowGender">
-                                    <label class="form-check-label">Hiển thị giới tính khi người khác tìm kiếm</label>
-                                </div>
+                        <div class="device-security-tips mt-3">
+                            <div class="alert alert-info small">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <strong>Mẹo bảo mật:</strong>
+                                <ul class="mb-0 mt-1">
+                                    <li>Đăng xuất khỏi các thiết bị không sử dụng để bảo vệ tài khoản.</li>
+                                    <li>Nếu thấy thiết bị lạ, hãy đăng xuất ngay và đổi mật khẩu.</li>
+                                    <li>Phiên hoạt động là phiên bạn đang sử dụng trên thiết bị này.</li>
+                                </ul>
                             </div>
-                            
-                            <div class="form-switch">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="privSwitchShowBirthday">
-                                    <label class="form-check-label">Hiển thị ngày sinh khi người khác tìm kiếm</label>
-                                </div>
-                            </div>
-                            
-                            <div class="form-switch">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="privSwitchAllowSearch">
-                                    <label class="form-check-label">Cho phép mọi người tìm kiếm tôi bằng Email</label>
-                                </div>
-                            </div>
-                            
-                            <div class="form-switch">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="privSwitchAllowFriend">
-                                    <label class="form-check-label">Cho phép người lạ gửi lời mời kết bạn</label>
-                                </div>
-                            </div>
-                            
-                            <div class="form-switch">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="privSwitchAllowStrangerChat">
-                                    <label class="form-check-label">Cho phép người lạ nhắn tin khi chưa kết bạn</label>
-                                </div>
-                            </div>
-                            
-                            <button class="btn btn-primary" onclick="savePrivacySettings()" style="float: right;">💾 Lưu cài đặt</button>
                         </div>
-
-                        <!-- THÊM TAB KÍCH HOẠT MỚI -->
-                        <div class="content-section" id="section-activation">
-                            <div class="section-header">✅ Kích hoạt tài khoản</div>
-                            <div class="section-desc">Nhập mã kích hoạt để xác minh tài khoản của bạn.</div>
-                            
-                            <!-- CHỈ 1 THÔNG BÁO DUY NHẤT -->
-                            <div id="activationStatus" style="margin-bottom: 16px;"></div>
-                            
-                            <!-- Form nhập mã (chỉ hiển thị khi chưa kích hoạt) -->
-                            <div id="activationInputGroup" class="form-group">
-                                <label>Mã kích hoạt</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="activationCodeInput" placeholder="Nhập mã kích hoạt có 8 chữ số" style="border-radius: 10px 0 0 10px;">
-                                    <button class="btn btn-success" onclick="activateAccount()" style="border-radius: 0 10px 10px 0;">
-                                        <i class="fas fa-check me-1"></i> Kích hoạt
-                                    </button>
-                                </div>
-                            </div>
-                            <!-- Nút hủy kích hoạt (chỉ hiển thị khi đã kích hoạt) -->
-                            <div id="activationActions" style="display: none; margin-top: 12px;">
-                                <button class="btn btn-danger w-100" onclick="deactivateAccount()">
-                                    <i class="fas fa-times me-1"></i> Hủy kích hoạt
+                    </div>
+                    
+                    <!-- Bảo mật -->
+                    <div class="content-section" id="section-security">
+                        <div class="section-header">🔒 Bảo mật</div>
+                        <div class="section-desc">Thay đổi mật khẩu để bảo vệ tài khoản của bạn.</div>
+                        
+                        <div class="form-group" id="privOldPasswordGroup">
+                            <label>Mật khẩu cũ</label>
+                            <div class="password-wrapper">
+                                <input type="password" class="form-control" id="privOldPassword" placeholder="Nhập mật khẩu cũ">
+                                <button type="button" class="password-toggle" onclick="togglePassword('privOldPassword', this)">
+                                    <i class="fas fa-eye"></i>
                                 </button>
                             </div>
                         </div>
-
-                        <!-- TAB LIÊN KẾT TÀI KHOẢN -->
-                        <div class="content-section" id="section-linkaccount">
-                            <div class="section-header">🔗 Liên kết tài khoản</div>
-                            <div class="section-desc">Quản lý các phương thức đăng nhập liên kết với tài khoản của bạn.</div>
-                            
-                            <div id="linkAccountContainer">
-                                <!-- Nội dung sẽ được render bởi JavaScript -->
-                            </div>
-                            
-                            <div class="link-account-help">
-                                <i class="fas fa-info-circle"></i>
-                                <strong>Lưu ý:</strong> Bạn cần có ít nhất <strong>2 phương thức đăng nhập</strong> để có thể ngắt kết nối một phương thức. 
-                                Phương thức đăng nhập chính sẽ được đánh dấu <span class="badge bg-primary">Chính</span>.
+                        
+                        <div class="form-group">
+                            <label>Mật khẩu mới</label>
+                            <div class="password-wrapper">
+                                <input type="password" class="form-control" id="privNewPassword" placeholder="Nhập mật khẩu mới (6+ ký tự)">
+                                <button type="button" class="password-toggle" onclick="togglePassword('privNewPassword', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
                             </div>
                         </div>
                         
-                        <!-- Nguy hiểm -->
-                        <div class="content-section" id="section-danger">
-                            <div class="section-header" style="color:var(--danger);">⚠️ Khu vực nguy hiểm</div>
-                            <div class="section-desc">Các hành động tại đây không thể hoàn tác.</div>
-                            
-                            <div class="danger-zone">
-                                <div class="danger-title">🗑️ Xóa tài khoản</div>
-                                <p class="text-muted small">Xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn.</p>
-                                <div class="alert alert-warning" role="alert">
-                                    (i) VieConnect sẽ không thể cung ứng dịch vụ cho Quý khách khi Quý khách yêu cầu xóa Dữ Liệu Cá Nhân của Khách Hàng;<br><br>
-                                    (ii) Quý khách có 7 ngày để khôi phục tài khoản kể từ thời điểm Quý khách yêu cầu xóa Dữ Liệu Cá Nhân của Khách hàng;<br><br>
-                                    (iii) Sau 7 ngày kể từ thời điểm Quý khách yêu cầu xóa Dữ Liệu Cá Nhân của Khách hàng, toàn bộ dữ liệu sẽ bị xóa hoàn toàn và sẽ không thể khôi phục;<br><br>
-                                    (iv) VieConnect hoàn toàn có quyền lưu trữ dữ liệu của Quý khách trong vòng (2) năm kể từ thời điểm Quý khách yêu cầu xóa Dữ Liệu Cá Nhân của Khách hàng
-                                </div>
-                                <div class="input-group mb-2">
-                                    <input type="text" class="form-control" id="privDeleteConfirmCode" placeholder='Nhập "XOATOANBO" để xác nhận'>
-                                    <button class="btn btn-danger" onclick="deleteAccountFromPrivacy()">Xóa tài khoản</button>
-                                </div>
+                        <div class="password-strength" id="privPasswordStrength">
+                            <div class="strength-bar">
+                                <div class="strength-fill" id="privStrengthFill"></div>
+                            </div>
+                            <span class="strength-label" id="privStrengthLabel">Yếu</span>
+                        </div>
+                        
+                        <div class="password-requirements" id="privPasswordRequirements">
+                            <div class="req-item unmet" id="privReqLength">
+                                <span class="req-icon"><i class="fas fa-circle"></i></span>
+                                <span>Ít nhất 8 ký tự</span>
+                            </div>
+                            <div class="req-item unmet" id="privReqUppercase">
+                                <span class="req-icon"><i class="fas fa-circle"></i></span>
+                                <span>Chứa chữ hoa (A-Z)</span>
+                            </div>
+                            <div class="req-item unmet" id="privReqLowercase">
+                                <span class="req-icon"><i class="fas fa-circle"></i></span>
+                                <span>Chứa chữ thường (a-z)</span>
+                            </div>
+                            <div class="req-item unmet" id="privReqDigit">
+                                <span class="req-icon"><i class="fas fa-circle"></i></span>
+                                <span>Chứa số (0-9)</span>
+                            </div>
+                            <div class="req-item unmet" id="privReqSpecial">
+                                <span class="req-icon"><i class="fas fa-circle"></i></span>
+                                <span>Chứa ký tự đặc biệt (!@#$%^&*)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Xác nhận mật khẩu mới</label>
+                            <div class="password-wrapper">
+                                <input type="password" class="form-control" id="privConfirmPassword" placeholder="Xác nhận mật khẩu mới">
+                                <button type="button" class="password-toggle" onclick="togglePassword('privConfirmPassword', this)">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="changePasswordFromPrivacy()">🔄 Đổi mật khẩu</button>
+                    </div>
+                    
+                    <!-- Quyền riêng tư -->
+                    <div class="content-section" id="section-privacy">
+                        <div class="section-header">🔐 Quyền riêng tư</div>
+                        <div class="section-desc">Kiểm soát những gì người khác có thể thấy về bạn.</div>
+                        
+                        <div class="form-switch">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="privSwitchShowGender">
+                                <label class="form-check-label">Hiển thị giới tính khi người khác tìm kiếm</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-switch">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="privSwitchShowBirthday">
+                                <label class="form-check-label">Hiển thị ngày sinh khi người khác tìm kiếm</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-switch">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="privSwitchAllowSearch">
+                                <label class="form-check-label">Cho phép mọi người tìm kiếm tôi bằng Email</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-switch">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="privSwitchAllowFriend">
+                                <label class="form-check-label">Cho phép người lạ gửi lời mời kết bạn</label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-switch">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="privSwitchAllowStrangerChat">
+                                <label class="form-check-label">Cho phép người lạ nhắn tin khi chưa kết bạn</label>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="savePrivacySettings()" style="float: right;">💾 Lưu cài đặt</button>
+                    </div>
+
+                    <!-- Kích hoạt -->
+                    <div class="content-section" id="section-activation">
+                        <div class="section-header">✅ Kích hoạt tài khoản</div>
+                        <div class="section-desc">Nhập mã kích hoạt để xác minh tài khoản của bạn.</div>
+                        
+                        <div id="activationStatus" style="margin-bottom: 16px;"></div>
+                        
+                        <div id="activationInputGroup" class="form-group">
+                            <label>Mã kích hoạt</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="activationCodeInput" placeholder="Nhập mã kích hoạt có 8 chữ số" style="border-radius: 10px 0 0 10px;">
+                                <button class="btn btn-success" onclick="activateAccount()" style="border-radius: 0 10px 10px 0;">
+                                    <i class="fas fa-check me-1"></i> Kích hoạt
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="activationActions" style="display: none; margin-top: 12px;">
+                            <button class="btn btn-danger w-100" onclick="deactivateAccount()">
+                                <i class="fas fa-times me-1"></i> Hủy kích hoạt
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Liên kết tài khoản -->
+                    <div class="content-section" id="section-linkaccount">
+                        <div class="section-header">🔗 Liên kết tài khoản</div>
+                        <div class="section-desc">Quản lý các phương thức đăng nhập liên kết với tài khoản của bạn.</div>
+                        
+                        <div id="linkAccountContainer">
+                            <!-- Nội dung sẽ được render bởi JavaScript -->
+                        </div>
+                        
+                        <div class="link-account-help">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Lưu ý:</strong> Bạn cần có ít nhất <strong>2 phương thức đăng nhập</strong> để có thể ngắt kết nối một phương thức. 
+                            Phương thức đăng nhập chính sẽ được đánh dấu <span class="badge bg-primary">Chính</span>.
+                        </div>
+                    </div>
+                    
+                    <!-- Nguy hiểm -->
+                    <div class="content-section" id="section-danger">
+                        <div class="section-header" style="color:var(--danger);">⚠️ Khu vực nguy hiểm</div>
+                        <div class="section-desc">Các hành động tại đây không thể hoàn tác.</div>
+                        
+                        <div class="danger-zone">
+                            <div class="danger-title">🗑️ Xóa tài khoản</div>
+                            <p class="text-muted small">Xóa vĩnh viễn tài khoản và tất cả dữ liệu của bạn.</p>
+                            <div class="alert alert-warning" role="alert">
+                                (i) VieConnect sẽ không thể cung ứng dịch vụ cho Quý khách khi Quý khách yêu cầu xóa Dữ Liệu Cá Nhân của Khách Hàng;<br><br>
+                                (ii) Quý khách có 7 ngày để khôi phục tài khoản kể từ thời điểm Quý khách yêu cầu xóa Dữ Liệu Cá Nhân của Khách hàng;<br><br>
+                                (iii) Sau 7 ngày kể từ thời điểm Quý khách yêu cầu xóa Dữ Liệu Cá Nhân của Khách hàng, toàn bộ dữ liệu sẽ bị xóa hoàn toàn và sẽ không thể khôi phục;<br><br>
+                                (iv) VieConnect hoàn toàn có quyền lưu trữ dữ liệu của Quý khách trong vòng (2) năm kể từ thời điểm Quý khách yêu cầu xóa Dữ Liệu Cá Nhân của Khách hàng
+                            </div>
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" id="privDeleteConfirmCode" placeholder='Nhập "XOATOANBO" để xác nhận'>
+                                <button class="btn btn-danger" onclick="deleteAccountFromPrivacy()">Xóa tài khoản</button>
                             </div>
                         </div>
                     </div>
@@ -561,6 +553,7 @@
             </div>
         </div>
     </div>
+</div>
 
     <!-- MODAL XÓA TIN NHẮN PHÍA TÔI -->
     <div class="modal fade" id="deleteForMeModal" tabindex="-1">
