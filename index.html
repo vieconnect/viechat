@@ -53,6 +53,7 @@
             overflow-y: auto;
             padding-right: 4px;
             margin-right: -4px;
+            -webkit-overflow-scrolling: touch;
         }
         .auth-scrollable::-webkit-scrollbar {
             width: 4px;
@@ -774,335 +775,198 @@
             text-decoration: underline;
         }
 
-        /* ===== RESPONSIVE ===== */
+        /* ===================================================== */
+        /* ===== RESPONSIVE - MOBILE FULL SCREEN ===== */
+        /* ===================================================== */
+
         @media (max-width: 520px) {
             body {
-                padding: 6px;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: white !important;
+                min-height: 100vh;
+                min-height: 100dvh;
+                display: flex;
+                align-items: stretch !important;
             }
+            
             #auth-screen {
-                border-radius: 8px;
-                padding: 20px 16px 16px;
-                min-height: 400px;
-                max-height: 99vh;
+                width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                padding: 16px 16px 12px !important;
+                min-height: 100vh !important;
+                min-height: 100dvh !important;
+                max-height: 100vh !important;
+                max-height: 100dvh !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
             }
-            .form-header {
-                margin-bottom: 16px;
-                padding-bottom: 12px;
+            
+            .auth-scrollable {
+                flex: 1 !important;
+                overflow-y: auto !important;
+                padding-right: 4px !important;
+                margin-right: -4px !important;
+                -webkit-overflow-scrolling: touch !important;
             }
-            .form-header .logo-icon {
-                font-size: 24px;
+            
+            .form-container {
+                min-height: unset !important;
+                flex: 1 !important;
             }
-            .form-header .logo-text {
-                font-size: 20px;
+            
+            .auth-footer {
+                margin-top: 12px !important;
+                padding-top: 10px !important;
+                flex-shrink: 0 !important;
+                padding-bottom: env(safe-area-inset-bottom, 8px) !important;
             }
-            .form-header .logo-sub {
-                font-size: 12px;
+            
+            .form-panel {
+                min-height: 280px !important;
             }
-            .auth-tabs {
-                margin-bottom: 16px;
-            }
-            .auth-tab {
-                font-size: 13px;
-                padding: 8px 0;
-            }
-            .form-title {
-                font-size: 18px;
-            }
-            .form-sub {
-                font-size: 13px;
-                margin-bottom: 14px;
-            }
-            .input-group-custom {
-                margin-bottom: 8px;
-            }
+            
             .input-group-custom input,
             .input-group-custom select {
-                font-size: 15px !important;
-                padding: 8px 10px;
-                border-radius: 4px;
+                font-size: 16px !important;
+                padding: 12px 14px !important;
+                border-radius: 8px !important;
             }
-            .input-group-custom select {
-                padding-right: 30px;
-                background-position: right 8px center;
-            }
-            .password-toggle {
-                font-size: 16px;
-                padding: 4px;
-                right: 8px;
-            }
-            .password-wrapper input {
-                padding-right: 36px !important;
-            }
-            .password-strength {
-                margin: -2px 0 6px 0;
-            }
-            .password-strength .strength-label {
-                font-size: 10px;
-                min-width: 50px;
-            }
-            .password-requirements {
-                font-size: 10px;
-                margin: -2px 0 6px 0;
-            }
-            .password-requirements .req-item {
-                font-size: 10px;
-                padding: 1px 0;
-            }
-            .password-requirements .req-item .req-icon {
-                font-size: 10px;
-                width: 14px;
-            }
-            .method-btn {
-                padding: 12px 14px;
-                font-size: 14px;
-                gap: 12px;
-            }
-            .method-btn .method-icon {
-                font-size: 20px;
-                width: 32px;
-            }
-            .method-btn .method-label .method-name {
-                font-size: 14px;
-            }
-            .method-btn .method-label .method-desc {
-                font-size: 11px;
-            }
-            .social-buttons {
-                flex-direction: column;
-                gap: 8px;
-            }
-            .social-btn {
-                padding: 8px 12px;
-                font-size: 13px;
-            }
-            .btn-group-bottom {
-                flex-direction: column-reverse;
-                gap: 6px;
-                align-items: stretch;
-                margin-top: 2px;
-            }
+            
             .btn-next {
-                width: 100%;
-                justify-content: center;
-                padding: 10px;
-                font-size: 13px;
-                min-width: unset;
+                padding: 12px 24px !important;
+                font-size: 15px !important;
+                border-radius: 8px !important;
+                min-height: 48px !important;
             }
-            .btn-create {
-                text-align: center;
-                padding: 6px;
-                font-size: 12px;
-            }
+            
             .btn-back {
-                text-align: center;
-                justify-content: center;
-                padding: 6px 12px;
-                font-size: 12px;
+                padding: 10px 14px !important;
+                font-size: 14px !important;
+                border-radius: 8px !important;
             }
-            .forgot-link {
-                margin: 0 0 10px 0;
+            
+            .method-btn {
+                padding: 14px 16px !important;
+                border-radius: 10px !important;
             }
-            .forgot-link a {
-                font-size: 12px;
+            
+            .social-btn {
+                padding: 12px !important;
+                border-radius: 8px !important;
             }
-            .auth-footer {
-                gap: 12px;
-                margin-top: 14px;
-                padding-top: 10px;
-                justify-content: center;
-            }
-            .auth-footer a {
-                font-size: 10px;
-            }
-            .user-avatar {
-                width: 48px;
-                height: 48px;
-                font-size: 18px;
-                margin: 0 auto 6px;
-            }
-            .user-name-display {
-                font-size: 14px;
-            }
-            .user-email-display {
-                font-size: 12px;
-            }
-            .toast-container-custom {
-                top: 8px;
-                right: 8px;
-                max-width: calc(100% - 16px);
-            }
-            .toast-custom {
-                padding: 8px 12px;
-                font-size: 12px;
-                border-radius: 4px;
-            }
-            .toast-custom .toast-icon {
-                font-size: 14px;
-            }
-            .toast-custom .toast-body .toast-title {
-                font-size: 12px;
-            }
-            .toast-custom .toast-body .toast-message {
-                font-size: 11px;
-            }
-            .form-loading-overlay .loader {
-                width: 28px;
-                height: 28px;
-            }
-            .form-loading-overlay .loader-text {
-                font-size: 12px;
-            }
-            .terms-checkbox {
-                font-size: 11px;
-                margin: 2px 0 8px;
-            }
-            .terms-checkbox input[type="checkbox"] {
-                width: 14px;
-                height: 14px;
-            }
-            .forgot-link {
-                text-align: center;
-            }
-            .lock-info-item {
-                font-size: 13px;
-                padding: 6px 8px;
-            }
-            .lock-info-item .label {
-                min-width: 60px;
-            }
-            .lock-icon-warning {
-                font-size: 36px;
-            }
-            .profile-complete-form .social-avatar {
-                width: 60px;
-                height: 60px;
-                font-size: 24px;
+            
+            .password-toggle {
+                font-size: 20px !important;
+                right: 12px !important;
             }
         }
 
         @media (max-width: 380px) {
-            body {
-                padding: 4px;
-            }
             #auth-screen {
-                border-radius: 6px;
-                padding: 14px 12px 12px;
-                min-height: 360px;
+                padding: 12px 12px 8px !important;
             }
-            .form-header .logo-icon {
-                font-size: 20px;
-            }
-            .form-header .logo-text {
-                font-size: 17px;
-            }
-            .form-header .logo-sub {
-                font-size: 11px;
-            }
-            .auth-tab {
-                font-size: 12px;
-                padding: 6px 0;
-            }
-            .auth-tab i {
-                margin-right: 4px;
-            }
-            .form-title {
-                font-size: 16px;
-            }
-            .form-sub {
-                font-size: 12px;
-                margin-bottom: 12px;
-            }
+            
             .input-group-custom input,
             .input-group-custom select {
-                font-size: 14px !important;
-                padding: 6px 8px;
+                font-size: 15px !important;
+                padding: 10px 12px !important;
             }
-            .input-group-custom select {
-                padding-right: 24px;
-                background-position: right 6px center;
-                background-size: 10px;
-            }
-            .method-btn {
-                padding: 10px 12px;
-                font-size: 13px;
-                gap: 10px;
-            }
-            .method-btn .method-icon {
-                font-size: 18px;
-                width: 28px;
-            }
-            .method-btn .method-label .method-name {
-                font-size: 13px;
-            }
-            .method-btn .method-label .method-desc {
-                font-size: 10px;
-            }
-            .social-btn {
-                padding: 6px 10px;
-                font-size: 12px;
-            }
-            .social-btn i {
-                font-size: 16px;
-            }
+            
             .btn-next {
-                padding: 8px;
-                font-size: 12px;
+                padding: 10px 16px !important;
+                font-size: 14px !important;
+                min-height: 44px !important;
             }
-            .btn-create {
-                font-size: 11px;
+            
+            .method-btn {
+                padding: 12px 14px !important;
+                font-size: 14px !important;
             }
-            .btn-back {
-                font-size: 11px;
-                padding: 4px 10px;
+            
+            .method-btn .method-icon {
+                font-size: 20px !important;
+                width: 30px !important;
             }
-            .password-requirements .req-item {
-                font-size: 9px;
+        }
+
+        @supports (padding: max(0px)) {
+            #auth-screen {
+                padding-left: max(16px, env(safe-area-inset-left)) !important;
+                padding-right: max(16px, env(safe-area-inset-right)) !important;
+                padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
             }
-            .password-strength .strength-label {
-                font-size: 9px;
-                min-width: 40px;
+            
+            .auth-footer {
+                padding-bottom: max(10px, env(safe-area-inset-bottom, 8px)) !important;
             }
-            .auth-footer a {
-                font-size: 9px;
+        }
+
+        @media (max-width: 790px) and (orientation: landscape) {
+            #auth-screen {
+                padding: 10px 16px !important;
+                min-height: 100vh !important;
             }
-            .user-avatar {
-                width: 40px;
-                height: 40px;
-                font-size: 14px;
+            
+            .form-header {
+                margin-bottom: 8px !important;
+                padding-bottom: 8px !important;
             }
-            .user-name-display {
-                font-size: 12px;
+            
+            .form-header .logo-icon {
+                font-size: 20px !important;
             }
-            .user-email-display {
-                font-size: 11px;
+            
+            .form-header .logo-text {
+                font-size: 18px !important;
             }
-            .toast-custom {
-                padding: 6px 10px;
-                font-size: 11px;
+            
+            .form-header .logo-sub {
+                font-size: 11px !important;
             }
-            .toast-custom .toast-icon {
-                font-size: 12px;
+            
+            .auth-tabs {
+                margin-bottom: 10px !important;
             }
-            .toast-custom .toast-body .toast-title {
-                font-size: 11px;
+            
+            .auth-tab {
+                padding: 6px 0 !important;
+                font-size: 13px !important;
             }
-            .toast-custom .toast-body .toast-message {
-                font-size: 10px;
+            
+            .choose-method {
+                gap: 8px !important;
             }
-            .lock-info-item {
-                font-size: 12px;
-                padding: 4px 6px;
+            
+            .method-btn {
+                padding: 10px 14px !important;
+                gap: 10px !important;
             }
-            .lock-info-item .label {
-                min-width: 50px;
+            
+            .method-btn .method-icon {
+                font-size: 18px !important;
+                width: 28px !important;
             }
-            .lock-icon-warning {
-                font-size: 28px;
+            
+            .form-panel {
+                min-height: 200px !important;
             }
-            .profile-complete-form .social-avatar {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
+            
+            .input-group-custom input,
+            .input-group-custom select {
+                padding: 8px 12px !important;
+                font-size: 14px !important;
+            }
+            
+            .btn-next {
+                padding: 8px 16px !important;
+                font-size: 13px !important;
+                min-height: 36px !important;
             }
         }
     </style>
@@ -1145,7 +1009,6 @@
                             </span>
                             <span class="method-label">
                                 <span class="method-name">Email</span>
-                                <span class="method-desc">Đăng nhập bằng email và mật khẩu</span>
                             </span>
                             <span class="method-arrow"><i class="fas fa-chevron-right"></i></span>
                         </button>
@@ -1157,7 +1020,6 @@
                             </span>
                             <span class="method-label">
                                 <span class="method-name">Google</span>
-                                <span class="method-desc">Đăng nhập nhanh bằng tài khoản Google</span>
                             </span>
                             <span class="method-arrow"><i class="fas fa-chevron-right"></i></span>
                         </button>
@@ -1200,9 +1062,10 @@
                         </div>
                     </div>
 
-                    <div class="forgot-link">
-                        <a href="#" onclick="switchTab('forgot')">Bạn quên mật khẩu?</a>
-                    </div>
+                    <!-- Trong form nhập mật khẩu -->
+<div class="forgot-link">
+    <a href="#" onclick="showForgotPasswordForm(); return false;">Bạn quên mật khẩu?</a>
+</div>
 
                     <div class="btn-group-bottom">
                         <button class="btn-back" onclick="goBackToEmail()" style="border-radius: 100px;">
@@ -1213,6 +1076,25 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- ===== FORM QUÊN MẬT KHẨU ===== -->
+<div id="forgot-form" class="form-panel">
+    <div class="form-title">Quên mật khẩu</div>
+    <div class="form-sub">Nhập email để nhận liên kết đặt lại mật khẩu</div>
+
+    <div class="input-group-custom">
+        <input type="email" id="resetEmailInput" placeholder="Email của bạn" autocomplete="email" style="border-radius: 100px;">
+    </div>
+
+    <div class="btn-group-bottom">
+        <button class="btn-back" onclick="goBackToEmail()" style="border-radius: 100px;">
+            <i class="fas fa-arrow-left"></i> Quay lại
+        </button>
+        <button class="btn-next" onclick="handleForgotPassword()" style="border-radius: 100px;">
+            Gửi yêu cầu
+        </button>
+    </div>
+</div>
 
                 <!-- ===== FORM TÀI KHOẢN BỊ KHÓA ===== -->
                 <div id="lock-form" class="form-panel">
@@ -1374,25 +1256,6 @@
                     </div>
                 </div>
 
-                <!-- ===== FORM QUÊN MẬT KHẨU ===== -->
-                <div id="forgot-form" class="form-panel">
-                    <div class="form-title">Quên mật khẩu</div>
-                    <div class="form-sub">Nhập email để nhận liên kết đặt lại mật khẩu</div>
-
-                    <div class="input-group-custom">
-                        <input type="email" id="resetEmailInput" placeholder="Email của bạn" autocomplete="email" style="border-radius: 100px;">
-                    </div>
-
-                    <div class="btn-group-bottom">
-                        <button class="btn-back" onclick="goBackToEmail()" style="border-radius: 100px;">
-                            <i class="fas fa-arrow-left"></i> Quay lại
-                        </button>
-                        <button class="btn-next" onclick="handleForgotPassword()" style="border-radius: 100px;">
-                            Gửi yêu cầu
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Loading Overlay -->
                 <div class="form-loading-overlay" id="formLoadingOverlay">
                     <div class="loader"></div>
@@ -1467,6 +1330,23 @@
         let isSigningUp = false;
         let pendingSocialUser = null;
         let pendingSocialProvider = null;
+
+        // ===== SET MOBILE HEIGHT =====
+        function setMobileHeight() {
+            const authScreen = document.getElementById('auth-screen');
+            if (!authScreen) return;
+            
+            if (window.innerWidth <= 520) {
+                const vh = window.innerHeight;
+                authScreen.style.height = `${vh}px`;
+                authScreen.style.minHeight = `${vh}px`;
+                authScreen.style.maxHeight = `${vh}px`;
+            } else {
+                authScreen.style.height = '';
+                authScreen.style.minHeight = '';
+                authScreen.style.maxHeight = '';
+            }
+        }
 
         // ===== TOAST =====
         function showToast(title, message, type = 'info', duration = 4000) {
@@ -1752,39 +1632,47 @@
         };
 
         // ===== SWITCH TAB =====
-        window.switchTab = (tab) => {
-            if (isTransitioning) return;
-            
-            const overlay = document.getElementById('formLoadingOverlay');
-            if (overlay.classList.contains('show')) return;
+window.switchTab = (tab) => {
+    if (isTransitioning) return;
+    
+    const overlay = document.getElementById('formLoadingOverlay');
+    if (overlay.classList.contains('show')) return;
 
-            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`.auth-tab[data-tab="${tab}"]`).classList.add('active');
-            currentTab = tab;
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.auth-tab[data-tab="${tab}"]`).classList.add('active');
+    currentTab = tab;
 
-            if (tab === 'login') {
-                switchFormDirect('choose');
-                document.getElementById('emailInput').value = '';
-                document.getElementById('passwordInput').value = '';
-                document.getElementById('resetEmailInput').value = '';
-                document.getElementById('userInfoWrapper').classList.remove('visible');
-            } else if (tab === 'signup') {
-                switchFormDirect('signup');
-                document.getElementById('signup-name').value = '';
-                document.getElementById('signup-email').value = '';
-                document.getElementById('signup-password').value = '';
-                document.getElementById('signup-confirm').value = '';
-                document.getElementById('terms-checkbox').checked = false;
-                document.getElementById('strengthFill').style.width = '0%';
-                document.getElementById('strengthLabel').textContent = 'Yếu';
-                document.getElementById('strengthLabel').style.color = '#888';
-                document.querySelectorAll('.req-item').forEach(el => {
-                    el.className = 'req-item unmet';
-                    el.querySelector('.req-icon').innerHTML = '<i class="fas fa-circle"></i>';
-                });
-            }
-        };
+    if (tab === 'login') {
+        switchFormDirect('choose');
+        document.getElementById('emailInput').value = '';
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('resetEmailInput').value = '';
+        document.getElementById('userInfoWrapper').classList.remove('visible');
+    } else if (tab === 'signup') {
+        switchFormDirect('signup');
+        document.getElementById('signup-name').value = '';
+        document.getElementById('signup-email').value = '';
+        document.getElementById('signup-password').value = '';
+        document.getElementById('signup-confirm').value = '';
+        document.getElementById('terms-checkbox').checked = false;
+        document.getElementById('strengthFill').style.width = '0%';
+        document.getElementById('strengthLabel').textContent = 'Yếu';
+        document.getElementById('strengthLabel').style.color = '#888';
+        document.querySelectorAll('.req-item').forEach(el => {
+            el.className = 'req-item unmet';
+            el.querySelector('.req-icon').innerHTML = '<i class="fas fa-circle"></i>';
+        });
+    }
+};
 
+// ===== HIỂN THỊ FORM QUÊN MẬT KHẨU =====
+window.showForgotPasswordForm = () => {
+    // Chuyển sang form forgot mà không thay đổi tab
+    switchFormDirect('forgot');
+    setTimeout(() => {
+        document.getElementById('resetEmailInput').focus();
+    }, 300);
+};
         // ===== HIỂN THỊ FORM EMAIL LOGIN =====
         window.showEmailLogin = () => {
             switchFormDirect('login');
@@ -1804,24 +1692,25 @@
         };
 
         // ===== GO BACK TO EMAIL =====
-        window.goBackToEmail = () => {
-            if (currentForm === 'forgot') {
-                document.getElementById('resetEmailInput').value = '';
-                switchFormDirect('login');
-                setTimeout(() => {
-                    document.getElementById('emailInput').focus();
-                }, 300);
-            } else {
-                document.getElementById('passwordInput').value = '';
-                document.getElementById('userInfoWrapper').classList.remove('visible');
-                foundUserData = null;
-                foundUserUid = null;
-                switchFormDirect('login');
-                setTimeout(() => {
-                    document.getElementById('emailInput').focus();
-                }, 300);
-            }
-        };
+window.goBackToEmail = () => {
+    if (currentForm === 'forgot') {
+        // Quay lại form nhập email (login)
+        document.getElementById('resetEmailInput').value = '';
+        switchFormDirect('login');
+        setTimeout(() => {
+            document.getElementById('emailInput').focus();
+        }, 300);
+    } else {
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('userInfoWrapper').classList.remove('visible');
+        foundUserData = null;
+        foundUserUid = null;
+        switchFormDirect('login');
+        setTimeout(() => {
+            document.getElementById('emailInput').focus();
+        }, 300);
+    }
+};
 
         // ===== RESET VỀ FORM LOGIN =====
         function resetToLoginForm() {
@@ -1844,6 +1733,7 @@
             if (emailDisplay) emailDisplay.textContent = 'email@example.com';
             
             document.getElementById('emailInput').value = '';
+            document.getElementById('resetEmailInput').value = '';
             
             document.getElementById('complete-name').value = '';
             document.getElementById('complete-email').value = '';
@@ -1934,18 +1824,23 @@
                 targetPanel.style.display = 'block';
                 void targetPanel.offsetWidth;
                 targetPanel.classList.add('active');
+                
+                // Scroll lên đầu form mới
+                const scrollable = document.getElementById('authScrollable');
+                if (scrollable) {
+                    setTimeout(() => {
+                        scrollable.scrollTop = 0;
+                    }, 100);
+                }
             }
 
             currentForm = target;
 
             const firstInput = targetPanel ? targetPanel.querySelector('input:not([type="hidden"])') : null;
             if (firstInput) {
-                setTimeout(() => firstInput.focus(), 200);
-            }
-
-            const scrollable = document.getElementById('authScrollable');
-            if (scrollable) {
-                scrollable.scrollTop = 0;
+                setTimeout(() => {
+                    firstInput.focus();
+                }, 300);
             }
         }
 
@@ -2112,6 +2007,45 @@
                 showToast('Lỗi đăng nhập', message, 'error');
                 document.getElementById('passwordInput').focus();
                 document.getElementById('passwordInput').select();
+            }
+        };
+
+        // ===== HANDLE FORGOT PASSWORD =====
+        window.handleForgotPassword = async () => {
+            const email = document.getElementById('resetEmailInput').value.trim();
+
+            if (!email) {
+                showToast('Thông báo', 'Vui lòng nhập email của bạn.', 'warning');
+                document.getElementById('resetEmailInput').focus();
+                return;
+            }
+
+            if (!email.includes('@') || !email.includes('.')) {
+                showToast('Lỗi', 'Email không hợp lệ. Vui lòng kiểm tra lại.', 'error');
+                document.getElementById('resetEmailInput').focus();
+                return;
+            }
+
+            showLoading('Đang gửi yêu cầu...');
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                hideLoading();
+                showToast('Thành công', 'Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư.', 'success');
+                setTimeout(() => resetToLoginForm(), 1500);
+            } catch (error) {
+                hideLoading();
+                console.error('Lỗi gửi email:', error);
+                
+                let message = 'Không thể gửi email khôi phục mật khẩu.';
+                if (error.code === 'auth/user-not-found') {
+                    message = 'Không tìm thấy tài khoản với email này.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = 'Quá nhiều yêu cầu. Vui lòng thử lại sau.';
+                } else if (error.code === 'auth/network-request-failed') {
+                    message = 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.';
+                }
+                showToast('Lỗi', message, 'error');
             }
         };
 
@@ -2316,30 +2250,6 @@
             }
         };
 
-        // ===== HANDLE FORGOT PASSWORD =====
-        window.handleForgotPassword = async () => {
-            const email = document.getElementById('resetEmailInput').value.trim();
-
-            if (!email) {
-                showToast('Thông báo', 'Vui lòng nhập email của bạn.', 'warning');
-                document.getElementById('resetEmailInput').focus();
-                return;
-            }
-
-            showLoading('Đang gửi yêu cầu...');
-
-            try {
-                await sendPasswordResetEmail(auth, email);
-                hideLoading();
-                showToast('Thành công', 'Đã gửi email khôi phục mật khẩu. Vui lòng kiểm tra hộp thư.', 'success');
-                setTimeout(() => resetToLoginForm(), 1500);
-            } catch (error) {
-                hideLoading();
-                console.error('Lỗi gửi email:', error);
-                showToast('Lỗi', getFirebaseErrorMessage(error.code), 'error');
-            }
-        };
-
         // ===== FIREBASE ERROR =====
         function getFirebaseErrorMessage(errorCode) {
             const messages = {
@@ -2495,6 +2405,21 @@
             completeForm.style.display = 'none';
             currentForm = 'choose';
             currentTab = 'login';
+
+            // Set mobile height
+            setMobileHeight();
+
+            // Lắng nghe resize
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(setMobileHeight, 200);
+            });
+
+            // Lắng nghe orientation change
+            window.addEventListener('orientationchange', function() {
+                setTimeout(setMobileHeight, 300);
+            });
 
             setTimeout(() => {
                 document.getElementById('emailInput').focus();
