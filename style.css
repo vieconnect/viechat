@@ -1517,6 +1517,7 @@
     min-height: 500px;
     display: flex;
     flex-direction: column;
+    height: 85vh;
 }
 
 .privacy-modal .modal-body {
@@ -1525,86 +1526,39 @@
     height: 100%;
     overflow: hidden;
     flex: 1;
-    min-height: 0; /* QUAN TRỌNG: cho phép flex item co lại */
-}
-
-.privacy-modal .modal-header {
-    border-bottom: 1px solid #e4e6eb;
-    padding: 16px 20px;
-    flex-shrink: 0;
-}
-
-.privacy-modal .modal-footer {
-    border-top: 1px solid #e4e6eb;
-    padding: 12px 20px;
-    flex-shrink: 0;
-}
-
-.privacy-sidebar {
-    width: 240px;
-    min-width: 240px;
-    background: #f8f9fa;
-    border-right: 1px solid #e4e6eb;
-    overflow-y: auto;
-    padding: 8px 0;
-    height: 100%;
-    flex-shrink: 0;
+    min-height: 0;
+    max-height: calc(85vh - 130px);
 }
 
 .privacy-content {
     flex: 1;
     padding: 20px 24px;
-    overflow-y: auto; /* CHO PHÉP SCROLL */
+    overflow-y: auto;
     height: 100%;
     background: white;
-    min-height: 0; /* QUAN TRỌNG: cho phép flex item co lại */
+    min-height: 0;
     max-height: 100%;
+    /* THÊM: để content co giãn theo chiều cao */
+    display: flex;
+    flex-direction: column;
 }
 
 .privacy-content .content-section {
     display: none;
     animation: contentFadeIn 0.25s ease;
     height: 100%;
+    overflow-y: auto;
+    padding-bottom: 20px;
+    /* THÊM: để section chiếm hết không gian */
+    flex: 1;
 }
 
 .privacy-content .content-section.active {
     display: block;
-}
-
-/* ===== ĐẢM BẢO NỘI DUNG BÊN TRONG SECTION CÓ THỂ SCROLL ===== */
-.privacy-content .content-section {
-    overflow-y: auto;
-    max-height: 100%;
-    padding-bottom: 20px;
-}
-
-/* ===== DEVICE LIST - ĐẢM BẢO HIỂN THỊ TỐT ===== */
-.device-list {
+    /* THAY ĐỔI: từ block -> flex để chiếm hết chiều cao */
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin-top: 12px;
-    padding-bottom: 10px;
-}
-
-.device-card {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 14px 16px;
-    border: 1px solid #e4e6eb;
-    transition: all 0.2s;
-    flex-shrink: 0;
-}
-
-.device-card:hover {
-    border-color: var(--primary);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.device-card.current-device {
-    background: #e8f4fd;
-    border-color: var(--primary);
-    border-left: 4px solid var(--primary);
+    height: 100%;
 }
 
 /* ===== RESPONSIVE CHO MOBILE ===== */
@@ -1614,21 +1568,25 @@
         max-height: 100vh;
         border-radius: 0;
         min-height: unset;
+        max-height: 100vh !important;
+        height: 100vh !important;
     }
     
     .privacy-modal .modal-body {
         flex-direction: column;
         height: auto;
-        flex: 1;
+        flex: 1 1 auto;
         overflow: hidden;
         min-height: 0;
+        max-height: unset;
+        max-height: calc(100vh - 120px) !important;
     }
     
     .privacy-sidebar {
         width: 100%;
         min-width: unset;
         height: auto;
-        max-height: 120px;
+        max-height: 110px;
         border-right: none;
         border-bottom: 1px solid #e4e6eb;
         display: flex;
@@ -1639,11 +1597,11 @@
     }
     
     .privacy-sidebar .menu-item-privacy {
-        padding: 10px 14px;
+        padding: 8px 12px;
         white-space: nowrap;
         border-left: none;
         border-bottom: 3px solid transparent;
-        font-size: 12px;
+        font-size: 11px;
         flex-shrink: 0;
         width: auto;
         background: transparent;
@@ -1660,73 +1618,140 @@
     }
     
     .privacy-content {
-        padding: 16px;
-        flex: 1;
+        padding: 12px 16px;
+        flex: 1 1 auto;
         overflow-y: auto;
         height: auto;
         max-height: 100%;
         min-height: 0;
+        /* Xóa max-height cố định */
+        max-height: unset !important;
+        /* Đảm bảo flex */
+        display: flex;
+        flex-direction: column;
     }
     
     .privacy-content .content-section {
         max-height: 100%;
         overflow-y: auto;
+        padding-bottom: 10px;
+        height: auto;
+        flex: 1;
+        /* Đảm bảo không bị tràn */
+        min-height: 0;
+    }
+    
+    .privacy-content .content-section.active {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    /* Ẩn scrollbar nếu không cần */
+    .privacy-content::-webkit-scrollbar {
+        width: 3px;
+    }
+    .privacy-content::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 3px;
+    }
+    
+    .privacy-modal .modal-header {
+        padding: 12px 16px !important;
+        flex-shrink: 0;
+    }
+    
+    .privacy-modal .modal-header .modal-title {
+        font-size: 15px !important;
+    }
+    
+    .privacy-modal .modal-footer {
+        padding: 8px 16px !important;
+        flex-shrink: 0;
     }
     
     /* Device list trên mobile */
     .device-list {
-        gap: 10px;
-    }
-    
-    .device-card {
-        padding: 12px 14px;
-    }
-    
-    .device-header {
-        flex-wrap: wrap;
-    }
-    
-    .device-status {
-        width: 100%;
-        justify-content: flex-start;
-        margin-left: 56px;
-    }
-    
-    .device-details {
-        grid-template-columns: 1fr;
-        gap: 2px;
-    }
-    
-    .detail-row {
-        font-size: 12px;
-    }
-    
-    .detail-label {
-        min-width: 70px;
-        font-size: 11px;
-    }
-}
-
-@media (max-width: 480px) {
-    .privacy-sidebar .menu-item-privacy {
-        padding: 8px 10px;
-        font-size: 11px;
-    }
-    
-    .privacy-content {
-        padding: 12px;
+        gap: 8px;
     }
     
     .device-card {
         padding: 10px 12px;
     }
     
-    .device-icon-large {
-        font-size: 22px;
-        width: 36px;
+    .device-header {
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+    
+    .device-status {
+        width: 100%;
+        justify-content: flex-start;
+        margin-left: 48px;
+    }
+    
+    .device-details {
+        grid-template-columns: 1fr;
+        gap: 2px;
+        padding: 6px 0;
+        margin-top: 4px;
+    }
+    
+    .detail-row {
+        font-size: 11px;
+        padding: 1px 0;
+    }
+    
+    .detail-label {
+        min-width: 60px;
+        font-size: 10px;
     }
     
     .device-name {
         font-size: 13px;
     }
+    
+    .device-icon-large {
+        font-size: 20px;
+        width: 32px;
+    }
+    
+    .device-card .badge-current {
+        font-size: 9px;
+        padding: 1px 6px;
+    }
 }
+
+@media (max-width: 480px) {
+    .privacy-sidebar .menu-item-privacy {
+        padding: 6px 10px;
+        font-size: 10px;
+    }
+    
+    .privacy-content {
+        padding: 10px 12px;
+    }
+    
+    .device-card {
+        padding: 8px 10px;
+    }
+    
+    .device-icon-large {
+        font-size: 18px;
+        width: 28px;
+    }
+    
+    .device-name {
+        font-size: 12px;
+    }
+    
+    .device-details .detail-row {
+        font-size: 10px;
+    }
+    
+    .detail-label {
+        min-width: 50px;
+        font-size: 9px;
+    }
+}
+

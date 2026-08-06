@@ -4594,3 +4594,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 500);
 });
+
+// Thêm vào cuối file chat.js
+function adjustPrivacyModalHeight() {
+    const modal = document.querySelector('#privacySettingsModal .modal-content');
+    if (modal) {
+        const header = modal.querySelector('.modal-header');
+        const footer = modal.querySelector('.modal-footer');
+        const body = modal.querySelector('.modal-body');
+        const winHeight = window.innerHeight;
+        const headerHeight = header ? header.offsetHeight : 60;
+        const footerHeight = footer ? footer.offsetHeight : 60;
+        const maxBodyHeight = winHeight * 0.9 - headerHeight - footerHeight - 20;
+        if (body) {
+            body.style.maxHeight = maxBodyHeight + 'px';
+        }
+    }
+}
+
+// Gọi khi modal hiện
+document.addEventListener('shown.bs.modal', function (e) {
+    if (e.target.id === 'privacySettingsModal') {
+        setTimeout(adjustPrivacyModalHeight, 100);
+    }
+});
+
+window.addEventListener('resize', adjustPrivacyModalHeight);
