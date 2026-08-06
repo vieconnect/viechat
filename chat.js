@@ -66,6 +66,8 @@ let userDataCache = {};
 
 // ===== SESSION MANAGEMENT VARIABLES =====
 let sessionListenerRef = null;
+let isLoggingOut = false; // Đánh dấu đang đăng xuất chủ động
+let sessionsListenerRef = null; // Listener cho realtime sessions
 
 // ===== SWIPE TO REPLY VARIABLES =====
 let swipeStartX = 0;
@@ -104,15 +106,41 @@ function getDeviceInfo() {
     let deviceId = localStorage.getItem('viechat_device_id');
     
     if (!deviceId) {
-        // Tạo deviceId ổn định
+        // Tạo deviceId ổn định - THÊM NHIỀU THÔNG TIN HƠN
         const screenInfo = `${window.screen.width}x${window.screen.height}`;
         const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const platform = navigator.platform || 'unknown';
         const hardwareConcurrency = navigator.hardwareConcurrency || 'unknown';
+        const language = navigator.language || 'unknown';
+        const userAgent = navigator.userAgent;
         
-        const stableId = `${platform}|${screenInfo}|${timezone}|${hardwareConcurrency}|${navigator.language}`;
+        // Lấy thông tin GPU (nếu có)
+        let gpuInfo = 'unknown';
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (gl) {
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                if (debugInfo) {
+                    gpuInfo = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) || 'unknown';
+                }
+            }
+        } catch (e) {
+            gpuInfo = 'unknown';
+        }
+        
+        // Lấy thông tin về touch support
+        const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+        
+        // Tạo stableId với nhiều thông tin hơn
+        const stableId = `${platform}|${screenInfo}|${timezone}|${hardwareConcurrency}|${language}|${hasTouch}|${gpuInfo.substring(0, 20)}`;
         deviceId = btoa(stableId).substring(0, 32);
+        
+        // Lưu vào localStorage
         localStorage.setItem('viechat_device_id', deviceId);
+        console.log('📱 Đã tạo deviceId mới:', deviceId);
+    } else {
+        console.log('📱 Sử dụng deviceId đã có:', deviceId);
     }
     
     // Phân loại thiết bị
@@ -121,20 +149,41 @@ function getDeviceInfo() {
     else if (/tablet/i.test(ua)) deviceType = "tablet";
     else if (/Windows|Macintosh|Linux/i.test(ua)) deviceType = "desktop";
     
-    // Lấy tên thiết bị
+    // Lấy tên thiết bị CHI TIẾT HƠN
     let deviceName = "Unknown Device";
-    if (/iPhone/.test(ua)) deviceName = "iPhone";
-    else if (/iPad/.test(ua)) deviceName = "iPad";
+    if (/iPhone/.test(ua)) {
+        const iosMatch = ua.match(/iPhone OS ([0-9_]+)/);
+        const iosVersion = iosMatch ? iosMatch[1].replace(/_/g, '.') : '';
+        deviceName = `iPhone (iOS ${iosVersion})`;
+    }
+    else if (/iPad/.test(ua)) {
+        const iosMatch = ua.match(/iPad OS ([0-9_]+)/);
+        const iosVersion = iosMatch ? iosMatch[1].replace(/_/g, '.') : '';
+        deviceName = `iPad (iOS ${iosVersion})`;
+    }
     else if (/Android/.test(ua)) {
         const androidMatch = ua.match(/Android\s+([\d.]+)/);
         const androidVersion = androidMatch ? androidMatch[1] : '';
+        let brand = 'Android';
         const brandMatch = ua.match(/;\\s*([^;]+?)\\s*Build/);
-        const brand = brandMatch ? brandMatch[1] : 'Android';
-        deviceName = `${brand} (Android ${androidVersion})`;
+        if (brandMatch) {
+            brand = brandMatch[1].trim();
+        }
+        // Lấy model
+        let model = '';
+        const modelMatch = ua.match(/;\s*([^;]+?)\s*\)/);
+        if (modelMatch && !modelMatch[1].includes('Build')) {
+            model = modelMatch[1].trim();
+        }
+        deviceName = `${brand} ${model} (Android ${androidVersion})`;
     }
     else if (/Windows NT 10.0/.test(ua)) deviceName = "Windows PC";
     else if (/Windows NT 6.1/.test(ua)) deviceName = "Windows 7";
-    else if (/Macintosh/.test(ua)) deviceName = "Mac";
+    else if (/Macintosh/.test(ua)) {
+        const osMatch = ua.match(/Mac OS X ([0-9_]+)/);
+        const osVersion = osMatch ? osMatch[1].replace(/_/g, '.') : '';
+        deviceName = `Mac (macOS ${osVersion})`;
+    }
     else if (/Linux/.test(ua) && !/Android/.test(ua)) deviceName = "Linux PC";
     
     // Lấy OS
@@ -142,12 +191,18 @@ function getDeviceInfo() {
     if (/Windows NT 10.0/.test(ua)) os = "Windows 10/11";
     else if (/Windows NT 6.1/.test(ua)) os = "Windows 7";
     else if (/Windows NT 6.2/.test(ua)) os = "Windows 8";
-    else if (/Mac OS X/.test(ua)) os = "macOS";
+    else if (/Mac OS X/.test(ua)) {
+        const osMatch = ua.match(/Mac OS X ([0-9_]+)/);
+        os = `macOS ${osMatch ? osMatch[1].replace(/_/g, '.') : ''}`;
+    }
     else if (/Android/.test(ua)) {
         const androidMatch = ua.match(/Android\s+([\d.]+)/);
         os = `Android ${androidMatch ? androidMatch[1] : ''}`;
     }
-    else if (/iOS|iPhone|iPad/.test(ua)) os = "iOS";
+    else if (/iOS|iPhone|iPad/.test(ua)) {
+        const iosMatch = ua.match(/OS ([0-9_]+)/);
+        os = `iOS ${iosMatch ? iosMatch[1].replace(/_/g, '.') : ''}`;
+    }
     else if (/Linux/.test(ua)) os = "Linux";
     
     // Lấy browser
@@ -170,6 +225,44 @@ function getDeviceInfo() {
     };
 }
 
+// ===== THIẾT LẬP SESSION LISTENER =====
+function setupSessionListener(uid, sessionId) {
+    try {
+        // Xóa listener cũ nếu có
+        if (sessionListenerRef) {
+            if (typeof sessionListenerRef === 'function') {
+                sessionListenerRef();
+            }
+            sessionListenerRef = null;
+        }
+        
+        if (!uid || !sessionId) return;
+        
+        const sessionRef = ref(db, `users/${uid}/sessions/${sessionId}`);
+        sessionListenerRef = onValue(sessionRef, (snap) => {
+            // Nếu đang đăng xuất chủ động, bỏ qua
+            if (isLoggingOut) {
+                console.log('ℹ️ Đang đăng xuất chủ động, bỏ qua kiểm tra session');
+                return;
+            }
+            
+            if (!snap.exists()) {
+                showRemoteLogoutModal();
+                return;
+            }
+            
+            const data = snap.val();
+            // Chỉ hiển thị modal nếu không phải đăng xuất chủ động
+            if (data.isActive === false && data.logoutByUser !== true) {
+                showRemoteLogoutModal();
+            }
+        });
+        
+        console.log('✅ Đã thiết lập session listener cho:', sessionId);
+    } catch (error) {
+        console.warn('Lỗi thiết lập session listener:', error);
+    }
+}
 
 // ===== LƯU THÔNG TIN THIẾT BỊ KHI ĐĂNG NHẬP =====
 async function saveDeviceSession(user) {
@@ -285,14 +378,18 @@ async function renderDeviceList() {
         }
         
         const sessions = snap.val();
+        const currentSessionId = localStorage.getItem('viechat_current_session');
+        
         const sessionArray = Object.entries(sessions).map(([id, data]) => ({
             id,
             ...data,
             loginTime: data.loginTime || 0,
-            lastActivity: data.lastActivity || 0
+            lastActivity: data.lastActivity || 0,
+            // Xác định thiết bị hiện tại dựa trên sessionId trong localStorage
+            isCurrentDevice: id === currentSessionId
         }));
         
-        // Sắp xếp: phiên hiện tại lên đầu, sau đó theo thời gian đăng nhập mới nhất
+        // Sắp xếp: phiên hiện tại lên đầu
         sessionArray.sort((a, b) => {
             if (a.isCurrentDevice) return -1;
             if (b.isCurrentDevice) return 1;
@@ -432,6 +529,7 @@ window.logoutDeviceSession = async function(sessionId) {
         return;
     }
     
+    // Không đánh dấu isLoggingOut vì đây là đăng xuất từ xa, không phải chủ động
     showConfirm(
         `<div class="text-center">
             <i class="fas fa-sign-out-alt" style="font-size: 48px; color: var(--warning); display: block; margin-bottom: 15px;"></i>
@@ -444,11 +542,12 @@ window.logoutDeviceSession = async function(sessionId) {
                 await update(sessionRef, {
                     isActive: false,
                     logoutTime: Date.now(),
-                    logoutBy: currentUser.uid
+                    logoutBy: 'remote' // Đánh dấu là đăng xuất từ xa
                 });
                 
                 showToast('Thành công', 'Đã đăng xuất thiết bị từ xa!', 'success');
                 
+                // Refresh danh sách thiết bị
                 setTimeout(() => renderDeviceList(), 500);
                 
             } catch (error) {
@@ -491,6 +590,12 @@ async function cleanupInactiveSessions() {
 
 // ===== HIỂN THỊ MODAL BỊ ĐĂNG XUẤT TỪ XA =====
 function showRemoteLogoutModal() {
+    // Nếu đang đăng xuất chủ động, không hiển thị modal
+    if (isLoggingOut) {
+        console.log('ℹ️ Đang đăng xuất chủ động, bỏ qua hiển thị modal');
+        return;
+    }
+    
     const modalHtml = `
         <div class="modal fade" id="remoteLogoutModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-dialog-centered">
@@ -582,24 +687,52 @@ function listenForSessionChanges() {
     });
 }
 
-// ===== XÓA SESSION KHI ĐĂNG XUẤT =====
+// ===== XÓA SESSION KHI ĐĂNG XUẤT CHỦ ĐỘNG =====
 function clearCurrentSession() {
     const sessionId = localStorage.getItem('viechat_current_session');
+    
+    // Đánh dấu đang đăng xuất chủ động
+    isLoggingOut = true;
+    
+    // Xóa listener trước
+    if (sessionListenerRef) {
+        try {
+            if (typeof sessionListenerRef === 'function') {
+                sessionListenerRef();
+            }
+        } catch (error) {
+            console.warn('Lỗi khi hủy listener:', error);
+        }
+        sessionListenerRef = null;
+    }
+    
+    // Xóa sessions listener
+    if (sessionsListenerRef) {
+        try {
+            off(sessionsListenerRef);
+        } catch (error) {
+            console.warn('Lỗi khi hủy sessions listener:', error);
+        }
+        sessionsListenerRef = null;
+    }
+    
+    // Cập nhật session thành không hoạt động - đánh dấu là đăng xuất chủ động
     if (sessionId && currentUser) {
         update(ref(db, `users/${currentUser.uid}/sessions/${sessionId}`), {
             isActive: false,
-            logoutTime: Date.now()
-        }).catch(() => {});
+            logoutTime: Date.now(),
+            logoutByUser: true // Đánh dấu là đăng xuất chủ động
+        }).catch((error) => {
+            console.warn('Không thể cập nhật session khi đăng xuất:', error);
+        });
     }
+    
     localStorage.removeItem('viechat_current_session');
     
-    // KHÔNG xóa deviceId để giữ ổn định
-    // localStorage.removeItem('viechat_device_id');
-    
-    if (sessionListenerRef) {
-        off(sessionListenerRef);
-        sessionListenerRef = null;
-    }
+    // Reset flag sau 2 giây
+    setTimeout(() => {
+        isLoggingOut = false;
+    }, 2000);
 }
 
 // =====================================================
@@ -1804,10 +1937,37 @@ async function saveSocialAvatar(user) {
 // ===== AUTH STATE =====
 onAuthStateChanged(auth, (user) => {
     if (!user) { 
+        // Dọn dẹp listeners
         cleanupChatListeners(); 
         cleanupGlobalListeners();
+        
+        // Xóa session listener
+        if (sessionListenerRef) {
+            try {
+                if (typeof sessionListenerRef === 'function') {
+                    sessionListenerRef();
+                }
+            } catch (error) {
+                console.warn('Lỗi khi hủy session listener:', error);
+            }
+            sessionListenerRef = null;
+        }
+        
+        // Xóa sessions listener
+        if (sessionsListenerRef) {
+            try {
+                off(sessionsListenerRef);
+            } catch (error) {
+                console.warn('Lỗi khi hủy sessions listener:', error);
+            }
+            sessionsListenerRef = null;
+        }
+        
+        // Reset flag
+        isLoggingOut = false;
         currentUser = null; 
         
+        // Kiểm tra tham số URL để chuyển hướng
         const params = new URLSearchParams(window.location.search);
         const uid = params.get('uid');
         if (uid) {
@@ -1817,6 +1977,11 @@ onAuthStateChanged(auth, (user) => {
         }
     } else {
         currentUser = user;
+        
+        // Reset logout flag khi đăng nhập
+        isLoggingOut = false;
+        
+        // Kiểm tra user có trong DB không
         get(ref(db, `users/${user.uid}`)).then((snap) => {
             if (!snap.exists()) {
                 showToast('Thông báo', 'Tài khoản chưa được đăng ký đầy đủ.', 'warning');
@@ -1825,85 +1990,102 @@ onAuthStateChanged(auth, (user) => {
                 return;
             }
             
+            // Lắng nghe thay đổi dữ liệu user
             onValue(ref(db, `users/${user.uid}`), (dataSnap) => {
                 const data = dataSnap.val();
-                if(data) {
-                    if(data.isLocked === true || data.isLocked === "true") { 
-                        signOut(auth); 
-                        return; 
+                if (!data) return;
+                
+                // Kiểm tra tài khoản bị khóa
+                if (data.isLocked === true || data.isLocked === "true") { 
+                    showToast('Thông báo', 'Tài khoản của bạn đã bị khóa.', 'error');
+                    signOut(auth); 
+                    return; 
+                }
+                
+                // Cập nhật cache
+                userDataCache = data;
+                
+                // Hiển thị thông tin user
+                const displayEmail = data.email || user.email || 'Chưa có email';
+                document.getElementById('my-email').innerText = displayEmail;
+                document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(
+                    data.name || "Người dùng", 
+                    data.haveGreenTick === true
+                );
+                
+                // Cập nhật avatar
+                let avatar = getAvatarDataFromUser(data);
+                
+                if (!avatar && user.photoURL) {
+                    fetch(user.photoURL)
+                        .then(res => res.blob())
+                        .then(blob => {
+                            const reader = new FileReader();
+                            reader.onload = async () => {
+                                const avatarData = reader.result;
+                                await update(ref(db, `users/${user.uid}`), { avatar: avatarData });
+                                updateAvatarUI(avatarData);
+                                userDataCache.avatar = avatarData;
+                            };
+                            reader.readAsDataURL(blob);
+                        })
+                        .catch(e => console.warn('Không thể tải avatar từ social:', e));
+                }
+                
+                updateAvatarUI(avatar);
+                
+                if (!avatar) {
+                    const placeholder = document.getElementById('my-avatar-placeholder');
+                    const name = data.name || 'Người dùng';
+                    placeholder.textContent = name.charAt(0).toUpperCase();
+                }
+                
+                // Kiểm tra độ tuổi
+                if (data.birthday && isUnderAge(data.birthday) && !ageWarningShown) {
+                    setTimeout(() => {
+                        showAgeWarning();
+                    }, 1000);
+                }
+                
+                // Tạo userId nếu chưa có
+                ensureUserId(user.uid).then((userId) => {
+                    if (userId) {
+                        updateReferralLinkWithId(userId);
+                        updateReferralLinkInPrivacy(userId);
+                        updateProfileLinkInPrivacy(userId);
+                        localStorage.setItem('viechat_userId', userId);
                     }
-                    
-                    userDataCache = data;
-                    
-                    const displayEmail = data.email || user.email || 'Chưa có email';
-                    document.getElementById('my-email').innerText = displayEmail;
-                    document.getElementById('my-name').innerHTML = getDisplayNameWithBadge(data.name || "Người dùng", data.haveGreenTick === true);
-                    
-                    let avatar = getAvatarDataFromUser(data);
-                    
-                    if (!avatar && user.photoURL) {
-                        fetch(user.photoURL)
-                            .then(res => res.blob())
-                            .then(blob => {
-                                const reader = new FileReader();
-                                reader.onload = async () => {
-                                    const avatarData = reader.result;
-                                    await update(ref(db, `users/${user.uid}`), { avatar: avatarData });
-                                    updateAvatarUI(avatarData);
-                                    userDataCache.avatar = avatarData;
-                                };
-                                reader.readAsDataURL(blob);
-                            })
-                            .catch(e => console.warn('Không thể tải avatar từ social:', e));
-                    }
-                    
-                    updateAvatarUI(avatar);
-                    
-                    if (!avatar) {
-                        const placeholder = document.getElementById('my-avatar-placeholder');
-                        const name = data.name || 'Người dùng';
-                        placeholder.textContent = name.charAt(0).toUpperCase();
-                    }
-                    
-                    if (data.birthday && isUnderAge(data.birthday) && !ageWarningShown) {
-                        setTimeout(() => {
-                            showAgeWarning();
-                        }, 1000);
-                    }
-                    
-                    ensureUserId(user.uid).then((userId) => {
-                        if (userId) {
-                            updateReferralLinkWithId(userId);
-                            updateReferralLinkInPrivacy(userId);
-                            updateProfileLinkInPrivacy(userId);
-                            localStorage.setItem('viechat_userId', userId);
-                        }
-                    }).catch((err) => {
-                        console.error('Lỗi tạo userId:', err);
-                    });
-                    
-                    // ===== LƯU SESSION KHI ĐĂNG NHẬP =====
-                    setTimeout(async () => {
-                        await saveDeviceSession(user);
-                        await cleanupInactiveSessions();
-                        listenForSessionChanges();
-                    }, 2000);
-                    
-                    syncLists(); 
-                    setupOutsideClick();
-                    
-                    if (window.location.search.includes('uid')) {
-                        setTimeout(() => {
-                            hideProcessingOverlay();
-                            handleUrlParams();
-                        }, 1500);
-                    } else {
+                }).catch((err) => {
+                    console.error('Lỗi tạo userId:', err);
+                });
+                
+                // ===== LẮNG NGHE SESSION REALTIME =====
+                listenToSessionsRealtime();
+                
+                // ===== LƯU SESSION KHI ĐĂNG NHẬP =====
+                setTimeout(async () => {
+                    await saveDeviceSession(user);
+                    await cleanupInactiveSessions();
+                    listenForSessionChanges();
+                }, 2000);
+                
+                // Đồng bộ danh sách
+                syncLists(); 
+                setupOutsideClick();
+                
+                // Xử lý tham số URL để mở chat
+                if (window.location.search.includes('uid')) {
+                    setTimeout(() => {
                         hideProcessingOverlay();
-                    }
-                    
-                    if (privacySettingsModalObj && document.getElementById('privacySettingsModal').classList.contains('show')) {
-                        renderLinkAccountUI();
-                    }
+                        handleUrlParams();
+                    }, 1500);
+                } else {
+                    hideProcessingOverlay();
+                }
+                
+                // Nếu modal đang mở, cập nhật UI link account
+                if (privacySettingsModalObj && document.getElementById('privacySettingsModal').classList.contains('show')) {
+                    renderLinkAccountUI();
                 }
             });
         }).catch((error) => {
@@ -2027,8 +2209,20 @@ window.showLogoutConfirm = () => {
         document.getElementById('logoutConfirmOkBtn').onclick = () => { 
             modal.hide(); 
             activeModalInstance = null;
+            
+            // Đánh dấu đang đăng xuất
+            isLoggingOut = true;
+            
+            // Xóa session và đăng xuất
             clearCurrentSession();
-            signOut(auth); 
+            
+            // Đăng xuất khỏi Firebase
+            signOut(auth);
+            
+            // Reset flag sau 2 giây
+            setTimeout(() => {
+                isLoggingOut = false;
+            }, 2000);
         };
         modalEl.addEventListener('hidden.bs.modal', function handleHidden() {
             modalEl.removeEventListener('hidden.bs.modal', handleHidden);
@@ -2318,6 +2512,7 @@ window.switchPrivacySection = (section) => {
     document.getElementById(`section-${section}`).classList.add('active');
     
     if (section === 'securitycheck') {
+        // Refresh danh sách thiết bị ngay lập tức
         renderDeviceList();
     }
 };
@@ -4151,6 +4346,33 @@ async function checkRestoreOnLogin(user) {
 
 // ===== GHI ĐÈ HÀM deleteAccountFromPrivacy =====
 window.deleteAccountFromPrivacy = window.deleteAccountWithGrace;
+
+// ===== LẮNG NGHE THAY ĐỔI SESSION REALTIME =====
+function listenToSessionsRealtime() {
+    if (!currentUser) return;
+    
+    // Xóa listener cũ
+    if (sessionsListenerRef) {
+        off(sessionsListenerRef);
+        sessionsListenerRef = null;
+    }
+    
+    const sessionsRef = ref(db, `users/${currentUser.uid}/sessions`);
+    sessionsListenerRef = onValue(sessionsRef, (snap) => {
+        // Nếu đang đăng xuất chủ động, bỏ qua
+        if (isLoggingOut) {
+            return;
+        }
+        
+        // Kiểm tra xem tab securitycheck có đang active không
+        const activeSection = document.querySelector('.privacy-content .content-section.active');
+        if (activeSection && activeSection.id === 'section-securitycheck') {
+            renderDeviceList();
+        }
+    });
+    
+    console.log('✅ Đã thiết lập realtime listener cho sessions');
+}
 
 // ===== KHỞI TẠO AUTO CLEANUP =====
 setInterval(() => {
