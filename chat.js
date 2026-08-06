@@ -225,6 +225,47 @@ function getDeviceInfo() {
     };
 }
 
+// ===== XÓA HOÀN TOÀN DỮ LIỆU ĐĂNG NHẬP =====
+function clearAllAuthData() {
+    console.log('🗑️ Đang xóa toàn bộ dữ liệu đăng nhập...');
+    
+    // Xóa tất cả localStorage
+    localStorage.removeItem('viechat_current_session');
+    localStorage.removeItem('viechat_device_id');
+    localStorage.removeItem('viechat_userId');
+    localStorage.removeItem('viechat_remote_logout');
+    
+    // Xóa sessionStorage
+    sessionStorage.clear();
+    
+    // Xóa cookies (nếu có)
+    document.cookie.split(";").forEach(function(c) {
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+    });
+    
+    // Xóa IndexedDB (nếu có)
+    if (window.indexedDB) {
+        indexedDB.databases().then((dbs) => {
+            dbs.forEach((db) => {
+                if (db.name) {
+                    indexedDB.deleteDatabase(db.name);
+                }
+            });
+        }).catch(() => {});
+    }
+    
+    // Xóa Cache Storage (nếu có)
+    if (window.caches) {
+        caches.keys().then((keys) => {
+            keys.forEach((key) => {
+                caches.delete(key);
+            });
+        }).catch(() => {});
+    }
+    
+    console.log('✅ Đã xóa toàn bộ dữ liệu đăng nhập');
+}
+
 // ===== THIẾT LẬP SESSION LISTENER =====
 function setupSessionListener(uid, sessionId) {
     try {
@@ -246,7 +287,14 @@ function setupSessionListener(uid, sessionId) {
                 return;
             }
             
+            // Kiểm tra flag remote logout
+            if (localStorage.getItem('viechat_remote_logout') === 'true') {
+                console.log('ℹ️ Đã có flag remote logout, bỏ qua');
+                return;
+            }
+            
             if (!snap.exists()) {
+                console.log('🔴 Session không tồn tại, hiển thị remote logout');
                 showRemoteLogoutModal();
                 return;
             }
@@ -254,6 +302,7 @@ function setupSessionListener(uid, sessionId) {
             const data = snap.val();
             // Chỉ hiển thị modal nếu không phải đăng xuất chủ động
             if (data.isActive === false && data.logoutByUser !== true) {
+                console.log('🔴 Session bị vô hiệu hóa, hiển thị remote logout');
                 showRemoteLogoutModal();
             }
         });
@@ -596,6 +645,36 @@ function showRemoteLogoutModal() {
         return;
     }
     
+    // Xóa toàn bộ dữ liệu đăng nhập
+    clearAllAuthData();
+    
+    // Đánh dấu đã đăng xuất từ xa
+    localStorage.setItem('viechat_remote_logout', 'true');
+    
+    // Đánh dấu đang đăng xuất
+    isLoggingOut = true;
+    
+    // Hủy tất cả listeners
+    if (sessionListenerRef) {
+        try {
+            if (typeof sessionListenerRef === 'function') {
+                sessionListenerRef();
+            }
+        } catch (error) {
+            console.warn('Lỗi khi hủy session listener:', error);
+        }
+        sessionListenerRef = null;
+    }
+    
+    if (sessionsListenerRef) {
+        try {
+            off(sessionsListenerRef);
+        } catch (error) {
+            console.warn('Lỗi khi hủy sessions listener:', error);
+        }
+        sessionsListenerRef = null;
+    }
+    
     const modalHtml = `
         <div class="modal fade" id="remoteLogoutModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
             <div class="modal-dialog modal-dialog-centered">
@@ -624,9 +703,13 @@ function showRemoteLogoutModal() {
         </div>
     `;
     
-    if (!document.getElementById('remoteLogoutModal')) {
-        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    // Xóa modal cũ nếu có
+    const oldModal = document.getElementById('remoteLogoutModal');
+    if (oldModal) {
+        oldModal.remove();
     }
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
     
     const modalEl = document.getElementById('remoteLogoutModal');
     const modal = new bootstrap.Modal(modalEl, {
@@ -642,12 +725,25 @@ window.handleRemoteLogout = function() {
     if (modalEl) {
         const modal = bootstrap.Modal.getInstance(modalEl);
         if (modal) modal.hide();
+        modalEl.remove();
     }
     
-    signOut(auth);
+    // Xóa toàn bộ dữ liệu
+    clearAllAuthData();
     
+    // Đăng xuất khỏi Firebase - ĐẢM BẢO XÓA SESSION
+    signOut(auth).then(() => {
+        console.log('✅ Đã đăng xuất thành công');
+    }).catch((error) => {
+        console.error('Lỗi đăng xuất:', error);
+    });
+    
+    // Reset flag
+    isLoggingOut = false;
+    
+    // Chuyển về trang đăng nhập - THÊM THAM SỐ ĐỂ CHẶN TỰ ĐỘNG ĐĂNG NHẬP
     setTimeout(() => {
-        window.location.href = 'index.html?remote_logout=true';
+        window.location.href = 'index.html?remote_logout=true&force_logout=' + Date.now();
     }, 300);
 };
 
@@ -1935,8 +2031,54 @@ async function saveSocialAvatar(user) {
 }
 
 // ===== AUTH STATE =====
+let authStateProcessed = false;
+
 onAuthStateChanged(auth, (user) => {
+    // KIỂM TRA FLAG REMOTE LOGOUT - ƯU TIÊN CAO NHẤT
+    const isRemoteLogout = localStorage.getItem('viechat_remote_logout') === 'true';
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceLogout = urlParams.get('force_logout');
+    const remoteLogoutParam = urlParams.get('remote_logout');
+    
+    // Nếu có tham số force_logout hoặc remote_logout trong URL
+    if (forceLogout || remoteLogoutParam === 'true') {
+        console.log('🚫 Phát hiện tham số logout trong URL, xóa toàn bộ dữ liệu');
+        clearAllAuthData();
+        
+        // Đăng xuất khỏi Firebase
+        if (user) {
+            signOut(auth).catch(() => {});
+        }
+        
+        // Xóa tham số URL và chuyển về trang login
+        window.history.replaceState({}, document.title, window.location.pathname);
+        window.location.href = 'index.html';
+        return;
+    }
+    
+    // Nếu có flag remote logout, KHÔNG CHO PHÉP ĐĂNG NHẬP
+    if (isRemoteLogout) {
+        console.log('🚫 Phát hiện remote logout, chuyển về trang login');
+        
+        // Xóa toàn bộ dữ liệu
+        clearAllAuthData();
+        
+        // Đăng xuất khỏi Firebase
+        if (user) {
+            signOut(auth).catch(() => {});
+        }
+        
+        // Xóa flag
+        localStorage.removeItem('viechat_remote_logout');
+        
+        // Chuyển về trang login
+        window.location.href = 'index.html?remote_logout=true';
+        return;
+    }
+    
     if (!user) { 
+        console.log('👤 User chưa đăng nhập');
+        
         // Dọn dẹp listeners
         cleanupChatListeners(); 
         cleanupGlobalListeners();
@@ -1965,17 +2107,35 @@ onAuthStateChanged(auth, (user) => {
         
         // Reset flag
         isLoggingOut = false;
-        currentUser = null; 
+        currentUser = null;
+        authStateProcessed = false;
         
         // Kiểm tra tham số URL để chuyển hướng
-        const params = new URLSearchParams(window.location.search);
-        const uid = params.get('uid');
+        const uid = urlParams.get('uid');
         if (uid) {
             window.location.href = `index.html?redirect=chat&uid=${uid}`;
         } else {
             window.location.href = "index.html";
         }
     } else {
+        // KIỂM TRA LẠI FLAG MỘT LẦN NỮA TRƯỚC KHI CHO PHÉP ĐĂNG NHẬP
+        if (localStorage.getItem('viechat_remote_logout') === 'true') {
+            console.log('🚫 Phát hiện remote logout, đăng xuất ngay lập tức');
+            clearAllAuthData();
+            signOut(auth);
+            localStorage.removeItem('viechat_remote_logout');
+            window.location.href = 'index.html?remote_logout=true';
+            return;
+        }
+        
+        // Nếu đã xử lý auth state rồi, bỏ qua để tránh loop
+        if (authStateProcessed) {
+            console.log('ℹ️ Auth state đã được xử lý, bỏ qua');
+            return;
+        }
+        authStateProcessed = true;
+        
+        console.log('👤 User đã đăng nhập:', user.uid);
         currentUser = user;
         
         // Reset logout flag khi đăng nhập
@@ -2216,8 +2376,15 @@ window.showLogoutConfirm = () => {
             // Xóa session và đăng xuất
             clearCurrentSession();
             
+            // Xóa toàn bộ dữ liệu
+            clearAllAuthData();
+            
             // Đăng xuất khỏi Firebase
-            signOut(auth);
+            signOut(auth).then(() => {
+                console.log('✅ Đã đăng xuất thành công');
+            }).catch((error) => {
+                console.error('Lỗi đăng xuất:', error);
+            });
             
             // Reset flag sau 2 giây
             setTimeout(() => {
@@ -4384,3 +4551,46 @@ setTimeout(() => {
 }, 5 * 60 * 1000);
 
 console.log('✅ VieChat - Tất cả chức năng đã được tải thành công!');
+
+// ===== KIỂM TRA TRẠNG THÁI ĐĂNG XUẤT TỪ XA KHI LOAD TRANG =====
+function checkRemoteLogoutOnLoad() {
+    const isRemoteLogout = localStorage.getItem('viechat_remote_logout') === 'true';
+    if (isRemoteLogout) {
+        // Xóa flag để không bị lặp
+        localStorage.removeItem('viechat_remote_logout');
+        // Chuyển về trang login
+        window.location.href = 'index.html?remote_logout=true';
+        return true;
+    }
+    return false;
+}
+
+// Gọi kiểm tra khi trang load
+// Thêm vào đầu file hoặc sau khi định nghĩa các hàm
+// checkRemoteLogoutOnLoad();
+
+// ===== KIỂM TRA VÀ XỬ LÝ KHI TRANG LOAD =====
+document.addEventListener('DOMContentLoaded', function() {
+    // Kiểm tra flag remote logout - ƯU TIÊN CAO NHẤT
+    const isRemoteLogout = localStorage.getItem('viechat_remote_logout') === 'true';
+    if (isRemoteLogout) {
+        console.log('🚫 Phát hiện remote logout khi load trang');
+        // Xóa flag
+        localStorage.removeItem('viechat_remote_logout');
+        // Xóa tất cả dữ liệu liên quan
+        localStorage.removeItem('viechat_current_session');
+        localStorage.removeItem('viechat_device_id');
+        localStorage.removeItem('viechat_userId');
+        // Chuyển về trang login
+        window.location.href = 'index.html?remote_logout=true';
+        return;
+    }
+    
+    // Focus vào email input nếu có
+    setTimeout(() => {
+        const emailInput = document.getElementById('emailInput');
+        if (emailInput) {
+            emailInput.focus();
+        }
+    }, 500);
+});
