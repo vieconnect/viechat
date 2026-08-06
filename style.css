@@ -1,5 +1,4 @@
-
-        :root { --vh: 1vh; --primary: #0084ff; --bg: #f0f2f5; --text: #1c1e21; --light-gray: #e4e6eb; --danger: #f02849; --success: #42b72a; --verified: #1da1f2; }
+:root { --vh: 1vh; --primary: #0084ff; --bg: #f0f2f5; --text: #1c1e21; --light-gray: #e4e6eb; --danger: #f02849; --success: #42b72a; --verified: #1da1f2; }
         #main-app, .app-container, .chat-window { height: 100vh; height: calc(var(--vh, 1vh) * 100); }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); height: 100vh; width: 100vw; overflow: hidden; color: var(--text); }
