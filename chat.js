@@ -320,10 +320,14 @@ async function saveDeviceSession(user) {
     try {
         const deviceInfo = getDeviceInfo();
         const sessionId = generateSessionId();
+        const ipAddress = await getIPAddress();
         
         const sessionsRef = ref(db, `users/${user.uid}/sessions`);
         const snap = await get(sessionsRef);
         let sessions = snap.val() || {};
+        
+        // Lấy vị trí từ IP
+        const location = await getLocationFromIP(ipAddress);
         
         // Kiểm tra thiết bị đã tồn tại chưa (dựa trên deviceId)
         let existingSessionId = null;
@@ -335,16 +339,17 @@ async function saveDeviceSession(user) {
         }
         
         if (existingSessionId) {
-            // Cập nhật phiên cũ - KHÔNG thay đổi deviceId
+            // Cập nhật phiên cũ
             await update(ref(db, `users/${user.uid}/sessions/${existingSessionId}`), {
                 lastActivity: Date.now(),
                 isActive: true,
-                isCurrentDevice: true, // Đánh dấu thiết bị hiện tại
+                isCurrentDevice: true,
                 userAgent: navigator.userAgent,
-                ipAddress: await getIPAddress()
+                ipAddress: ipAddress,
+                location: location
             });
             
-            // Cập nhật các session khác thành không phải thiết bị hiện tại
+            // Đánh dấu các session khác là không phải thiết bị hiện tại
             for (const [key, value] of Object.entries(sessions)) {
                 if (key !== existingSessionId && value.isCurrentDevice === true) {
                     await update(ref(db, `users/${user.uid}/sessions/${key}`), {
@@ -356,7 +361,6 @@ async function saveDeviceSession(user) {
             localStorage.setItem('viechat_current_session', existingSessionId);
             console.log('✅ Đã cập nhật phiên thiết bị:', deviceInfo.deviceName);
             
-            // Thiết lập listener mới
             setupSessionListener(user.uid, existingSessionId);
             return existingSessionId;
         }
@@ -370,7 +374,8 @@ async function saveDeviceSession(user) {
             os: deviceInfo.os,
             browser: deviceInfo.browser,
             userAgent: navigator.userAgent,
-            ipAddress: await getIPAddress(),
+            ipAddress: ipAddress,
+            location: location,
             loginTime: Date.now(),
             lastActivity: Date.now(),
             isActive: true,
@@ -379,7 +384,7 @@ async function saveDeviceSession(user) {
         
         await set(ref(db, `users/${user.uid}/sessions/${sessionId}`), sessionData);
         
-        // Cập nhật các session khác thành không phải thiết bị hiện tại
+        // Đánh dấu các session khác là không phải thiết bị hiện tại
         for (const [key, value] of Object.entries(sessions)) {
             if (value.isCurrentDevice === true) {
                 await update(ref(db, `users/${user.uid}/sessions/${key}`), {
@@ -392,12 +397,66 @@ async function saveDeviceSession(user) {
         
         console.log('✅ Đã lưu phiên thiết bị mới:', deviceInfo.deviceName);
         
-        // Thiết lập listener mới
         setupSessionListener(user.uid, sessionId);
         
         return sessionId;
     } catch (error) {
         console.error('❌ Lỗi lưu session:', error);
+    }
+}
+
+// ===== LẤY THÔNG TIN VỊ TRÍ TỪ IP =====
+async function getLocationFromIP(ip) {
+    if (!ip || ip === 'Không xác định') {
+        return { city: 'Không xác định', country: 'Không xác định', flag: '🌍' };
+    }
+    
+    try {
+        // Sử dụng API ipapi.co để lấy thông tin vị trí
+        const response = await fetch(`https://ipapi.co/${ip}/json/`);
+        const data = await response.json();
+        
+        if (data.error) {
+            console.warn('Không thể lấy vị trí từ IP:', data.reason);
+            return { city: 'Không xác định', country: 'Không xác định', flag: '🌍' };
+        }
+        
+        return {
+            city: data.city || 'Không xác định',
+            country: data.country_name || 'Không xác định',
+            countryCode: data.country_code || '',
+            flag: getCountryFlag(data.country_code),
+            region: data.region || '',
+            timezone: data.timezone || ''
+        };
+    } catch (error) {
+        console.warn('Lỗi lấy vị trí từ IP:', error);
+        return { city: 'Không xác định', country: 'Không xác định', flag: '🌍' };
+    }
+}
+
+// ===== LẤY CỜ QUỐC GIA =====
+function getCountryFlag(countryCode) {
+    if (!countryCode) return '🌍';
+    
+    // Chuyển đổi mã quốc gia thành emoji flag
+    const codePoints = countryCode.toUpperCase().split('').map(char => 127397 + char.charCodeAt(0));
+    return String.fromCodePoint(...codePoints);
+}
+
+// ===== LƯU VỊ TRÍ VÀO SESSION KHI ĐĂNG NHẬP =====
+async function saveDeviceLocation(sessionId, ip) {
+    if (!currentUser || !sessionId) return;
+    
+    try {
+        const location = await getLocationFromIP(ip);
+        const sessionRef = ref(db, `users/${currentUser.uid}/sessions/${sessionId}`);
+        await update(sessionRef, {
+            location: location
+        });
+        console.log('✅ Đã lưu vị trí thiết bị:', location.city, location.country);
+    } catch (error) {
+        console.warn('Không thể lưu vị trí:', error);
     }
 }
 
@@ -434,7 +493,6 @@ async function renderDeviceList() {
             ...data,
             loginTime: data.loginTime || 0,
             lastActivity: data.lastActivity || 0,
-            // Xác định thiết bị hiện tại dựa trên sessionId trong localStorage
             isCurrentDevice: id === currentSessionId
         }));
         
@@ -498,6 +556,12 @@ async function renderDeviceList() {
             
             const cardClass = isCurrent ? 'device-card current-device' : 'device-card';
             
+            // Lấy thông tin vị trí
+            const location = session.location || {};
+            const locationText = location.city && location.country ? 
+                `${location.flag || '🌍'} ${location.city}, ${location.country}` : 
+                '📍 Không xác định';
+            
             html += `
                 <div class="${cardClass}">
                     <div class="device-header">
@@ -534,6 +598,10 @@ async function renderDeviceList() {
                             <span class="detail-value">${session.ipAddress}</span>
                         </div>
                         ` : ''}
+                        <div class="detail-row">
+                            <span class="detail-label"><i class="fas fa-map-marker-alt"></i> Vị trí:</span>
+                            <span class="detail-value">${locationText}</span>
+                        </div>
                     </div>
                     
                     ${!isCurrent && isActive ? `
@@ -568,6 +636,35 @@ async function renderDeviceList() {
                 </button>
             </div>
         `;
+    }
+}
+
+// ===== CẬP NHẬT VỊ TRÍ CHO CÁC SESSION CŨ =====
+async function updateLocationsForExistingSessions() {
+    if (!currentUser) return;
+    
+    try {
+        const sessionsRef = ref(db, `users/${currentUser.uid}/sessions`);
+        const snap = await get(sessionsRef);
+        
+        if (!snap.exists()) return;
+        
+        const sessions = snap.val();
+        
+        for (const [id, data] of Object.entries(sessions)) {
+            // Nếu đã có location thì bỏ qua
+            if (data.location && data.location.city) continue;
+            
+            if (data.ipAddress && data.ipAddress !== 'Không xác định') {
+                const location = await getLocationFromIP(data.ipAddress);
+                await update(ref(db, `users/${currentUser.uid}/sessions/${id}`), {
+                    location: location
+                });
+                console.log(`✅ Đã cập nhật vị trí cho session ${id}`);
+            }
+        }
+    } catch (error) {
+        console.warn('Lỗi cập nhật vị trí cho session cũ:', error);
     }
 }
 
@@ -2229,6 +2326,11 @@ onAuthStateChanged(auth, (user) => {
                     listenForSessionChanges();
                 }, 2000);
                 
+                // ===== CẬP NHẬT VỊ TRÍ CHO SESSION CŨ =====
+                setTimeout(() => {
+                    updateLocationsForExistingSessions();
+                }, 3000);
+                
                 // Đồng bộ danh sách
                 syncLists(); 
                 setupOutsideClick();
@@ -2666,21 +2768,40 @@ window.deleteAccountFromPrivacy = async () => {
     });
 };
 
-// ===== SWITCH PRIVACY SECTION =====
 window.switchPrivacySection = (section) => {
+    // 1. Cập nhật active class cho sidebar buttons
     document.querySelectorAll('.privacy-sidebar .menu-item-privacy').forEach(btn => {
         btn.classList.remove('active');
     });
-    document.querySelector(`.privacy-sidebar .menu-item-privacy[data-section="${section}"]`).classList.add('active');
+    const activeBtn = document.querySelector(`.privacy-sidebar .menu-item-privacy[data-section="${section}"]`);
+    if (activeBtn) activeBtn.classList.add('active');
     
+    // 2. Ẩn tất cả content sections
     document.querySelectorAll('.privacy-content .content-section').forEach(content => {
         content.classList.remove('active');
+        content.style.display = 'none';
     });
-    document.getElementById(`section-${section}`).classList.add('active');
     
+    // 3. Hiển thị section được chọn
+    const targetSection = document.getElementById(`section-${section}`);
+    if (targetSection) {
+        targetSection.classList.add('active');
+        targetSection.style.display = 'block';
+    }
+    
+    // 4. Xử lý đặc biệt cho từng section
     if (section === 'securitycheck') {
-        // Refresh danh sách thiết bị ngay lập tức
         renderDeviceList();
+    } else if (section === 'linkaccount') {
+        renderLinkAccountUI();
+    } else if (section === 'activation') {
+        checkActivationStatus();
+    }
+    
+    // 5. Fix scroll sau khi chuyển tab (CHỈ TRÊN PC)
+    if (window.innerWidth > 790) {
+        setTimeout(adjustPrivacyModalHeight, 50);
+        setTimeout(adjustPrivacyModalHeight, 150);
     }
 };
 
@@ -4595,28 +4716,174 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 500);
 });
 
-// Thêm vào cuối file chat.js
+// ===== FIX PRIVACY MODAL HEIGHT - CHỈ ÁP DỤNG CHO PC =====
 function adjustPrivacyModalHeight() {
-    const modal = document.querySelector('#privacySettingsModal .modal-content');
-    if (modal) {
-        const header = modal.querySelector('.modal-header');
-        const footer = modal.querySelector('.modal-footer');
-        const body = modal.querySelector('.modal-body');
-        const winHeight = window.innerHeight;
-        const headerHeight = header ? header.offsetHeight : 60;
-        const footerHeight = footer ? footer.offsetHeight : 60;
-        const maxBodyHeight = winHeight * 0.9 - headerHeight - footerHeight - 20;
-        if (body) {
-            body.style.maxHeight = maxBodyHeight + 'px';
+    // CHỈ ÁP DỤNG CHO PC (width > 790px)
+    // TRÊN MOBILE GIỮ NGUYÊN, KHÔNG LÀM GÌ CẢ
+    if (window.innerWidth <= 790) {
+        return;
+    }
+    
+    const modal = document.querySelector('#privacySettingsModal');
+    if (!modal) return;
+    
+    // Kiểm tra modal đang hiển thị
+    if (!modal.classList.contains('show')) return;
+    
+    const modalContent = modal.querySelector('.modal-content');
+    const modalBody = modal.querySelector('.modal-body');
+    const header = modal.querySelector('.modal-header');
+    const footer = modal.querySelector('.modal-footer');
+    const sidebar = modal.querySelector('.privacy-sidebar');
+    const content = modal.querySelector('.privacy-content');
+    
+    if (!modalContent || !modalBody) return;
+    
+    // Lấy chiều cao thực tế
+    const winHeight = window.innerHeight;
+    
+    // Tính chiều cao tối đa cho modal (85% viewport)
+    const maxModalHeight = Math.min(winHeight * 0.85, 850);
+    const headerHeight = header ? header.offsetHeight : 60;
+    const footerHeight = footer ? footer.offsetHeight : 60;
+    const maxBodyHeight = maxModalHeight - headerHeight - footerHeight - 10;
+    
+    // ===== SET KÍCH THƯỚC CHO MODAL CONTENT =====
+    modalContent.style.maxHeight = maxModalHeight + 'px';
+    modalContent.style.height = maxModalHeight + 'px';
+    modalContent.style.overflow = 'hidden';
+    modalContent.style.display = 'flex';
+    modalContent.style.flexDirection = 'column';
+    
+    // ===== SET KÍCH THƯỚC CHO MODAL BODY =====
+    modalBody.style.maxHeight = maxBodyHeight + 'px';
+    modalBody.style.height = maxBodyHeight + 'px';
+    modalBody.style.overflow = 'hidden';
+    modalBody.style.display = 'flex';
+    modalBody.style.flexDirection = 'row';
+    modalBody.style.flex = '1 1 auto';
+    modalBody.style.minHeight = '0';
+    
+    // ===== SIDEBAR =====
+    if (sidebar) {
+        sidebar.style.maxHeight = maxBodyHeight + 'px';
+        sidebar.style.height = '100%';
+        sidebar.style.overflowY = 'auto';
+        sidebar.style.flexShrink = '0';
+        sidebar.style.minHeight = '0';
+    }
+    
+    // ===== CONTENT =====
+    if (content) {
+        content.style.maxHeight = maxBodyHeight + 'px';
+        content.style.height = '100%';
+        content.style.overflowY = 'auto';
+        content.style.flex = '1 1 auto';
+        content.style.minHeight = '0';
+        content.style.padding = '20px 24px';
+        content.style.background = 'white';
+        content.style.display = 'flex';
+        content.style.flexDirection = 'column';
+    }
+    
+    // ===== ACTIVE SECTION =====
+    const activeSection = content ? content.querySelector('.content-section.active') : null;
+    if (activeSection) {
+        activeSection.style.height = '100%';
+        activeSection.style.minHeight = '100%';
+        activeSection.style.overflowY = 'auto';
+        activeSection.style.paddingBottom = '20px';
+        activeSection.style.display = 'block';
+        activeSection.style.flex = '1 1 auto';
+    }
+    
+    // ===== DEVICE LIST =====
+    const deviceList = content ? content.querySelector('.device-list') : null;
+    if (deviceList) {
+        const sectionHeight = maxBodyHeight - 100;
+        const listHeight = deviceList.scrollHeight;
+        
+        if (listHeight > sectionHeight) {
+            deviceList.style.maxHeight = sectionHeight + 'px';
+            deviceList.style.overflowY = 'auto';
+        } else {
+            deviceList.style.maxHeight = 'none';
+            deviceList.style.overflowY = 'visible';
         }
     }
 }
 
-// Gọi khi modal hiện
+// ===== RESET KHI ĐÓNG MODAL - CHỈ TRÊN PC =====
+function resetPrivacyModalStyles() {
+    // CHỈ RESET TRÊN PC
+    if (window.innerWidth <= 790) return;
+    
+    const modal = document.querySelector('#privacySettingsModal');
+    if (!modal) return;
+    
+    const elements = modal.querySelectorAll('.modal-content, .modal-body, .privacy-content, .privacy-sidebar, .content-section, .device-list');
+    elements.forEach(el => {
+        el.style.cssText = '';
+    });
+    
+    // Reset lại display cho content sections
+    document.querySelectorAll('.privacy-content .content-section').forEach(content => {
+        content.style.display = '';
+        content.style.height = '';
+        content.style.minHeight = '';
+        content.style.overflowY = '';
+        content.style.paddingBottom = '';
+        content.style.flex = '';
+    });
+}
+
+// ===== THEO DÕI KHI MODAL MỞ =====
 document.addEventListener('shown.bs.modal', function (e) {
     if (e.target.id === 'privacySettingsModal') {
-        setTimeout(adjustPrivacyModalHeight, 100);
+        // CHỈ FIX TRÊN PC
+        if (window.innerWidth > 790) {
+            setTimeout(adjustPrivacyModalHeight, 50);
+            setTimeout(adjustPrivacyModalHeight, 150);
+            setTimeout(adjustPrivacyModalHeight, 300);
+            
+            // Lắng nghe resize
+            window.addEventListener('resize', adjustPrivacyModalHeight);
+        }
     }
 });
 
-window.addEventListener('resize', adjustPrivacyModalHeight);
+// ===== RESET KHI ĐÓNG MODAL =====
+document.addEventListener('hidden.bs.modal', function (e) {
+    if (e.target.id === 'privacySettingsModal') {
+        resetPrivacyModalStyles();
+        // Chỉ remove listener trên PC
+        if (window.innerWidth > 790) {
+            window.removeEventListener('resize', adjustPrivacyModalHeight);
+        }
+    }
+});
+
+// ===== GỌI KHI LOAD TRANG =====
+window.addEventListener('load', function() {
+    const modal = document.querySelector('#privacySettingsModal');
+    if (modal && modal.classList.contains('show') && window.innerWidth > 790) {
+        setTimeout(adjustPrivacyModalHeight, 200);
+        setTimeout(adjustPrivacyModalHeight, 400);
+    }
+});
+
+// ===== DEBOUNCE RESIZE =====
+let resizeTimeout;
+window.addEventListener('resize', function() {
+    // CHỈ FIX TRÊN PC
+    if (window.innerWidth > 790) {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(adjustPrivacyModalHeight, 100);
+    }
+});
+
+// ===== EXPORT =====
+window.adjustPrivacyModalHeight = adjustPrivacyModalHeight;
+window.resetPrivacyModalStyles = resetPrivacyModalStyles;
+
+console.log('✅ Privacy Modal đã sẵn sàng (CHỈ PC, mobile giữ nguyên)');

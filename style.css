@@ -1754,3 +1754,60 @@
     }
 }
 
+/* ===== PRIVACY MODAL - CHỈ FIX TRÊN PC ===== */
+@media (min-width: 791px) {
+    .privacy-modal .modal-content {
+        max-height: 90vh !important;
+        height: auto !important;
+        min-height: 400px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+    }
+    
+    .privacy-modal .modal-body {
+        display: flex !important;
+        flex-direction: row !important;
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+    }
+    
+    .privacy-modal .privacy-content {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        padding: 20px 24px !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .privacy-modal .privacy-content .content-section {
+        display: none !important;
+        height: 100% !important;
+        min-height: 100% !important;
+        overflow-y: auto !important;
+        padding-bottom: 10px !important;
+        flex: 1 1 auto !important;
+    }
+    
+    .privacy-modal .privacy-content .content-section.active {
+        display: block !important;
+    }
+    
+    .privacy-modal .privacy-sidebar {
+        flex-shrink: 0 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        height: 100% !important;
+        width: 240px !important;
+        min-width: 240px !important;
+    }
+}
+
+/* ===== MOBILE - GIỮ NGUYÊN ===== */
+@media (max-width: 790px) {
+    /* KHÔNG THAY ĐỔI GÌ, GIỮ NGUYÊN CODE HIỆN TẠI */
+    /* Mobile vẫn hoạt động như cũ */
+}
