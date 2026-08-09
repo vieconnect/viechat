@@ -792,7 +792,7 @@ function showRemoteLogoutModal() {
                     </div>
                     <div class="modal-footer justify-content-center">
                         <button class="btn btn-primary px-4" onclick="handleRemoteLogout()">
-                            <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập lại
+                            Đã hiểu
                         </button>
                     </div>
                 </div>
