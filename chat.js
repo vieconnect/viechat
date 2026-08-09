@@ -4887,3 +4887,214 @@ window.adjustPrivacyModalHeight = adjustPrivacyModalHeight;
 window.resetPrivacyModalStyles = resetPrivacyModalStyles;
 
 console.log('✅ Privacy Modal đã sẵn sàng (CHỈ PC, mobile giữ nguyên)');
+
+// ===== AUTO FIX MODAL HEIGHT =====
+function autoFixModalHeight() {
+    // Chỉ áp dụng trên mobile
+    if (window.innerWidth > 790) return;
+    
+    // Lấy tất cả modal đang mở
+    const openModals = document.querySelectorAll('.modal.show');
+    
+    openModals.forEach(modal => {
+        // Reset styles trước
+        const content = modal.querySelector('.modal-content');
+        const body = modal.querySelector('.modal-body');
+        const header = modal.querySelector('.modal-header');
+        const footer = modal.querySelector('.modal-footer');
+        
+        if (!content) return;
+        
+        // Tính toán chiều cao khả dụng
+        const winHeight = window.innerHeight;
+        const maxContentHeight = winHeight * 0.92;
+        
+        // Tính chiều cao header + footer
+        let headerHeight = header ? header.offsetHeight : 0;
+        let footerHeight = footer ? footer.offsetHeight : 0;
+        
+        // Nếu header/footer chưa có chiều cao, ước lượng
+        if (headerHeight === 0) headerHeight = 60;
+        if (footerHeight === 0) footerHeight = 60;
+        
+        // Chiều cao tối đa cho body
+        const maxBodyHeight = maxContentHeight - headerHeight - footerHeight - 10;
+        
+        // Áp dụng
+        content.style.maxHeight = maxContentHeight + 'px';
+        content.style.height = 'auto';
+        content.style.minHeight = 'auto';
+        content.style.overflow = 'hidden';
+        
+        if (body) {
+            body.style.maxHeight = maxBodyHeight + 'px';
+            body.style.overflowY = 'auto';
+            body.style.flex = '1 1 auto';
+            body.style.minHeight = '0';
+        }
+        
+        // Xử lý đặc biệt cho privacy modal
+        if (modal.id === 'privacySettingsModal') {
+            const sidebar = modal.querySelector('.privacy-sidebar');
+            const privacyContent = modal.querySelector('.privacy-content');
+            
+            if (sidebar) {
+                sidebar.style.maxHeight = '90px';
+                sidebar.style.flexShrink = '0';
+            }
+            
+            if (privacyContent) {
+                privacyContent.style.maxHeight = (maxBodyHeight - 90) + 'px';
+                privacyContent.style.overflowY = 'auto';
+                privacyContent.style.flex = '1 1 auto';
+                privacyContent.style.minHeight = '0';
+            }
+        }
+    });
+}
+
+// ===== FIX MODAL KHI MỞ =====
+function fixModalOnShow(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    
+    modal.addEventListener('shown.bs.modal', function() {
+        // Fix ngay lập tức
+        setTimeout(autoFixModalHeight, 50);
+        setTimeout(autoFixModalHeight, 150);
+        setTimeout(autoFixModalHeight, 350);
+    });
+    
+    // Fix khi resize
+    modal.addEventListener('shown.bs.modal', function() {
+        const resizeHandler = function() {
+            autoFixModalHeight();
+        };
+        window.addEventListener('resize', resizeHandler);
+        
+        modal.addEventListener('hidden.bs.modal', function() {
+            window.removeEventListener('resize', resizeHandler);
+        }, { once: true });
+    });
+}
+
+// ===== GỌI FIX CHO TẤT CẢ MODAL =====
+function fixAllModals() {
+    // Danh sách tất cả modal trong app
+    const modalIds = [
+        'userInfoModal',
+        'privacySettingsModal',
+        'searchModal',
+        'logoutConfirmModal',
+        'commonModal',
+        'confirmModal',
+        'ageWarningModal',
+        'avatarUploadModal',
+        'aboutModal',
+        'deleteForMeModal',
+        'remoteLogoutModal'
+    ];
+    
+    modalIds.forEach(id => {
+        fixModalOnShow(id);
+    });
+}
+
+// ===== FIX KHI WINDOW RESIZE =====
+let resizeModalTimer = null;
+window.addEventListener('resize', function() {
+    // Chỉ fix trên mobile
+    if (window.innerWidth > 790) return;
+    
+    clearTimeout(resizeModalTimer);
+    resizeModalTimer = setTimeout(function() {
+        // Kiểm tra có modal nào đang mở không
+        const openModals = document.querySelectorAll('.modal.show');
+        if (openModals.length > 0) {
+            autoFixModalHeight();
+        }
+    }, 200);
+});
+
+// ===== FIX KHI ORIENTATION CHANGE =====
+window.addEventListener('orientationchange', function() {
+    setTimeout(function() {
+        if (window.innerWidth <= 790) {
+            const openModals = document.querySelectorAll('.modal.show');
+            if (openModals.length > 0) {
+                autoFixModalHeight();
+            }
+        }
+    }, 400);
+});
+
+// ===== FIX KHI KEYBOARD MỞ/ĐÓNG TRÊN MOBILE =====
+if ('visualViewport' in window) {
+    let lastViewportHeight = window.visualViewport.height;
+    
+    window.visualViewport.addEventListener('resize', function() {
+        const currentHeight = window.visualViewport.height;
+        const heightDiff = Math.abs(currentHeight - lastViewportHeight);
+        
+        // Nếu thay đổi chiều cao đáng kể (> 100px) -> có thể do keyboard
+        if (heightDiff > 100 && window.innerWidth <= 790) {
+            setTimeout(function() {
+                const openModals = document.querySelectorAll('.modal.show');
+                if (openModals.length > 0) {
+                    autoFixModalHeight();
+                }
+            }, 300);
+        }
+        
+        lastViewportHeight = currentHeight;
+    });
+}
+
+// ===== GHI ĐÈ HÀM SHOW MODAL =====
+// Lưu hàm show modal gốc
+const originalModalShow = bootstrap.Modal.prototype.show;
+
+// Ghi đè để tự động fix
+bootstrap.Modal.prototype.show = function() {
+    // Gọi hàm show gốc
+    originalModalShow.call(this);
+    
+    // Fix sau khi modal hiển thị
+    const modalElement = this._element;
+    if (modalElement) {
+        setTimeout(function() {
+            if (window.innerWidth <= 790) {
+                autoFixModalHeight();
+            }
+        }, 100);
+        
+        // Lắng nghe sự kiện shown
+        const onShown = function() {
+            if (window.innerWidth <= 790) {
+                setTimeout(autoFixModalHeight, 50);
+                setTimeout(autoFixModalHeight, 150);
+                setTimeout(autoFixModalHeight, 350);
+            }
+            modalElement.removeEventListener('shown.bs.modal', onShown);
+        };
+        modalElement.addEventListener('shown.bs.modal', onShown);
+    }
+};
+
+// ===== KHỞI TẠO =====
+document.addEventListener('DOMContentLoaded', function() {
+    // Fix tất cả modal
+    fixAllModals();
+    
+    // Fix modal hiện tại nếu có
+    setTimeout(function() {
+        if (window.innerWidth <= 790) {
+            const openModals = document.querySelectorAll('.modal.show');
+            if (openModals.length > 0) {
+                autoFixModalHeight();
+            }
+        }
+    }, 500);
+});
+
+console.log('✅ Modal auto-fix height initialized');
