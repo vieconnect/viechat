@@ -300,6 +300,13 @@ function setupSessionListener(uid, sessionId) {
             }
             
             const data = snap.val();
+            
+            // KIỂM TRA: Nếu đang xóa tài khoản, bỏ qua
+            if (data.isDeletingAccount === true) {
+                console.log('ℹ️ Đang xóa tài khoản, bỏ qua hiển thị remote logout');
+                return;
+            }
+            
             // Chỉ hiển thị modal nếu không phải đăng xuất chủ động
             if (data.isActive === false && data.logoutByUser !== true) {
                 console.log('🔴 Session bị vô hiệu hóa, hiển thị remote logout');
@@ -868,20 +875,33 @@ function listenForSessionChanges() {
     
     // Lưu hàm unsubscribe thay vì tham chiếu listener
     sessionListenerRef = onValue(sessionRef, (snap) => {
+        // Nếu đang đăng xuất chủ động hoặc xóa tài khoản, bỏ qua
+        if (isLoggingOut) {
+            console.log('ℹ️ Đang đăng xuất/xóa tài khoản, bỏ qua');
+            return;
+        }
+        
         if (!snap.exists()) {
             showRemoteLogoutModal();
             return;
         }
         
         const data = snap.val();
-        if (data.isActive === false) {
+        
+        // Kiểm tra nếu đang xóa tài khoản
+        if (data.isDeletingAccount === true) {
+            console.log('ℹ️ Đang xóa tài khoản, bỏ qua');
+            return;
+        }
+        
+        if (data.isActive === false && data.logoutByUser !== true) {
             showRemoteLogoutModal();
         }
     });
 }
 
 // ===== XÓA SESSION KHI ĐĂNG XUẤT CHỦ ĐỘNG =====
-function clearCurrentSession() {
+function clearCurrentSession(isDeletingAccount = false) {
     const sessionId = localStorage.getItem('viechat_current_session');
     
     // Đánh dấu đang đăng xuất chủ động
@@ -914,7 +934,8 @@ function clearCurrentSession() {
         update(ref(db, `users/${currentUser.uid}/sessions/${sessionId}`), {
             isActive: false,
             logoutTime: Date.now(),
-            logoutByUser: true // Đánh dấu là đăng xuất chủ động
+            logoutByUser: true, // Đánh dấu là đăng xuất chủ động
+            isDeletingAccount: isDeletingAccount // Đánh dấu đang xóa tài khoản
         }).catch((error) => {
             console.warn('Không thể cập nhật session khi đăng xuất:', error);
         });
@@ -922,10 +943,10 @@ function clearCurrentSession() {
     
     localStorage.removeItem('viechat_current_session');
     
-    // Reset flag sau 2 giây
+    // Reset flag sau 3 giây (tăng thời gian để đảm bảo)
     setTimeout(() => {
         isLoggingOut = false;
-    }, 2000);
+    }, 3000);
 }
 
 // =====================================================
@@ -2475,8 +2496,8 @@ window.showLogoutConfirm = () => {
             // Đánh dấu đang đăng xuất
             isLoggingOut = true;
             
-            // Xóa session và đăng xuất
-            clearCurrentSession();
+            // Xóa session và đăng xuất (không phải xóa tài khoản)
+            clearCurrentSession(false);
             
             // Xóa toàn bộ dữ liệu
             clearAllAuthData();
@@ -4274,10 +4295,14 @@ window.deleteAccountWithGrace = async function() {
             try {
                 showLoading('Đang xử lý xóa tài khoản...');
                 
+                // ĐÁNH DẤU ĐANG XÓA TÀI KHOẢN
+                isLoggingOut = true;
+                
                 const uid = currentUser.uid;
                 const userSnap = await get(ref(db, `users/${uid}`));
                 if (!userSnap.exists()) {
                     hideLoading();
+                    isLoggingOut = false;
                     showToast("Lỗi", "Không tìm thấy tài khoản.", "error");
                     return;
                 }
@@ -4286,6 +4311,7 @@ window.deleteAccountWithGrace = async function() {
                 const deleteTime = Date.now();
                 const expiryTime = deleteTime + (7 * 24 * 60 * 60 * 1000);
                 
+                // ==== LƯU THÔNG TIN VÀO deleted_users ====
                 const deletedData = {
                     email: userData.email || currentUser.email,
                     name: userData.name || 'Người dùng',
@@ -4299,25 +4325,34 @@ window.deleteAccountWithGrace = async function() {
                 await set(ref(db, `deleted_users/${uid}`), deletedData);
                 console.log('✅ Đã lưu thông tin xóa tài khoản vào deleted_users');
                 
+                // ==== XÓA SESSION TRƯỚC KHI XÓA USER ====
+                // Truyền flag isDeletingAccount = true
+                clearCurrentSession(true);
+                
+                // ==== XÓA USER KHỎI users (vô hiệu hóa) ====
                 await remove(ref(db, `users/${uid}`));
                 console.log('✅ Đã xóa user khỏi users');
                 
+                // ==== XÓA friend_status ====
                 await remove(ref(db, `friend_status/${uid}`));
                 console.log('✅ Đã xóa friend_status');
                 
-                clearCurrentSession();
-                
+                // ==== ĐĂNG XUẤT ====
                 await signOut(auth);
                 
                 hideLoading();
+                isLoggingOut = false;
+                
                 showToast("Thông báo", "Tài khoản đã được vô hiệu hóa. Bạn có 7 ngày để khôi phục.", "warning");
                 
+                // Chuyển về trang đăng nhập với thông báo
                 setTimeout(() => {
                     window.location.href = "index.html?restore=true";
                 }, 1500);
                 
             } catch (error) {
                 hideLoading();
+                isLoggingOut = false;
                 console.error('Lỗi xóa tài khoản:', error);
                 showToast("Lỗi", "Không thể xóa tài khoản. Vui lòng thử lại.", "error");
             }
