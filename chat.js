@@ -1601,7 +1601,6 @@ function renderRepliedMessage(replyData, senderName) {
     `;
 }
 
-// ===== USER INFO MODAL =====
 window.openUserInfoModal = async (uid) => {
     if (!uid) return;
     
@@ -1675,6 +1674,16 @@ window.openUserInfoModal = async (uid) => {
             isHiddenInfo = true;
         }
         document.getElementById('modalUserPrivacyAlert').style.display = isHiddenInfo ? 'block' : 'none';
+        
+        // ===== HIỂN THỊ MÔ TẢ =====
+        const bioContainer = document.getElementById('modalUserBioContainer');
+        const bioText = document.getElementById('modalUserTxtBio');
+        if (targetData.bio) {
+            bioText.textContent = targetData.bio;
+            bioContainer.style.display = 'block';
+        } else {
+            bioContainer.style.display = 'none';
+        }
         
         let status = null;
         let theirStatus = null;
@@ -2532,6 +2541,7 @@ window.showPrivacyModal = async () => {
             document.getElementById('privInputName').value = d.name || '';
             document.getElementById('privInputGender').value = d.gender || "Nam";
             document.getElementById('privInputBirthday').value = d.birthday || "2000-01-01";
+            document.getElementById('privInputBio').value = d.bio || '';
             
             document.getElementById('privSwitchShowGender').checked = d.showGender !== false;
             document.getElementById('privSwitchShowBirthday').checked = d.showBirthday !== false;
@@ -2586,7 +2596,6 @@ window.showPrivacyModal = async () => {
     }
 };
 
-// ===== SAVE ALL PROFILE INFORMATION =====
 window.saveAllProfileInfo = async () => {
     if (!currentUser) {
         showToast("Lỗi", "Bạn chưa đăng nhập. Vui lòng đăng nhập và thực hiện lại thao tác này", "error");
@@ -2596,6 +2605,7 @@ window.saveAllProfileInfo = async () => {
     const name = document.getElementById('privInputName').value.trim();
     const gender = document.getElementById('privInputGender').value;
     const birthday = document.getElementById('privInputBirthday').value;
+    const bio = document.getElementById('privInputBio').value.trim();
     
     if (!name) {
         showToast("Lỗi", "Tên hiển thị không được để trống.", "error");
@@ -2609,11 +2619,19 @@ window.saveAllProfileInfo = async () => {
         return;
     }
     
+    // Giới hạn độ dài mô tả
+    let bioFinal = bio;
+    if (bioFinal.length > 200) {
+        bioFinal = bioFinal.substring(0, 200);
+        showToast("Thông báo", "Mô tả đã được cắt xuống còn 200 ký tự.", "warning");
+    }
+    
     try {
         const updateData = {
             name: name,
             gender: gender,
-            birthday: birthday
+            birthday: birthday,
+            bio: bioFinal || null
         };
         
         await update(ref(db, `users/${currentUser.uid}`), updateData);

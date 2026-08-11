@@ -297,6 +297,13 @@
                         <p id="modalUserTxtEmail" class="text-muted mb-1">---</p>
                         <span id="modalUserVerifiedBadge" style="display: none;" class="verified-badge"><i class="fas fa-check-circle"></i> Được VieChat xác minh.<a href="https://viechat.tawk.help/article/t%C3%ADch-xanh-l%C3%A0-g%C3%AC-c%C3%A1ch-%C4%91%E1%BB%83-c%C3%B3-t%C3%ADch-xanh" target="_blank" rel="noopener noreferrer" style="color: white;">Tìm hiểu thêm</a></span>
                     </div>
+                    <!-- Trong modal userInfoModal, tìm modalUserEmailContainer và thêm sau -->
+<div id="modalUserBioContainer" class="mb-3" style="display: none;">
+    <div class="text-start">
+        <div class="section-title small text-muted mb-1"><i class="fas fa-info-circle me-2"></i>Giới thiệu về bản thân</div>
+        <div id="modalUserTxtBio" class="text-muted" style="font-size: 14px; line-height: 1.5; padding: 0 4px;">---</div>
+    </div>
+</div>
                     <hr>
                     <div class="row text-start justify-content-center px-3">
                         <div class="col-6 mb-2"><strong>Giới tính:</strong> <span id="modalUserTxtGender">---</span></div>
@@ -346,54 +353,60 @@
                 <!-- Nội dung phải - THÊM CLASS overflow-auto -->
                 <div class="privacy-content overflow-auto" style="max-height: 100%;">
                     <!-- Tài khoản -->
-                    <div class="content-section active" id="section-profile">
-                        <div class="section-header">👤 Tài khoản</div>
-                        <div class="section-desc">Quản lý thông tin cá nhân của bạn.</div>
-                        
-                        <div class="form-group">
-                            <label>Tên hiển thị</label>
-                            <input type="text" class="form-control" id="privInputName" placeholder="Nhập tên hiển thị">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Giới tính</label>
-                            <select class="form-select" id="privInputGender">
-                                <option value="Nam">Nam</option>
-                                <option value="Nữ">Nữ</option>
-                                <option value="Khác">Khác</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Ngày sinh</label>
-                            <input type="date" class="form-control" id="privInputBirthday">
-                        </div>
-                        
-                        <div class="form-group" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e4e6eb;">
-                            <label style="display: flex; align-items: center; gap: 8px;">
-                                <i class="fas fa-user-circle" style="color: var(--primary);"></i>
-                                Trang hồ sơ của bạn
-                                <span class="badge bg-info" style="font-size: 10px; cursor: pointer;" onclick="openProfilePage()" title="Mở trang hồ sơ">
-                                    <i class="fas fa-external-link-alt"></i> Mở
-                                </span>
-                            </label>
-                            <div style="background: #f0f7ff; border-radius: 8px; padding: 10px 14px; border: 1px solid #b8d8ff;">
-                                <div id="privProfileLinkDisplay" style="font-size: 13px; color: #1a73e8; word-break: break-all;">
-                                    <a id="privProfileLinkAnchor" href="#" target="_blank" style="color: #1a73e8; text-decoration: none;">
-                                        Đang tải...
-                                    </a>
-                                </div>
-                                <div style="margin-top: 6px; font-size: 12px; color: #888;">
-                                    <i class="fas fa-info-circle"></i> 
-                                    Đây là link hồ sơ công khai của bạn. Mọi người có thể xem thông tin qua link này.
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <button class="btn btn-primary mt-2" onclick="saveAllProfileInfo()" style="float: right;">
-                            <i class="fas fa-save me-1"></i> Lưu thông tin cá nhân
-                        </button>
-                    </div>
+<div class="content-section active" id="section-profile">
+    <div class="section-header">👤 Tài khoản</div>
+    <div class="section-desc">Quản lý thông tin cá nhân của bạn.</div>
+    
+    <div class="form-group">
+        <label>Tên hiển thị</label>
+        <input type="text" class="form-control" id="privInputName" placeholder="Nhập tên hiển thị">
+    </div>
+    
+    <div class="form-group">
+        <label>Giới tính</label>
+        <select class="form-select" id="privInputGender">
+            <option value="Nam">Nam</option>
+            <option value="Nữ">Nữ</option>
+            <option value="Khác">Khác</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label>Ngày sinh</label>
+        <input type="date" class="form-control" id="privInputBirthday">
+    </div>
+    
+    <div class="form-group">
+        <label>Mô tả</label>
+        <textarea class="form-control" id="privInputBio" rows="3" placeholder="Viết một vài dòng giới thiệu về bản thân..." style="border-radius: 10px; resize: vertical; min-height: 60px;"></textarea>
+        <div class="text-muted small mt-1">Tối đa 200 ký tự. Mọi người có thể xem mô tả này trên trang hồ sơ của bạn.</div>
+    </div>
+    
+    <div class="form-group" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e4e6eb;">
+        <label style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-user-circle" style="color: var(--primary);"></i>
+            Trang hồ sơ của bạn
+            <span class="badge bg-info" style="font-size: 10px; cursor: pointer;" onclick="openProfilePage()" title="Mở trang hồ sơ">
+                <i class="fas fa-external-link-alt"></i> Mở
+            </span>
+        </label>
+        <div style="background: #f0f7ff; border-radius: 8px; padding: 10px 14px; border: 1px solid #b8d8ff;">
+            <div id="privProfileLinkDisplay" style="font-size: 13px; color: #1a73e8; word-break: break-all;">
+                <a id="privProfileLinkAnchor" href="#" target="_blank" style="color: #1a73e8; text-decoration: none;">
+                    Đang tải...
+                </a>
+            </div>
+            <div style="margin-top: 6px; font-size: 12px; color: #888;">
+                <i class="fas fa-info-circle"></i> 
+                Đây là link hồ sơ công khai của bạn. Mọi người có thể xem thông tin qua link này.
+            </div>
+        </div>
+    </div>
+    
+    <button class="btn btn-primary mt-2" onclick="saveAllProfileInfo()" style="float: right;">
+        <i class="fas fa-save me-1"></i> Lưu thông tin cá nhân
+    </button>
+</div>
                     
                     <!-- Kiểm tra bảo mật -->
                     <div class="content-section" id="section-securitycheck">
