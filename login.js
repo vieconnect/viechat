@@ -720,8 +720,8 @@ window.handleGoogleLogin = async () => {
         
         if (error.code === 'auth/popup-closed-by-user') {
             showToast('Thông báo', 'Bạn đã đóng cửa sổ đăng nhập.', 'warning');
-        } else {
-            showToast('Lỗi', 'Không thể đăng nhập bằng Google. Vui lòng thử lại.', 'error');
+        } else if (error.code === 'auth/user-disabled') {
+            showToast('Lỗi', 'Access denied [8203]', 'error');
         }
     }
 };
@@ -1125,18 +1125,7 @@ window.handlePasswordStep = async () => {
         console.error('Lỗi đăng nhập:', error);
         
         if (error.code === 'auth/user-disabled') {
-            try {
-                const snap = await get(ref(db, `users/${foundUserUid}`));
-                if (snap.exists()) {
-                    const userData = snap.val();
-                    const lockInfo = userData.lockInfo || { id: '---', reason: '---', start: '---', end: '---' };
-                    showLockForm(lockInfo);
-                    return;
-                }
-            } catch (e) {
-                console.error('Lỗi lấy thông tin khóa:', e);
-            }
-            showToast('Lỗi', 'Tài khoản của bạn đã bị vô hiệu hóa.', 'error');
+            showToast('Lỗi', 'Access denied [8203]', 'error');
             return;
         }
         
@@ -1149,6 +1138,8 @@ window.handlePasswordStep = async () => {
             message = 'Quá nhiều lần thử sai. Vui lòng thử lại sau.';
         } else if (error.code === 'auth/network-request-failed') {
             message = 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.';
+        } else if (error.code === 'auth/user-disabled') {
+            message = 'Access denied [8203]'
         }
         showToast('Lỗi đăng nhập', message, 'error');
         document.getElementById('passwordInput').focus();
@@ -1192,6 +1183,8 @@ window.handleForgotPassword = async () => {
             message = 'Quá nhiều yêu cầu. Vui lòng thử lại sau.';
         } else if (error.code === 'auth/network-request-failed') {
             message = 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.';
+        } else if (error.code === 'auth/user-disabled') {
+            message = 'Access denied [8203]';
         }
         showToast('Lỗi', message, 'error');
     }
@@ -1411,7 +1404,7 @@ function getFirebaseErrorMessage(errorCode) {
         'auth/too-many-requests': 'Lưu lượng truy cập quá cao. Vui lòng thử lại sau.',
         'auth/network-request-failed': 'Lỗi kết nối mạng. Vui lòng kiểm tra internet.',
         'auth/admin-restricted-operation': 'Quyền đăng ký tài khoản đã bị hạn chế.',
-        'auth/user-disabled': 'Tài khoản của bạn đã bị vô hiệu hóa.',
+        'auth/user-disabled': 'Access denied [8203]',
         'auth/popup-closed-by-user': 'Bạn đã đóng cửa sổ đăng nhập.',
         'auth/account-exists-with-different-credential': 'Email này đã được đăng ký với phương thức khác.',
         'default': 'Đã xảy ra lỗi. Vui lòng thử lại sau.'
