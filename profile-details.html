@@ -357,54 +357,6 @@
             .toast-custom .toast-body .toast-title { font-size: 13px; }
             .toast-custom .toast-body .toast-message { font-size: 12px; }
         }
-
-        /* Thêm vào cuối file style.css */
-.privacy-content .form-group textarea.form-control {
-    border-radius: 10px;
-    border: 1.5px solid #e0e0e0;
-    padding: 10px 14px;
-    font-size: 14px;
-    transition: all 0.3s;
-    font-family: inherit;
-    resize: vertical;
-    min-height: 60px;
-}
-
-.privacy-content .form-group textarea.form-control:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(0, 132, 255, 0.12);
-}
-
-.privacy-content .form-group textarea.form-control::placeholder {
-    color: #aaa;
-}
-
-/* Style cho bio trong modal user info */
-#modalUserBioContainer {
-    margin-top: 4px;
-}
-
-#modalUserBioContainer hr {
-    margin: 8px 0 12px 0;
-    opacity: 0.5;
-}
-
-#modalUserBioContainer .section-title {
-    font-size: 12px;
-    font-weight: 600;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
-}
-
-#modalUserTxtBio {
-    font-size: 14px;
-    line-height: 1.6;
-    color: #333;
-    padding: 4px 0;
-    white-space: pre-wrap;
-    word-break: break-word;
-}
     </style>
 </head>
 <body>
@@ -431,7 +383,7 @@
             </div>
         </div>
 
-        <!-- Trong profile-body, đảm bảo có section này -->
+        <div class="profile-body"><!-- Trong profile-body, đảm bảo có section này -->
 <div class="profile-section">
     <div class="section-title"><i class="fas fa-info-circle me-2"></i>Giới thiệu bản thân</div>
     <div class="section-content" id="profileBio">
